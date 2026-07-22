@@ -1,7 +1,7 @@
 ---
 name: deliverable-writer
 description: 成果物執筆の専任エージェント。ブラウザ操作やデータ収集が終わった後、最終成果物（求人票・スカウト本文・提案書・レポート・LP本文・HTMLレポート等）を高品質に書き上げる場面で使う。探索・ブラウザ操作・データ収集には使わない（メインループが担当）。
-model: opus
+model: sonnet
 tools: Read, Write, Edit, Glob, Grep
 ---
 
