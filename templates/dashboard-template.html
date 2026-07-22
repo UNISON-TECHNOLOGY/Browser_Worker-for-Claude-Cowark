@@ -1,16 +1,17 @@
 <!--
-  ブラウザワーカー ダッシュボード（正本テンプレート v5・タブ構成）
+  ブラウザワーカー ダッシュボード（正本テンプレート v6・タスク単位タブ）
   =====================================================================
   原則:
+    - タブは「タスク単位」で切る（全体 + 定常タスクごと）。各タブでシステム状態を可視化する:
+      フェーズ（①初回〜④最適化）/ 工程の飛び石図（A指令〜K成果報告・現在地・関所=変更前記録/承認）/
+      次回実行スケジュール / 承認待ちキュー / タスク固有KPI
     - ラベル・見出しは平易な機能名のみ。世界観は視覚だけで表現する
-    - ファーストビューで価値に到達（ヘッダー帯 max 300px、初期タブ直下にアラート+サマリー）
-    - タブで機能を分け、タブ切り替えでヘッダーの場面が旅をする（山→森→洞窟→庭園→秘湯）。
-      物語は絵の遷移だけで語り、文字にしない
+    - タブ切り替えでヘッダーの場面が旅をする（山→森→洞窟→川→庭園→秘湯）。物語は絵だけで語る
     - ヘッダーは「わびさび」: べた塗り禁止（にじみ・霞・金箔の剥がれ・線描・低彩度）
     - 遊びの装飾は本体の中に（紋モチーフ・円相透かし・鮫小紋・判子風バッジ・箔の欠片・道程一筆書き）
+    - ファーストビューで価値に到達（初期タブ「全体」直下にアラート+タスク一覧）
   実例=雛形。数値・文言（見本データ）を knowledge/ の実データに差し替えて使う。
-  CSS・構造・演出は変更しない。単一テーマ（紙は常に明るい。ダーク変種禁止）。
-  外部読込なし。
+  CSS・構造・演出は変更しない。単一テーマ。外部読込なし。
 -->
 <title>ブラウザワーカー ダッシュボード</title>
 <style>
@@ -40,8 +41,8 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.02' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.48 0 0 0 0 0.38 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23w)'/%3E%3C/svg%3E");
   }
 
-  /* ============ ヘッダー帯（場面はタブと連動して旅をする） ============ */
-  .hero{ position:relative; height:clamp(210px,30vh,300px); overflow:hidden; background:var(--sumi) }
+  /* ============ ヘッダー帯（場面はタスクタブと連動して旅をする） ============ */
+  .hero{ position:relative; height:clamp(200px,28vh,280px); overflow:hidden; background:var(--sumi) }
   .scene{
     position:absolute; inset:0; opacity:0; transform:translateX(26px);
     transition:opacity .8s ease,transform .8s ease; pointer-events:none;
@@ -51,6 +52,7 @@
   .sc-yama{ background:linear-gradient(to bottom,#584A57 0%,#7E5A52 44%,#A87957 66%,#8A6B52 78%,#5E523C 100%) }
   .sc-mori{ background:linear-gradient(to bottom,#3A3242 0%,#41403A 56%,#2E3527 100%) }
   .sc-ana{ background:#20150C }
+  .sc-kawa{ background:linear-gradient(to bottom,#4E4A5A 0%,#6E5E56 46%,#55604F 100%) }
   .sc-niwa{ background:linear-gradient(to bottom,#6E5B66 0%,#96705C 46%,#B8875E 68%,#5E523C 74%,#4E4A36 100%) }
   .sc-yu{ background:linear-gradient(to bottom,#584A57 0%,#7E5A52 38%,#A87957 58%,#B8875E 68%,#6E5A3F 72%,#5E523C 100%) }
   .hero .washi-me{ opacity:.75; z-index:5 }
@@ -76,19 +78,19 @@
   .hana:nth-child(odd){ background:var(--sakura-2) }
   @keyframes chiru{
     0%{ transform:translate(0,0) rotate(0deg) }
-    100%{ transform:translate(-9vw,360px) rotate(520deg) }
+    100%{ transform:translate(-9vw,340px) rotate(520deg) }
   }
 
   .daimei{
-    position:absolute; z-index:6; left:clamp(18px,6vw,90px); bottom:20px;
-    background:var(--washi); padding:16px 24px 14px; max-width:620px;
+    position:absolute; z-index:6; left:clamp(18px,6vw,90px); bottom:18px;
+    background:var(--washi); padding:14px 22px 12px; max-width:600px;
     border-top:4px solid var(--kin); box-shadow:0 3px 16px rgba(20,12,6,.3);
   }
-  .daimei h1{ font-size:clamp(19px,2.4vw,25px); font-weight:700; letter-spacing:.14em; color:var(--sumi) }
+  .daimei h1{ font-size:clamp(18px,2.2vw,24px); font-weight:700; letter-spacing:.14em; color:var(--sumi) }
   .daimei .koshin{ font-family:var(--data); font-size:12.5px; color:var(--sumi-70); margin-top:3px; font-variant-numeric:tabular-nums }
-  .daimei .aikotoba{ font-size:13px; letter-spacing:.12em; color:var(--tsuchi); font-weight:700; margin-top:5px }
+  .daimei .aikotoba{ font-size:12.5px; letter-spacing:.1em; color:var(--tsuchi); font-weight:700; margin-top:4px }
 
-  /* ============ タブ（木札） ============ */
+  /* ============ タブ（タスク札） ============ */
   .fudaretsu{
     position:sticky; top:0; z-index:50; background:var(--washi);
     border-bottom:2px solid var(--kin); box-shadow:0 2px 10px rgba(42,33,26,.08);
@@ -96,8 +98,8 @@
   .fudaretsu .naka{ max-width:1080px; margin:0 auto; display:flex; gap:4px; padding:10px 16px 0; overflow-x:auto }
   .fuda-tab{
     appearance:none; border:none; cursor:pointer; background:var(--washi-2);
-    font-family:var(--mincho); font-weight:700; font-size:15px; letter-spacing:.18em; color:var(--sumi-70);
-    padding:11px 22px 9px; border-radius:6px 6px 0 0; position:relative; white-space:nowrap;
+    font-family:var(--mincho); font-weight:700; font-size:14.5px; letter-spacing:.12em; color:var(--sumi-70);
+    padding:11px 18px 9px; border-radius:6px 6px 0 0; position:relative; white-space:nowrap;
     border-top:3px solid transparent; transition:background .3s,color .3s;
   }
   .fuda-tab:hover{ color:var(--niwa) }
@@ -105,29 +107,26 @@
     background:var(--washi); color:var(--niwa); border-top-color:var(--kin);
     box-shadow:0 -2px 8px rgba(42,33,26,.08);
   }
-  .fuda-tab.ima::after{
-    content:""; position:absolute; left:0; right:0; bottom:-2px; height:2px; background:var(--washi);
-  }
+  .fuda-tab.ima::after{ content:""; position:absolute; left:0; right:0; bottom:-2px; height:2px; background:var(--washi) }
   .fuda-tab .kazu-chip{
-    display:inline-block; margin-left:8px; font-family:var(--data); font-size:11.5px; font-weight:700;
-    color:var(--washi); background:var(--shu); border-radius:9px; padding:1px 7px; vertical-align:2px;
-    letter-spacing:0;
+    display:inline-block; margin-left:7px; font-family:var(--data); font-size:11px; font-weight:700;
+    color:var(--washi); background:var(--shu); border-radius:9px; padding:1px 7px; vertical-align:2px; letter-spacing:0;
   }
+  .fuda-tab .kazu-chip.ki{ background:var(--kin) }
   .fuda-tab:focus-visible{ outline:2px solid var(--kin); outline-offset:-2px }
 
   /* ============ 本体 ============ */
-  .honbun{ position:relative; background:var(--washi); padding:44px 24px 40px }
+  .honbun{ position:relative; background:var(--washi); padding:40px 24px 40px }
   .honbun > .washi-me{ position:fixed; z-index:0 }
   .uchi{ position:relative; z-index:1; max-width:1080px; margin:0 auto }
   .pane{ display:none }
   .pane.ima{ display:block }
 
-  .bu{ margin-bottom:80px }
-  .bu:last-child{ margin-bottom:30px }
+  .bu{ margin-bottom:72px }
+  .bu:last-child{ margin-bottom:26px }
   .bu .sho{ opacity:0; transform:translateY(16px); transition:opacity .8s ease,transform .8s ease }
   .bu.mieru .sho{ opacity:1; transform:none }
 
-  /* 節見出し + 紋モチーフ */
   .sec-head{ display:flex; align-items:center; gap:14px; margin-bottom:8px }
   .sec-head .mon{ width:32px; height:32px; flex:none }
   .mon .waku{ stroke:var(--kin); opacity:.4; fill:none; stroke-width:1 }
@@ -135,7 +134,7 @@
   .mon .nuri{ fill:var(--kin); stroke:none; opacity:.85 }
   .sec-head h2{ font-size:clamp(19px,2.4vw,23px); font-weight:700; letter-spacing:.2em; color:var(--niwa) }
   .sec-head .sode{ margin-left:auto; font-size:12px; letter-spacing:.2em; color:var(--tsuchi); font-weight:600; align-self:flex-end }
-  .sec-sita{ width:76px; height:3px; background:var(--kinpaku); margin-bottom:28px; position:relative }
+  .sec-sita{ width:76px; height:3px; background:var(--kinpaku); margin-bottom:26px; position:relative }
   .sec-sita::after{
     content:""; position:absolute; right:-16px; top:-4px; width:7px; height:9px;
     background:var(--kin-3); opacity:.75; transform:rotate(21deg);
@@ -143,7 +142,7 @@
   }
 
   .te{
-    margin-top:20px; font-size:14.5px; letter-spacing:.06em; color:var(--sumi-70); font-weight:600;
+    margin-top:18px; font-size:14.5px; letter-spacing:.06em; color:var(--sumi-70); font-weight:600;
     display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
   }
   .te .te-mei{ color:var(--tsuchi); letter-spacing:.3em; font-size:12.5px; white-space:nowrap; font-weight:700 }
@@ -165,6 +164,48 @@
     background-size:11px 11px;
   }
 
+  /* タスク状態カード（システム状態の要約） */
+  .joho{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0;
+    background:var(--washi-2); border-top:4px solid var(--kin); padding:16px 8px;
+  }
+  .joho .ko{ padding:6px 18px; border-left:1px solid rgba(42,33,26,.14) }
+  .joho .ko:first-child{ border-left:none }
+  .joho .t{ font-size:12px; letter-spacing:.28em; color:var(--tsuchi); font-weight:700 }
+  .joho .v{ font-size:17px; font-weight:700; color:var(--sumi); margin-top:2px }
+  .joho .v .chii{ font-size:13px; color:var(--sumi-70); font-weight:600 }
+  .joho .v.aka{ color:var(--shu) }
+  .phase{
+    display:inline-block; font-size:13px; font-weight:700; letter-spacing:.1em;
+    border:1.5px solid var(--niwa); color:var(--niwa); border-radius:3px; padding:1px 9px;
+  }
+  .phase.p1{ border-color:var(--tsuchi); color:var(--tsuchi) }
+
+  /* 工程の飛び石（A〜K。システムのステップ図） */
+  .kotei{ display:flex; align-items:flex-start; overflow-x:auto; padding:8px 2px 4px; margin-top:6px }
+  .ishi{ flex:1; min-width:62px; display:flex; flex-direction:column; align-items:center; gap:6px; position:relative }
+  .ishi + .ishi::before{
+    content:""; position:absolute; top:15px; right:calc(50% + 17px); left:calc(-50% + 17px); height:2px;
+    background:repeating-linear-gradient(to right,var(--kin) 0 4px,transparent 4px 9px); opacity:.55;
+  }
+  .ishi .maru{
+    width:31px; height:31px; border-radius:52% 46% 50% 48%; border:2px solid var(--koke);
+    background:var(--washi-2); display:flex; align-items:center; justify-content:center;
+    font-family:var(--data); font-size:12px; font-weight:700; color:var(--sumi-70); position:relative; z-index:1;
+  }
+  .ishi.sumi-i .maru{ background:var(--koke); border-color:var(--niwa); color:var(--washi) }
+  .ishi.ima-i .maru{
+    background:var(--kin-3); border-color:var(--kin); color:var(--sumi);
+    box-shadow:0 0 0 4px rgba(176,141,62,.22);
+  }
+  .ishi .na{ font-size:11px; color:var(--sumi-70); letter-spacing:.03em; font-weight:600; text-align:center; line-height:1.5 }
+  .ishi .seki{
+    font-size:10.5px; font-weight:700; letter-spacing:.1em; padding:1px 6px; border-radius:3px;
+    transform:rotate(-2deg); white-space:nowrap;
+  }
+  .seki.mada{ color:var(--shu); border:1.5px solid var(--shu) }
+  .seki.zumi{ color:var(--niwa); border:1.5px solid var(--niwa) }
+
   .alert{ border-left:5px solid var(--shu); background:var(--washi-2); padding:20px 26px }
   .alert li{
     list-style:none; display:flex; gap:14px; align-items:baseline; flex-wrap:wrap;
@@ -177,15 +218,15 @@
     display:inline-block; font-size:11.5px; letter-spacing:.2em; padding:2px 9px;
     white-space:nowrap; font-weight:700; border-radius:3px; transform:rotate(-2.4deg);
   }
-  li:nth-child(even) .omo, li:nth-child(even) .shirushi{ transform:rotate(1.8deg) }
+  li:nth-child(even) .omo, li:nth-child(even) .shirushi, tr:nth-child(even) .shirushi{ transform:rotate(1.8deg) }
   .omo{ color:var(--shu); border:1.5px solid var(--shu) }
   .shirushi.dai{ color:var(--shu); border:1.5px solid var(--shu) }
   .shirushi.chu{ color:var(--tsuchi); border:1.5px solid var(--tsuchi) }
   .shirushi.yo{ color:var(--niwa); border:1.5px solid var(--niwa) }
 
-  .stat{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:18px }
+  .stat{ display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:18px }
   .fuda-t{
-    background:var(--washi-2); border-top:4px solid var(--kin); padding:20px 20px 16px;
+    background:var(--washi-2); border-top:4px solid var(--kin); padding:18px 18px 14px;
     text-align:center; position:relative; overflow:hidden;
   }
   .fuda-t::before{
@@ -193,12 +234,12 @@
     border:2.5px solid var(--kin); border-radius:50%; opacity:.16;
   }
   .fuda-t .kazu{
-    font-family:var(--mincho); font-size:clamp(30px,3.6vw,40px); font-weight:700; color:var(--sumi);
+    font-family:var(--mincho); font-size:clamp(28px,3.4vw,38px); font-weight:700; color:var(--sumi);
     font-variant-numeric:tabular-nums; line-height:1.3; position:relative;
   }
-  .fuda-t .kazu .tan{ font-size:16px; margin-left:2px; color:var(--sumi-70) }
-  .fuda-t .mei{ font-size:13px; letter-spacing:.24em; color:var(--tsuchi); font-weight:700; margin-top:6px }
-  .fuda-t .sa{ font-size:13px; margin-top:4px; font-weight:700 }
+  .fuda-t .kazu .tan{ font-size:15px; margin-left:2px; color:var(--sumi-70) }
+  .fuda-t .mei{ font-size:12.5px; letter-spacing:.22em; color:var(--tsuchi); font-weight:700; margin-top:5px }
+  .fuda-t .sa{ font-size:13px; margin-top:3px; font-weight:700 }
   .sa.yoi{ color:var(--niwa) } .sa.warui{ color:var(--shu) } .sa.onaji{ color:var(--sumi-70) }
 
   .hyo{ width:100%; border-collapse:collapse; font-family:var(--data); font-size:14.5px }
@@ -212,8 +253,9 @@
   .hyo th.su{ text-align:right }
   .hyo .kei{ color:var(--shu); font-weight:700 }
   .hyo-maki{ overflow-x:auto }
+  .hyo .tobu-t{ cursor:pointer; color:var(--niwa); font-weight:700; border-bottom:1px dashed var(--kin) }
 
-  .nanoka{ display:flex; gap:12px; align-items:flex-end; height:120px; margin:6px 0 10px }
+  .nanoka{ display:flex; gap:12px; align-items:flex-end; height:110px; margin:6px 0 10px }
   .hi-bou{ flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; justify-content:flex-end }
   .hi-bou .bou{
     width:100%; max-width:44px; background-color:var(--koke); border-top:3px solid var(--niwa);
@@ -247,10 +289,10 @@
   .maki .koto{ flex:1 1 280px; font-weight:600; color:var(--sumi) }
   .maki .itsu{ font-family:var(--data); font-size:13px; color:var(--sumi-70); margin-left:auto; font-variant-numeric:tabular-nums }
 
-  .dekiru > div{ padding:16px 2px; border-bottom:1px solid rgba(42,33,26,.16) }
+  .dekiru > div{ padding:14px 2px; border-bottom:1px solid rgba(42,33,26,.16) }
   .dekiru > div:last-child{ border-bottom:none }
   .dekiru .shitai{ font-size:13px; letter-spacing:.3em; color:var(--tsuchi); font-weight:700 }
-  .dekiru .iikata{ font-size:17.5px; font-weight:700; color:var(--niwa); margin:4px 0 2px; cursor:pointer; transition:color .25s }
+  .dekiru .iikata{ font-size:17px; font-weight:700; color:var(--niwa); margin:3px 0 2px; cursor:pointer; transition:color .25s }
   .dekiru .iikata:hover{ color:var(--shu) }
   .dekiru .iikata::before{ content:"「"; color:var(--kin) } .dekiru .iikata::after{ content:"」"; color:var(--kin) }
   .dekiru .okoru{ font-size:14px; color:var(--sumi-70); font-weight:600 }
@@ -286,10 +328,11 @@
     .scene{ transition:none; transform:none }
   }
   @media (max-width:640px){
-    .daimei{ left:14px; right:14px; max-width:none; padding:13px 16px 11px }
+    .daimei{ left:14px; right:14px; max-width:none; padding:12px 15px 10px }
     .stock-gyo{ grid-template-columns:80px 1fr 84px }
     .sec-head .mon{ width:26px; height:26px }
-    .fuda-tab{ padding:10px 14px 8px; font-size:14px; letter-spacing:.1em }
+    .fuda-tab{ padding:10px 12px 8px; font-size:13px; letter-spacing:.06em }
+    .joho .ko{ border-left:none; padding:6px 12px }
   }
 </style>
 
@@ -307,212 +350,211 @@
   </defs>
 </svg>
 
-<!-- ============ ヘッダー帯（タブと連動する場面） ============ -->
+<!-- ============ ヘッダー帯 ============ -->
 <header class="hero" id="hero">
 
-  <!-- 場面: 山（今日） -->
-  <div class="scene sc-yama ima" data-scene="kyo">
-    <svg class="e" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <!-- 山（全体） -->
+  <div class="scene sc-yama ima" data-scene="zentai">
+    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <g filter="url(#fude)">
-        <circle cx="1050" cy="150" r="52" fill="#C9A54A" opacity=".5"/>
-        <circle cx="1050" cy="150" r="36" fill="#E3CB85" opacity=".6"/>
+        <circle cx="1050" cy="140" r="48" fill="#C9A54A" opacity=".5"/>
+        <circle cx="1050" cy="140" r="34" fill="#E3CB85" opacity=".6"/>
       </g>
       <g opacity=".8">
-        <polygon points="1028,124 1044,120 1040,134 1026,136" fill="#EAD79B"/>
-        <polygon points="1058,138 1076,134 1072,150 1056,148" fill="#D9BC6E"/>
-        <polygon points="1034,168 1052,162 1056,178 1038,180" fill="#C9A54A" opacity=".7"/>
+        <polygon points="1028,116 1044,112 1040,126 1026,128" fill="#EAD79B"/>
+        <polygon points="1058,128 1076,124 1072,140 1056,138" fill="#D9BC6E"/>
       </g>
       <g filter="url(#fude2)">
-        <polygon points="0,190 240,120 470,192 720,132 980,196 1220,138 1440,190 1440,236 0,236" fill="#4A3E48" opacity=".5"/>
+        <polygon points="0,178 240,112 470,180 720,124 980,184 1220,130 1440,178 1440,220 0,220" fill="#4A3E48" opacity=".5"/>
       </g>
       <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="-40" y="150" width="480" height="24" rx="12" opacity=".45"/>
-        <rect x="900" y="176" width="460" height="20" rx="10" opacity=".4"/>
+        <rect x="-40" y="140" width="480" height="22" rx="11" opacity=".45"/>
+        <rect x="900" y="164" width="460" height="18" rx="9" opacity=".4"/>
       </g>
       <g filter="url(#fude)">
-        <polygon points="0,300 300,96 560,240 820,150 1120,290 1440,220 1440,300" fill="#332A34" opacity=".9"/>
-        <path d="M 302,128 C 272,176 350,192 320,232 C 296,266 366,272 348,298" fill="none"
+        <polygon points="0,280 300,90 560,224 820,140 1120,270 1440,206 1440,280" fill="#332A34" opacity=".9"/>
+        <path d="M 302,120 C 272,164 350,180 320,216 C 296,248 366,254 348,278" fill="none"
               stroke="#F7F1E1" stroke-width="3" stroke-dasharray="2 12" opacity=".7"/>
       </g>
-      <g transform="translate(296,110)" filter="url(#fude)">
+      <g transform="translate(296,104)" filter="url(#fude)">
         <circle cx="0" cy="-14" r="5" fill="#F7F1E1" opacity=".95"/>
         <polygon points="-9,-15 9,-15 0,-22" fill="#F7F1E1" opacity=".95"/>
         <polygon points="-4.5,-10 4.5,-10 6,7 -6,7" fill="#F7F1E1" opacity=".95"/>
         <line x1="8" y1="-12" x2="12" y2="9" stroke="#F7F1E1" stroke-width="2.2" opacity=".95"/>
       </g>
-      <g transform="translate(352,268)" opacity=".85" filter="url(#fude)">
-        <line x1="0" y1="0" x2="0" y2="-22" stroke="#D9BC6E" stroke-width="2.6"/>
-        <path d="M -8,-22 Q 0,-29 8,-22" fill="none" stroke="#D9BC6E" stroke-width="3"/>
-      </g>
       <g stroke="#2A211A" stroke-width="2" fill="none" opacity=".55" filter="url(#fude)">
-        <path d="M 620,70 q 9,-8 18,0 q 9,-8 18,0"/>
-        <path d="M 690,92 q 7,-6 14,0 q 7,-6 14,0"/>
-      </g>
-      <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="240" y="272" width="560" height="20" rx="10" opacity=".26"/>
+        <path d="M 620,64 q 9,-8 18,0 q 9,-8 18,0"/>
+        <path d="M 690,84 q 7,-6 14,0 q 7,-6 14,0"/>
       </g>
     </svg>
   </div>
 
-  <!-- 場面: 森（媒体・SNS） -->
-  <div class="scene sc-mori" data-scene="baitai">
-    <svg class="e" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <!-- 森（スカウト送信） -->
+  <div class="scene sc-mori" data-scene="scout">
+    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <g filter="url(#fude)">
-        <circle cx="250" cy="70" r="34" fill="#E3CB85" opacity=".5"/>
-        <circle cx="250" cy="70" r="24" fill="#EFE5CC" opacity=".6"/>
-      </g>
-      <g opacity=".75">
-        <polygon points="236,52 250,48 248,60 236,62" fill="#EAD79B"/>
-        <polygon points="258,74 272,70 270,84 256,82" fill="#D9BC6E" opacity=".8"/>
+        <circle cx="250" cy="64" r="30" fill="#E3CB85" opacity=".5"/>
+        <circle cx="250" cy="64" r="21" fill="#EFE5CC" opacity=".6"/>
       </g>
       <g fill="#EFE5CC" opacity=".6">
-        <circle cx="620" cy="46" r="2"/><circle cx="820" cy="76" r="1.7"/><circle cx="1080" cy="38" r="2"/>
-        <circle cx="1240" cy="90" r="1.7"/><circle cx="480" cy="96" r="1.5"/>
+        <circle cx="620" cy="42" r="2"/><circle cx="820" cy="70" r="1.7"/><circle cx="1080" cy="36" r="2"/>
+        <circle cx="1240" cy="84" r="1.7"/>
       </g>
       <g filter="url(#fude2)" opacity=".85">
-        <polygon points="60,240 130,110 200,240" fill="#2F3B26"/>
-        <polygon points="170,240 250,84 330,240" fill="#26301C"/>
-        <polygon points="1010,240 1090,96 1170,240" fill="#2F3B26"/>
-        <polygon points="1130,240 1210,116 1290,240" fill="#26301C"/>
-        <polygon points="1260,240 1340,100 1420,240" fill="#2F3B26"/>
+        <polygon points="60,224 130,102 200,224" fill="#2F3B26"/>
+        <polygon points="170,224 250,78 330,224" fill="#26301C"/>
+        <polygon points="1010,224 1090,90 1170,224" fill="#2F3B26"/>
+        <polygon points="1130,224 1210,108 1290,224" fill="#26301C"/>
+        <polygon points="1260,224 1340,94 1420,224" fill="#2F3B26"/>
       </g>
       <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="320" y="150" width="420" height="22" rx="11" opacity=".35"/>
-        <rect x="820" y="130" width="360" height="18" rx="9" opacity=".3"/>
-      </g>
-      <g filter="url(#fude)">
-        <path d="M 0,254 C 320,236 540,268 780,252 C 1020,236 1240,270 1440,254 L 1440,278 C 1200,292 980,258 740,276 C 500,292 300,260 0,278 Z"
-              fill="#5E6D6E" opacity=".6"/>
-        <path d="M 80,262 C 260,252 420,268 600,258" fill="none" stroke="#EFE5CC" stroke-width="1.8" opacity=".4"/>
+        <rect x="320" y="140" width="420" height="20" rx="10" opacity=".35"/>
+        <rect x="820" y="122" width="360" height="17" rx="8" opacity=".3"/>
       </g>
       <g filter="url(#fude2)" opacity=".95">
-        <polygon points="0,300 90,140 210,300" fill="#1C2415"/>
-        <polygon points="1240,300 1340,150 1440,300" fill="#161D10"/>
+        <polygon points="0,280 90,130 210,280" fill="#1C2415"/>
+        <polygon points="1240,280 1340,140 1440,280" fill="#161D10"/>
       </g>
-      <g transform="translate(700,288)" filter="url(#fude)">
-        <circle class="hi-akari" cx="0" cy="-14" r="46" fill="#C9603B" opacity=".22"/>
-        <line x1="-18" y1="3" x2="18" y2="-5" stroke="#4A3524" stroke-width="6" stroke-linecap="round"/>
-        <line x1="-18" y1="-5" x2="18" y2="3" stroke="#5C4430" stroke-width="6" stroke-linecap="round"/>
-        <path class="hi-akari" d="M 0,-7 C -11,-18 -5,-32 0,-39 C 5,-32 11,-18 0,-7 Z" fill="#E19A5E"/>
-        <path class="hi-akari" d="M 0,-12 C -5,-18 -2,-26 0,-30 C 2,-26 5,-18 0,-12 Z" fill="#EFC98A"/>
-      </g>
-      <g transform="translate(646,292)" filter="url(#fude)" stroke="#8B6B4A" fill="none" stroke-width="2.2" opacity=".9">
-        <polygon points="-10,0 10,0 8,-13 -8,-13"/>
-        <path d="M -8,-13 Q 0,-24 8,-13"/>
+      <g transform="translate(700,268)" filter="url(#fude)">
+        <circle class="hi-akari" cx="0" cy="-14" r="42" fill="#C9603B" opacity=".22"/>
+        <line x1="-17" y1="3" x2="17" y2="-5" stroke="#4A3524" stroke-width="6" stroke-linecap="round"/>
+        <line x1="-17" y1="-5" x2="17" y2="3" stroke="#5C4430" stroke-width="6" stroke-linecap="round"/>
+        <path class="hi-akari" d="M 0,-7 C -10,-17 -5,-30 0,-37 C 5,-30 10,-17 0,-7 Z" fill="#E19A5E"/>
+        <path class="hi-akari" d="M 0,-12 C -5,-17 -2,-24 0,-28 C 2,-24 5,-17 0,-12 Z" fill="#EFC98A"/>
       </g>
     </svg>
   </div>
 
-  <!-- 場面: 洞窟（ウォッチ） -->
+  <!-- 洞窟（競合ウォッチ） -->
   <div class="scene sc-ana" data-scene="watch">
-    <svg class="e" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
       <g filter="url(#fude)">
-        <circle cx="1010" cy="160" r="120" fill="#C9603B" opacity=".4"/>
-        <circle cx="1010" cy="160" r="74" fill="#E19A5E" opacity=".6"/>
-        <circle cx="1010" cy="160" r="38" fill="#EFC98A" opacity=".85"/>
-      </g>
-      <g transform="translate(1010,172)" stroke="#B08D3E" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".85" filter="url(#fude)">
-        <line x1="-22" y1="0" x2="22" y2="0"/>
-        <path d="M -20,-8 L -14,-14 L 14,-14 L 20,-8"/>
-        <line x1="-14" y1="-8" x2="-14" y2="0"/><line x1="14" y1="-8" x2="14" y2="0"/>
-        <path d="M -14,-22 L -8,-28 L 8,-28 L 14,-22"/>
-        <line x1="-8" y1="-22" x2="-8" y2="-14"/><line x1="8" y1="-22" x2="8" y2="-14"/>
-        <line x1="0" y1="-28" x2="0" y2="-36"/>
+        <circle cx="1010" cy="150" r="110" fill="#C9603B" opacity=".4"/>
+        <circle cx="1010" cy="150" r="68" fill="#E19A5E" opacity=".6"/>
+        <circle cx="1010" cy="150" r="34" fill="#EFC98A" opacity=".85"/>
       </g>
       <g class="hi-akari" stroke="#EFE5CC" stroke-width="2.4" fill="none" opacity=".5" filter="url(#fude)">
-        <path d="M 940,96 C 932,80 948,68 940,52"/>
-        <path d="M 1010,88 C 1002,72 1018,60 1010,44"/>
-        <path d="M 1080,100 C 1072,84 1088,72 1080,56"/>
+        <path d="M 940,90 C 932,74 948,62 940,46"/>
+        <path d="M 1010,82 C 1002,66 1018,54 1010,38"/>
+        <path d="M 1080,94 C 1072,78 1088,66 1080,50"/>
       </g>
       <path fill-rule="evenodd" fill="#20150C" filter="url(#fude2)" d="
-        M 0,0 H 1440 V 300 H 0 Z
-        M 830,60 C 920,20 1130,40 1200,110 C 1260,170 1230,240 1130,268
-        C 1020,296 880,280 820,210 C 764,144 760,110 830,60 Z"/>
+        M 0,0 H 1440 V 280 H 0 Z
+        M 830,56 C 920,18 1130,36 1200,102 C 1260,158 1230,224 1130,250
+        C 1020,278 880,262 820,196 C 764,134 760,102 830,56 Z"/>
       <g fill="#20150C" filter="url(#fude)">
-        <polygon points="850,52 900,52 876,116"/>
-        <polygon points="1000,36 1060,36 1032,120"/>
-        <polygon points="1140,60 1190,60 1166,124"/>
-      </g>
-      <g fill="#33241A" filter="url(#fude)">
-        <polygon points="930,46 966,46 949,100"/>
-        <polygon points="1090,44 1126,44 1109,102"/>
+        <polygon points="850,48 900,48 876,108"/>
+        <polygon points="1000,34 1060,34 1032,112"/>
+        <polygon points="1140,56 1190,56 1166,116"/>
       </g>
     </svg>
-    <span class="yuge" style="left:64%; top:30%; width:44px; height:22px; animation-delay:1s"></span>
+    <span class="yuge" style="left:64%; top:28%; width:44px; height:22px; animation-delay:1s"></span>
   </div>
 
-  <!-- 場面: 庭園（学習・成長） -->
-  <div class="scene sc-niwa" data-scene="manabi">
-    <svg class="e" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <!-- 川（媒体管理） -->
+  <div class="scene sc-kawa" data-scene="baitai">
+    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="-40" y="90" width="520" height="24" rx="12" opacity=".45"/>
-        <rect x="860" y="70" width="480" height="22" rx="11" opacity=".4"/>
+        <rect x="-40" y="80" width="520" height="22" rx="11" opacity=".4"/>
+        <rect x="880" y="66" width="460" height="20" rx="10" opacity=".35"/>
       </g>
-      <g filter="url(#fude2)">
-        <ellipse cx="180" cy="330" rx="200" ry="110" fill="#44523A" opacity=".6"/>
-        <ellipse cx="420" cy="350" rx="150" ry="80" fill="#5C6E44" opacity=".45"/>
-        <ellipse cx="1300" cy="330" rx="210" ry="110" fill="#44523A" opacity=".6"/>
-        <ellipse cx="1080" cy="352" rx="140" ry="76" fill="#5C6E44" opacity=".4"/>
+      <g filter="url(#fude2)" opacity=".8">
+        <polygon points="0,150 200,96 420,152 640,110 900,156 1150,102 1440,150 1440,190 0,190" fill="#4A4650" opacity=".55"/>
+      </g>
+      <g filter="url(#fude2)" opacity=".85">
+        <polygon points="30,190 90,110 150,190" fill="#3A4432"/>
+        <polygon points="1290,190 1350,104 1410,190" fill="#3A4432"/>
+      </g>
+      <g filter="url(#fude)">
+        <path d="M 1440,150 C 1180,170 980,150 760,180 C 540,210 380,196 200,236 C 90,262 40,268 0,280 L 1440,280 Z"
+              fill="#5E6D6E" opacity=".75"/>
+        <path d="M 1220,166 C 1060,176 940,166 800,184" fill="none" stroke="#EFE5CC" stroke-width="2" opacity=".45"/>
+        <path d="M 700,196 C 560,214 460,206 330,236" fill="none" stroke="#EFE5CC" stroke-width="2" opacity=".4"/>
+        <path d="M 500,222 C 420,236 360,236 280,254" fill="none" stroke="#EFE5CC" stroke-width="1.6" opacity=".3"/>
       </g>
       <g filter="url(#fude)" opacity=".85">
-        <ellipse cx="620" cy="278" rx="24" ry="8" fill="#57503F"/>
-        <ellipse cx="690" cy="264" rx="20" ry="7" fill="#4E463C"/>
-        <ellipse cx="752" cy="252" rx="16" ry="6" fill="#57503F"/>
+        <ellipse cx="470" cy="238" rx="24" ry="9" fill="#57503F"/>
+        <ellipse cx="560" cy="222" rx="19" ry="7" fill="#4E463C"/>
+        <ellipse cx="640" cy="208" rx="16" ry="6" fill="#57503F"/>
       </g>
-      <g transform="translate(880,268)" stroke="#D9BC6E" stroke-width="1.9" fill="none" stroke-linecap="round" opacity=".85" filter="url(#fude)">
+      <g transform="translate(360,252)" filter="url(#fude)" stroke="#8B6B4A" fill="none" stroke-width="2.4" opacity=".95">
+        <polygon points="-11,0 11,0 9,-15 -9,-15"/>
+        <path d="M -9,-15 Q 0,-27 9,-15"/>
+      </g>
+      <g stroke="#D9BC6E" stroke-width="1.8" fill="none" opacity=".7" filter="url(#fude)">
+        <path d="M 900,190 Q 990,150 1080,182"/>
+        <line x1="924" y1="182" x2="924" y2="196"/><line x1="1056" y1="180" x2="1056" y2="192"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- 庭園（SNS運用） -->
+  <div class="scene sc-niwa" data-scene="sns">
+    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <g fill="#F7F1E1" filter="url(#fude2)">
+        <rect x="-40" y="84" width="520" height="22" rx="11" opacity=".45"/>
+        <rect x="860" y="64" width="480" height="20" rx="10" opacity=".4"/>
+      </g>
+      <g filter="url(#fude2)">
+        <ellipse cx="180" cy="310" rx="200" ry="104" fill="#44523A" opacity=".6"/>
+        <ellipse cx="420" cy="330" rx="150" ry="76" fill="#5C6E44" opacity=".45"/>
+        <ellipse cx="1300" cy="310" rx="210" ry="104" fill="#44523A" opacity=".6"/>
+        <ellipse cx="1080" cy="332" rx="140" ry="72" fill="#5C6E44" opacity=".4"/>
+      </g>
+      <g filter="url(#fude)" opacity=".85">
+        <ellipse cx="620" cy="258" rx="24" ry="8" fill="#57503F"/>
+        <ellipse cx="690" cy="246" rx="20" ry="7" fill="#4E463C"/>
+        <ellipse cx="752" cy="234" rx="16" ry="6" fill="#57503F"/>
+      </g>
+      <g transform="translate(880,250)" stroke="#D9BC6E" stroke-width="1.9" fill="none" stroke-linecap="round" opacity=".85" filter="url(#fude)">
         <line x1="-11" y1="0" x2="11" y2="0"/>
         <line x1="-7" y1="0" x2="-7" y2="-22"/><line x1="7" y1="0" x2="7" y2="-22"/>
         <path d="M -17,-22 L 0,-34 L 17,-22 Z"/>
         <line x1="-21" y1="-40" x2="21" y2="-40"/>
         <path d="M -15,-40 L 0,-52 L 15,-40"/>
       </g>
-      <circle cx="880" cy="242" r="3.5" fill="#EFC98A" class="hi-akari" opacity=".9"/>
+      <circle cx="880" cy="224" r="3.5" fill="#EFC98A" class="hi-akari" opacity=".9"/>
       <g filter="url(#fude)">
-        <path d="M 96,300 C 106,238 88,204 118,158 C 130,132 168,126 188,100" fill="none" stroke="#332620" stroke-width="10" stroke-linecap="round" opacity=".9"/>
-        <path d="M 122,192 C 156,176 170,176 196,164" fill="none" stroke="#332620" stroke-width="6" stroke-linecap="round" opacity=".85"/>
+        <path d="M 96,280 C 106,222 88,190 118,148 C 130,124 168,118 188,94" fill="none" stroke="#332620" stroke-width="10" stroke-linecap="round" opacity=".9"/>
+        <path d="M 122,180 C 156,166 170,166 196,154" fill="none" stroke="#332620" stroke-width="6" stroke-linecap="round" opacity=".85"/>
       </g>
       <g fill="#E4AFB4" opacity=".85">
-        <circle cx="192" cy="92" r="10"/><circle cx="212" cy="106" r="8"/><circle cx="176" cy="108" r="7"/>
-        <circle cx="200" cy="122" r="9"/><circle cx="226" cy="126" r="6"/><circle cx="184" cy="138" r="6"/>
-        <circle cx="214" cy="144" r="5"/><circle cx="164" cy="124" r="5"/>
+        <circle cx="192" cy="86" r="10"/><circle cx="212" cy="100" r="8"/><circle cx="176" cy="102" r="7"/>
+        <circle cx="200" cy="116" r="9"/><circle cx="226" cy="120" r="6"/><circle cx="184" cy="132" r="6"/>
       </g>
       <g fill="#D68E96" opacity=".75">
-        <circle cx="196" cy="108" r="4.5"/><circle cx="210" cy="130" r="4"/><circle cx="182" cy="122" r="3.5"/>
-      </g>
-      <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="420" y="286" width="560" height="18" rx="9" opacity=".26"/>
+        <circle cx="196" cy="102" r="4.5"/><circle cx="210" cy="124" r="4"/><circle cx="182" cy="116" r="3.5"/>
       </g>
     </svg>
   </div>
 
-  <!-- 場面: 秘湯（できること） -->
-  <div class="scene sc-yu" data-scene="dekiru">
-    <svg class="e" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <!-- 秘湯（サイト診断） -->
+  <div class="scene sc-yu" data-scene="site">
+    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <g filter="url(#fude)">
-        <circle cx="620" cy="170" r="60" fill="#C9A54A" opacity=".55"/>
-        <circle cx="620" cy="170" r="42" fill="#E3CB85" opacity=".6"/>
+        <circle cx="620" cy="158" r="54" fill="#C9A54A" opacity=".55"/>
+        <circle cx="620" cy="158" r="38" fill="#E3CB85" opacity=".6"/>
       </g>
       <g opacity=".85">
-        <polygon points="592,140 610,136 606,152 590,154" fill="#EAD79B"/>
-        <polygon points="626,128 648,132 644,148 624,144" fill="#D9BC6E"/>
-        <polygon points="594,178 616,172 620,192 600,196" fill="#C9A54A"/>
-        <polygon points="638,162 660,158 656,178 640,180" fill="#EAD79B" opacity=".8"/>
+        <polygon points="592,130 610,126 606,142 590,144" fill="#EAD79B"/>
+        <polygon points="626,118 648,122 644,138 624,134" fill="#D9BC6E"/>
+        <polygon points="594,166 616,160 620,180 600,184" fill="#C9A54A"/>
       </g>
       <g filter="url(#fude2)">
-        <polygon points="0,184 210,140 430,186 660,150 920,190 1160,142 1440,186 1440,222 0,222" fill="#4A3E48" opacity=".5"/>
+        <polygon points="0,172 210,130 430,174 660,140 920,178 1160,132 1440,174 1440,208 0,208" fill="#4A3E48" opacity=".5"/>
       </g>
       <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="-40" y="152" width="500" height="24" rx="12" opacity=".5"/>
-        <rect x="900" y="146" width="460" height="22" rx="11" opacity=".45"/>
+        <rect x="-40" y="142" width="500" height="22" rx="11" opacity=".5"/>
+        <rect x="900" y="136" width="460" height="20" rx="10" opacity=".45"/>
       </g>
-      <rect y="210" width="1440" height="90" fill="#8A6B52" opacity=".9" filter="url(#fude)"/>
-      <line x1="0" y1="211" x2="1440" y2="211" stroke="#E3CB85" stroke-width="2" opacity=".5" filter="url(#fude)"/>
+      <rect y="196" width="1440" height="84" fill="#8A6B52" opacity=".9" filter="url(#fude)"/>
+      <line x1="0" y1="197" x2="1440" y2="197" stroke="#E3CB85" stroke-width="2" opacity=".5" filter="url(#fude)"/>
       <g class="kirameki" stroke="#E3CB85" stroke-linecap="round" filter="url(#fude)">
-        <line x1="556" y1="232" x2="700" y2="232" stroke-width="2.5" opacity=".5"/>
-        <line x1="590" y1="254" x2="668" y2="254" stroke-width="2" opacity=".4"/>
-        <line x1="540" y1="276" x2="716" y2="276" stroke-width="2" opacity=".3"/>
+        <line x1="556" y1="216" x2="700" y2="216" stroke-width="2.5" opacity=".5"/>
+        <line x1="590" y1="238" x2="668" y2="238" stroke-width="2" opacity=".4"/>
+        <line x1="540" y1="260" x2="716" y2="260" stroke-width="2" opacity=".3"/>
       </g>
-      <g transform="translate(1075,210) scale(0.78)" filter="url(#fude)">
+      <g transform="translate(1075,196) scale(0.72)" filter="url(#fude)">
         <g fill="#B08D3E" opacity=".1">
           <rect x="-100" y="-46" width="200" height="40"/>
           <rect x="-80" y="-98" width="160" height="34"/>
@@ -528,19 +570,15 @@
           <line x1="-60" y1="-40" x2="-60" y2="-10"/><line x1="0" y1="-40" x2="0" y2="-10"/><line x1="60" y1="-40" x2="60" y2="-10"/>
           <path d="M -102,-98 L -80,-116 L 80,-116 L 102,-98 Z"/>
           <line x1="-80" y1="-98" x2="-80" y2="-64"/><line x1="80" y1="-98" x2="80" y2="-64"/>
-          <line x1="-40" y1="-92" x2="-40" y2="-70"/><line x1="40" y1="-92" x2="40" y2="-70"/>
           <path d="M -78,-146 L -52,-168 L 52,-168 L 78,-146 Z"/>
           <line x1="-56" y1="-146" x2="-56" y2="-116"/><line x1="56" y1="-146" x2="56" y2="-116"/>
           <line x1="0" y1="-168" x2="0" y2="-188"/>
         </g>
         <polygon points="0,-198 -8,-187 8,-187" fill="#EAD79B" opacity=".95"/>
-        <g class="kirameki" stroke="#D9BC6E" stroke-width="1.6" opacity=".4">
-          <line x1="-88" y1="16" x2="-30" y2="16"/><line x1="10" y1="24" x2="92" y2="24"/>
-        </g>
       </g>
       <g filter="url(#fude2)">
-        <ellipse cx="1350" cy="320" rx="130" ry="70" fill="#44523A" opacity=".55"/>
-        <ellipse cx="130" cy="330" rx="150" ry="76" fill="#44523A" opacity=".5"/>
+        <ellipse cx="1350" cy="300" rx="130" ry="64" fill="#44523A" opacity=".55"/>
+        <ellipse cx="130" cy="310" rx="150" ry="70" fill="#44523A" opacity=".5"/>
       </g>
     </svg>
     <span class="yuge" style="left:42%; bottom:14%; width:52px; height:26px; animation-delay:0s"></span>
@@ -555,14 +593,15 @@
   </div>
 </header>
 
-<!-- ============ タブ ============ -->
-<nav class="fudaretsu" aria-label="表示切り替え">
+<!-- ============ タブ（タスク単位） ============ -->
+<nav class="fudaretsu" aria-label="タスク切り替え">
   <div class="naka" role="tablist">
-    <button class="fuda-tab ima" role="tab" aria-selected="true" data-pane="p-kyo" data-scene="kyo" id="t-kyo">今日<span class="kazu-chip">2</span></button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-baitai" data-scene="baitai" id="t-baitai">媒体・SNS</button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-watch" data-scene="watch" id="t-watch">ウォッチ</button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-manabi" data-scene="manabi" id="t-manabi">学習・成長</button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-dekiru" data-scene="dekiru" id="t-dekiru">できること</button>
+    <button class="fuda-tab ima" role="tab" aria-selected="true" data-pane="p-zentai" data-scene="zentai" id="t-zentai">全体<span class="kazu-chip">2</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-scout" data-scene="scout" id="t-scout">スカウト送信<span class="kazu-chip ki">3</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-watch" data-scene="watch" id="t-watch">競合ウォッチ</button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-baitai" data-scene="baitai" id="t-baitai">媒体管理<span class="kazu-chip">1</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-sns" data-scene="sns" id="t-sns">SNS運用<span class="kazu-chip">1</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-site" data-scene="site" id="t-site">サイト診断</button>
   </div>
 </nav>
 
@@ -571,8 +610,8 @@
   <div class="washi-me"></div>
   <div class="uchi">
 
-    <!-- ======== タブ1: 今日 ======== -->
-    <div class="pane ima" id="p-kyo" role="tabpanel" aria-labelledby="t-kyo">
+    <!-- ======== タブ: 全体 ======== -->
+    <div class="pane ima" id="p-zentai" role="tabpanel" aria-labelledby="t-zentai">
 
       <section class="bu">
         <div class="sho">
@@ -584,12 +623,12 @@
           <ul class="alert komon">
             <li>
               <span class="omo">急ぎ</span>
-              <span class="naiyo">求人媒体Aの残り掲載枠が <strong>2件</strong>（契約期限 7/31 まで9日）</span>
+              <span class="naiyo">求人媒体Aの残り掲載枠が <strong>2件</strong>（契約期限 7/31 まで9日）→ 媒体管理タブへ</span>
               <span class="iu" data-iu="媒体Aの掲載枠の状況を見せて">媒体Aの掲載枠の状況を見せて</span>
             </li>
             <li>
               <span class="omo">今週中</span>
-              <span class="naiyo">X の投稿ストックが残り <strong>1.5日分</strong>（目標7日分に対し2割）</span>
+              <span class="naiyo">X の投稿ストックが残り <strong>1.5日分</strong>（目標7日分に対し2割）→ SNS運用タブへ</span>
               <span class="iu" data-iu="Xの投稿ストックを埋めて">Xの投稿ストックを埋めて</span>
             </li>
           </ul>
@@ -599,31 +638,18 @@
       <section class="bu">
         <div class="sho">
           <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 24 L8.5 12.5 M17 24 L13.5 10.5 M17 24 L20.5 10.5 M17 24 L25.5 12.5 M8.5 12.5 Q17 6.5 25.5 12.5"/></svg>
-            <h2>サマリー</h2><span class="sode">現在のようす</span>
-          </div>
-          <div class="sec-sita"></div>
-          <div class="stat">
-            <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="1">0</span><span class="tan">件</span></div><div class="mei">進行中タスク</div><div class="sa onaji">承認待ち 3通</div></div>
-            <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="12">0</span><span class="tan">回</span></div><div class="mei">直近7日の実行</div><div class="sa yoi">成功 11 ／ 失敗 1</div></div>
-            <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="2">0</span><span class="tan">件</span></div><div class="mei">アラート</div><div class="sa warui">急ぎ 1件</div></div>
-            <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="8">0</span><span class="tan">個</span></div><div class="mei">習得スキル</div><div class="sa yoi">今週 +2</div></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
             <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><ellipse class="sen" cx="11" cy="23" rx="4" ry="2.4"/><ellipse class="sen" cx="18" cy="17.5" rx="3.5" ry="2.1"/><ellipse class="sen" cx="24" cy="12" rx="3" ry="1.8"/></svg>
-            <h2>進行中タスク</h2><span class="sode">止まっている理由まで表示</span>
+            <h2>タスク一覧</h2><span class="sode">定常タスクの現在地（タブ名クリックで詳細）</span>
           </div>
           <div class="sec-sita"></div>
           <div class="hyo-maki"><table class="hyo">
-            <tr><th>タスク</th><th>フェーズ</th><th>現在地</th><th>引き継ぎ</th></tr>
-            <tr><td>スカウト送信（7月第4週）</td><td>④ 最適化</td><td>Step H（レビュー）</td><td>承認待ち 3通。承認あり次第、送信して記録まで自走</td></tr>
+            <tr><th>タスク</th><th>フェーズ</th><th>現在ステップ</th><th>次回実行</th><th>状態</th></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-scout">スカウト送信</span></td><td>④ 最適化</td><td>H 承認</td><td>平日 10:00</td><td><span class="shirushi chu">承認待ち 3通</span></td></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-watch">競合ウォッチ</span></td><td>④ 最適化</td><td>K 完了（今朝9:00）</td><td>明朝 9:00</td><td><span class="shirushi yo">正常</span></td></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-baitai">媒体管理</span></td><td>② 再訪問</td><td>J レポート</td><td>毎朝 8:30</td><td><span class="shirushi dai">要対応</span></td></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-sns">SNS運用</span></td><td>④ 最適化</td><td>K 完了（7:30投稿）</td><td>明朝 7:30</td><td><span class="shirushi chu">ストック不足</span></td></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-site">サイト診断</span></td><td>① 初回</td><td>J レポート</td><td>毎週月曜</td><td><span class="shirushi yo">正常</span></td></tr>
           </table></div>
-          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="承認した3通を送って">承認した3通を送って</span></p>
         </div>
       </section>
 
@@ -631,7 +657,7 @@
         <div class="sho">
           <div class="sec-head">
             <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M11 24.5 L23 21.5 M11 21.5 L23 24.5 M17 20 C13.5 16.5 15.5 12 17 9.5 C18.5 12 20.5 16.5 17 20 Z"/></svg>
-            <h2>直近7日の実行</h2><span class="sode">定常タスクの実行履歴</span>
+            <h2>直近7日の実行</h2><span class="sode">全タスク合計</span>
           </div>
           <div class="sec-sita"></div>
           <div class="nanoka">
@@ -644,102 +670,6 @@
             <div class="hi-bou"><div class="bou" data-take="90%"></div><span class="hi">7/22</span></div>
           </div>
           <p class="nanoka-chu">バーの高さは実行数。<span class="ten ten-sei"></span>すべて成功<span class="ten ten-hi"></span>失敗あり（7/19 競合ウォッチ1件が取得失敗 → 当日中に再実行で回収済み）</p>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- ======== タブ2: 媒体・SNS ======== -->
-    <div class="pane" id="p-baitai" role="tabpanel" aria-labelledby="t-baitai" hidden>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="11.5" y="10.5" width="11" height="14" rx="5.5"/><path class="sen" d="M11.5 15 h11 M11.5 20 h11 M14.5 8.5 h5 M14.5 26.5 h5"/></svg>
-            <h2>媒体サマリー</h2><span class="sode">主要数値と前回比</span>
-          </div>
-          <div class="sec-sita"></div>
-          <div class="hyo-maki"><table class="hyo">
-            <tr><th>媒体</th><th class="su">主要数値</th><th class="su">前回比</th><th>備考</th></tr>
-            <tr><td>求人媒体A</td><td class="su">応募 12件</td><td class="su">+3</td><td class="kei">残枠2件・期限7/31</td></tr>
-            <tr><td>求人媒体B</td><td class="su">スカウト開封 38%</td><td class="su">+5pt</td><td>テンプレ改稿が効いている</td></tr>
-            <tr><td>Instagram</td><td class="su">フォロワー 1,240</td><td class="su">+18</td><td>保存率が先週比で微増</td></tr>
-            <tr><td>X</td><td class="su">インプレッション 8,400</td><td class="su">−600</td><td>ストック切れの影響が出始め</td></tr>
-          </table></div>
-          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="媒体の状況を全部見てきて">媒体の状況を全部見てきて</span></p>
-        </div>
-      </section>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="10" y="12" width="14" height="11"/><path class="sen" d="M10 17.5 h14 M17 12 v11"/></svg>
-            <h2>SNSストック</h2><span class="sode">投稿ストックの充足率（目標比）</span>
-          </div>
-          <div class="sec-sita"></div>
-          <div class="stock">
-            <div class="stock-gyo tarinai"><span class="dare">X</span><div class="stock-obi"><div class="mi" data-mi="21%"></div></div><span class="wari">21%（1.5日）</span></div>
-            <div class="stock-gyo"><span class="dare">Instagram</span><div class="stock-obi"><div class="mi" data-mi="80%"></div></div><span class="wari">80%（5.6日）</span></div>
-            <div class="stock-gyo"><span class="dare">note</span><div class="stock-obi"><div class="mi" data-mi="66%"></div></div><span class="wari">66%（2本）</span></div>
-          </div>
-          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="Xの投稿ストックを埋めて">Xの投稿ストックを埋めて</span></p>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- ======== タブ3: ウォッチ ======== -->
-    <div class="pane" id="p-watch" role="tabpanel" aria-labelledby="t-watch" hidden>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M8 20 q4 -6.5 8 0 M17 15.5 q4 -6.5 8 0"/></svg>
-            <h2>競合ウォッチ</h2><span class="sode">直近の変更検知（重要度順）</span>
-          </div>
-          <div class="sec-sita"></div>
-          <ul class="maki">
-            <li><span class="shirushi dai">重要</span><span class="moto">競合C社</span><span class="koto">求人の給与レンジを上方改定（+2万円）。同職種で当社と逆転</span><span class="itsu">7/21</span></li>
-            <li><span class="shirushi chu">変化</span><span class="moto">競合D社</span><span class="koto">採用LPを刷新。社員インタビューを冒頭に移動</span><span class="itsu">7/20</span></li>
-            <li><span class="shirushi yo">変化なし</span><span class="moto">競合E社</span><span class="koto">7日間、掲載内容に変化なし</span><span class="itsu">7/22</span></li>
-          </ul>
-          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="C社の給与改定の詳細と当社への影響をまとめて">C社の給与改定の詳細と当社への影響をまとめて</span></p>
-        </div>
-      </section>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 25.5 V13 M17 18.5 L11 15.5 M17 18.5 L23 15.5 M17 13 L12.5 9.5 M17 13 L21.5 9.5"/></svg>
-            <h2>サイト健康</h2><span class="sode">自社サイトの計測値</span>
-          </div>
-          <div class="sec-sita"></div>
-          <div class="hyo-maki"><table class="hyo">
-            <tr><th>指標</th><th class="su">今回</th><th class="su">前回</th></tr>
-            <tr><td>LCP（表示の速さ）</td><td class="su">2.1s</td><td class="su">2.1s ±0</td></tr>
-            <tr><td>CLS（画面のガタつき）</td><td class="su">0.02</td><td class="su">0.05 改善</td></tr>
-            <tr><td>リンク切れ</td><td class="su">0件</td><td class="su">2件 改善</td></tr>
-          </table></div>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- ======== タブ4: 学習・成長 ======== -->
-    <div class="pane" id="p-manabi" role="tabpanel" aria-labelledby="t-manabi" hidden>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M12 24 L21 11"/><path class="nuri" d="M12 24 L10.5 27.5 L14.5 26 Z"/><path class="sen" d="M19.5 9 l3 2"/></svg>
-            <h2>学習記録</h2><span class="sode">直近に追加された OK / NG</span>
-          </div>
-          <div class="sec-sita"></div>
-          <ul class="maki">
-            <li><span class="shirushi yo">OK</span><span class="koto">スカウト件名は13字以内 + 大学名なしの方が開封が高い</span></li>
-            <li><span class="shirushi dai">NG</span><span class="koto">週末夜の自動投稿は反応が沈む。予約は平日朝に寄せる</span></li>
-            <li><span class="shirushi yo">OK</span><span class="koto">媒体Aの管理画面は保存前に必ず確認ダイアログが出る（二度押し不要）</span></li>
-          </ul>
         </div>
       </section>
 
@@ -756,60 +686,6 @@
             <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="5">0</span><span class="tan">件</span></div><div class="mei">攻略済みサイト</div><div class="sa onaji">うち④最適化 2件</div></div>
             <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="23">0</span><span class="tan">件</span></div><div class="mei">学習済み OK / NG</div><div class="sa yoi">今週 +4</div></div>
           </div>
-          <div class="dekiru" style="margin-top:28px">
-            <div>
-              <p class="shitai">今週覚えたスキル ── 使ってみる</p>
-              <p class="iikata" data-iu="先週分のスカウト結果を集計して">先週分のスカウト結果を集計して</p>
-              <p class="okoru">媒体Bの管理画面から開封・返信を拾い、前週比つきの表にする</p>
-            </div>
-            <div>
-              <p class="iikata" data-iu="競合の新着求人だけ拾って">競合の新着求人だけ拾って</p>
-              <p class="okoru">ウォッチ対象3社の新規掲載のみを差分抽出して一覧にする</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- ======== タブ5: できること ======== -->
-    <div class="pane" id="p-dekiru" role="tabpanel" aria-labelledby="t-dekiru" hidden>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M10.5 16 h13 v5.5 a6.5 3.5 0 0 1 -13 0 Z M13.5 12.5 q1 -2 0 -3.5 M18 12.5 q1 -2 0 -3.5"/></svg>
-            <h2>できること</h2><span class="sode">迷ったら、そのまま言う</span>
-          </div>
-          <div class="sec-sita"></div>
-          <div class="dekiru">
-            <div>
-              <p class="shitai">調査</p>
-              <p class="iikata" data-iu="このサイトの調子を診て">このサイトの調子を診て</p>
-              <p class="okoru">速度・表示崩れ・リンク切れを点検して報告（サイト診断）</p>
-            </div>
-            <div>
-              <p class="shitai">運用</p>
-              <p class="iikata" data-iu="競合の動きを見てきて">競合の動きを見てきて</p>
-              <p class="okoru">ウォッチ対象の変化を差分で検知して重要度順に報告（競合ウォッチ）</p>
-            </div>
-            <div>
-              <p class="shitai">制作</p>
-              <p class="iikata" data-iu="このLPをもっと良くして">このLPをもっと良くして</p>
-              <p class="okoru">現状を観察し、改善案をモックアップつきで提示（ページ改善）</p>
-            </div>
-            <div>
-              <p class="shitai">学習</p>
-              <p class="iikata" data-iu="今のやり方をスキルにして">今のやり方をスキルにして</p>
-              <p class="okoru">この会話の手順をスキルとして保存。次回から一言で再現（スキル化）</p>
-            </div>
-            <div>
-              <p class="shitai">確認</p>
-              <p class="iikata" data-iu="今どうなってる？">今どうなってる？</p>
-              <p class="okoru">タスク状態と直近の記録を要約（状態確認）。この画面の更新は「ダッシュボード更新して」</p>
-            </div>
-          </div>
-          <p class="chu" style="margin-top:26px">全コマンドの言い方は操作ガイドへ。パスワード等の認証は人間のみが扱う（Credential Guard）。</p>
         </div>
       </section>
 
@@ -825,6 +701,243 @@
             <li><span class="tagui rp">レポート</span><a href="#">媒体週次サマリー 7月第3週</a><span class="itsu">7/18</span></li>
             <li><span class="tagui mk">モックアップ</span><span class="tokoro">採用LP改善案 v2 ── ローカルのみ（knowledge/reports/lp-kaizen-v2.html）</span><span class="itsu">7/15</span></li>
           </ul>
+          <p class="chu" style="margin-top:24px">できることの一覧と言い方は操作ガイドへ。この画面の更新は「ダッシュボード更新して」。パスワード等の認証は人間のみが扱う（Credential Guard）。</p>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ======== タブ: スカウト送信 ======== -->
+    <div class="pane" id="p-scout" role="tabpanel" aria-labelledby="t-scout" hidden>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M9.5 12.5 h15 v10 h-15 z M9.5 12.5 L17 19 L24.5 12.5"/></svg>
+            <h2>スカウト送信</h2><span class="sode">7月第4週 実行中</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="joho">
+            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase">④ 最適化</span></p></div>
+            <div class="ko"><p class="t">現在ステップ</p><p class="v">H 承認 <span class="chii">（人の承認待ち）</span></p></div>
+            <div class="ko"><p class="t">次回実行</p><p class="v">平日 10:00 <span class="chii">自動</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v aka">承認待ち 3通</p></div>
+          </div>
+          <div class="kotei" style="margin-top:22px">
+            <div class="ishi sumi-i"><span class="maru">A</span><span class="na">指令</span></div>
+            <div class="ishi sumi-i"><span class="maru">B</span><span class="na">外部探索</span></div>
+            <div class="ishi sumi-i"><span class="maru">C</span><span class="na">内部探索</span></div>
+            <div class="ishi sumi-i"><span class="maru">D</span><span class="na">マップ</span></div>
+            <div class="ishi sumi-i"><span class="maru">E</span><span class="na">変更前記録</span><span class="seki zumi">記録済</span></div>
+            <div class="ishi sumi-i"><span class="maru">F</span><span class="na">計画</span></div>
+            <div class="ishi sumi-i"><span class="maru">G</span><span class="na">下書き</span></div>
+            <div class="ishi ima-i"><span class="maru">H</span><span class="na">承認</span><span class="seki mada">承認待ち</span></div>
+            <div class="ishi"><span class="maru">I</span><span class="na">検証</span></div>
+            <div class="ishi"><span class="maru">J</span><span class="na">レポート</span></div>
+            <div class="ishi"><span class="maru">K</span><span class="na">成果報告</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M11 10.5 h12 v13 l-6 -3.5 l-6 3.5 z"/></svg>
+            <h2>承認待ち</h2><span class="sode">承認されるまで送信しない</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="hyo-maki"><table class="hyo">
+            <tr><th>宛先（属性）</th><th>件名（13字以内）</th><th>テンプレ</th></tr>
+            <tr><td>営業職・26卒・関東</td><td>週3リモートで営業を</td><td>営業 draft-3</td></tr>
+            <tr><td>マーケ職・26卒・関西</td><td>企画から任せる新規事業</td><td>マーケ draft-4</td></tr>
+            <tr><td>マーケ職・27卒・首都圏</td><td>学生発の企画が通る会社</td><td>マーケ draft-4</td></tr>
+          </table></div>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="承認待ちの3通を本文つきで見せて">承認待ちの3通を本文つきで見せて</span><span class="iu" data-iu="3通ともOK、送って">3通ともOK、送って</span></p>
+        </div>
+      </section>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 24 L8.5 12.5 M17 24 L13.5 10.5 M17 24 L20.5 10.5 M17 24 L25.5 12.5 M8.5 12.5 Q17 6.5 25.5 12.5"/></svg>
+            <h2>今週の成果</h2><span class="sode">媒体B スカウト</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="stat">
+            <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="24">0</span><span class="tan">通</span></div><div class="mei">送信</div><div class="sa onaji">先週 26通</div></div>
+            <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="38">0</span><span class="tan">%</span></div><div class="mei">開封率</div><div class="sa yoi">+5pt</div></div>
+            <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="4">0</span><span class="tan">件</span></div><div class="mei">返信</div><div class="sa yoi">+1</div></div>
+          </div>
+          <ul class="maki" style="margin-top:20px">
+            <li><span class="shirushi yo">OK</span><span class="koto">件名13字以内 + 大学名なしの方が開封が高い（このタスクの学習）</span></li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ======== タブ: 競合ウォッチ ======== -->
+    <div class="pane" id="p-watch" role="tabpanel" aria-labelledby="t-watch" hidden>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M8 20 q4 -6.5 8 0 M17 15.5 q4 -6.5 8 0"/></svg>
+            <h2>競合ウォッチ</h2><span class="sode">対象3社・毎朝巡回</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="joho">
+            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase">④ 最適化</span></p></div>
+            <div class="ko"><p class="t">最終実行</p><p class="v">今朝 9:00 <span class="chii">成功</span></p></div>
+            <div class="ko"><p class="t">次回実行</p><p class="v">明朝 9:00 <span class="chii">自動</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v">正常 <span class="chii">本日分 完了</span></p></div>
+          </div>
+          <div class="kotei" style="margin-top:22px">
+            <div class="ishi sumi-i"><span class="maru">A</span><span class="na">指令</span></div>
+            <div class="ishi sumi-i"><span class="maru">B</span><span class="na">外部探索</span></div>
+            <div class="ishi sumi-i"><span class="maru">C</span><span class="na">内部探索</span></div>
+            <div class="ishi sumi-i"><span class="maru">D</span><span class="na">マップ</span></div>
+            <div class="ishi sumi-i"><span class="maru">E</span><span class="na">変更前記録</span><span class="seki zumi">記録済</span></div>
+            <div class="ishi sumi-i"><span class="maru">F</span><span class="na">計画</span></div>
+            <div class="ishi sumi-i"><span class="maru">G</span><span class="na">巡回</span></div>
+            <div class="ishi sumi-i"><span class="maru">H</span><span class="na">承認</span><span class="seki zumi">閲覧のみ</span></div>
+            <div class="ishi sumi-i"><span class="maru">I</span><span class="na">検証</span></div>
+            <div class="ishi sumi-i"><span class="maru">J</span><span class="na">レポート</span></div>
+            <div class="ishi sumi-i"><span class="maru">K</span><span class="na">成果報告</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M12 24 L21 11"/><path class="nuri" d="M12 24 L10.5 27.5 L14.5 26 Z"/><path class="sen" d="M19.5 9 l3 2"/></svg>
+            <h2>直近の検知</h2><span class="sode">重要度順</span>
+          </div>
+          <div class="sec-sita"></div>
+          <ul class="maki">
+            <li><span class="shirushi dai">重要</span><span class="moto">競合C社</span><span class="koto">求人の給与レンジを上方改定（+2万円）。同職種で当社と逆転</span><span class="itsu">7/21</span></li>
+            <li><span class="shirushi chu">変化</span><span class="moto">競合D社</span><span class="koto">採用LPを刷新。社員インタビューを冒頭に移動</span><span class="itsu">7/20</span></li>
+            <li><span class="shirushi yo">変化なし</span><span class="moto">競合E社</span><span class="koto">7日間、掲載内容に変化なし</span><span class="itsu">7/22</span></li>
+          </ul>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="C社の給与改定の詳細と当社への影響をまとめて">C社の給与改定の詳細と当社への影響をまとめて</span></p>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ======== タブ: 媒体管理 ======== -->
+    <div class="pane" id="p-baitai" role="tabpanel" aria-labelledby="t-baitai" hidden>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="11.5" y="10.5" width="11" height="14" rx="5.5"/><path class="sen" d="M11.5 15 h11 M11.5 20 h11 M14.5 8.5 h5 M14.5 26.5 h5"/></svg>
+            <h2>媒体管理</h2><span class="sode">登録4媒体・毎朝巡回</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="joho">
+            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase p1">② 再訪問</span></p></div>
+            <div class="ko"><p class="t">最終実行</p><p class="v">今朝 8:30 <span class="chii">成功</span></p></div>
+            <div class="ko"><p class="t">次回実行</p><p class="v">明朝 8:30 <span class="chii">自動</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v aka">要対応 <span class="chii">残枠あと2件</span></p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 24 L8.5 12.5 M17 24 L13.5 10.5 M17 24 L20.5 10.5 M17 24 L25.5 12.5 M8.5 12.5 Q17 6.5 25.5 12.5"/></svg>
+            <h2>媒体サマリー</h2><span class="sode">主要数値と前回比</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="hyo-maki"><table class="hyo">
+            <tr><th>媒体</th><th class="su">主要数値</th><th class="su">前回比</th><th>備考</th></tr>
+            <tr><td>求人媒体A</td><td class="su">応募 12件</td><td class="su">+3</td><td class="kei">残枠2件・期限7/31（あと9日）</td></tr>
+            <tr><td>求人媒体B</td><td class="su">スカウト開封 38%</td><td class="su">+5pt</td><td>テンプレ改稿が効いている</td></tr>
+            <tr><td>Instagram</td><td class="su">フォロワー 1,240</td><td class="su">+18</td><td>保存率が先週比で微増</td></tr>
+            <tr><td>X</td><td class="su">インプレッション 8,400</td><td class="su">−600</td><td>ストック切れの影響が出始め</td></tr>
+          </table></div>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="媒体Aの残枠2件に出す求人を決めよう">媒体Aの残枠2件に出す求人を決めよう</span></p>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ======== タブ: SNS運用 ======== -->
+    <div class="pane" id="p-sns" role="tabpanel" aria-labelledby="t-sns" hidden>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="10" y="12" width="14" height="11"/><path class="sen" d="M10 17.5 h14 M17 12 v11"/></svg>
+            <h2>SNS運用</h2><span class="sode">3アカウント・予約投稿</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="joho">
+            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase">④ 最適化</span></p></div>
+            <div class="ko"><p class="t">最終投稿</p><p class="v">今朝 7:30 <span class="chii">X・成功</span></p></div>
+            <div class="ko"><p class="t">次回投稿</p><p class="v">明朝 7:30 <span class="chii">予約済み</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v aka">Xストック不足</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M11 24.5 L23 21.5 M11 21.5 L23 24.5 M17 20 C13.5 16.5 15.5 12 17 9.5 C18.5 12 20.5 16.5 17 20 Z"/></svg>
+            <h2>ストック充足率</h2><span class="sode">目標: 7日分を維持</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="stock">
+            <div class="stock-gyo tarinai"><span class="dare">X</span><div class="stock-obi"><div class="mi" data-mi="21%"></div></div><span class="wari">21%（1.5日）</span></div>
+            <div class="stock-gyo"><span class="dare">Instagram</span><div class="stock-obi"><div class="mi" data-mi="80%"></div></div><span class="wari">80%（5.6日）</span></div>
+            <div class="stock-gyo"><span class="dare">note</span><div class="stock-obi"><div class="mi" data-mi="66%"></div></div><span class="wari">66%（2本）</span></div>
+          </div>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="Xの投稿ストックを埋めて">Xの投稿ストックを埋めて</span></p>
+          <ul class="maki" style="margin-top:20px">
+            <li><span class="shirushi dai">NG</span><span class="koto">週末夜の自動投稿は反応が沈む。予約は平日朝に寄せる（このタスクの学習）</span></li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ======== タブ: サイト診断 ======== -->
+    <div class="pane" id="p-site" role="tabpanel" aria-labelledby="t-site" hidden>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 25.5 V13 M17 18.5 L11 15.5 M17 18.5 L23 15.5 M17 13 L12.5 9.5 M17 13 L21.5 9.5"/></svg>
+            <h2>サイト診断</h2><span class="sode">自社採用サイト・週次</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="joho">
+            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase p1">① 初回</span></p></div>
+            <div class="ko"><p class="t">最終実行</p><p class="v">7/21（月）<span class="chii">成功</span></p></div>
+            <div class="ko"><p class="t">次回実行</p><p class="v">7/28（月）<span class="chii">自動</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v">正常 <span class="chii">改善2件を確認</span></p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 24 L8.5 12.5 M17 24 L13.5 10.5 M17 24 L20.5 10.5 M17 24 L25.5 12.5 M8.5 12.5 Q17 6.5 25.5 12.5"/></svg>
+            <h2>計測値</h2><span class="sode">前回比つき</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="hyo-maki"><table class="hyo">
+            <tr><th>指標</th><th class="su">今回</th><th class="su">前回</th></tr>
+            <tr><td>LCP（表示の速さ）</td><td class="su">2.1s</td><td class="su">2.1s ±0</td></tr>
+            <tr><td>CLS（画面のガタつき）</td><td class="su">0.02</td><td class="su">0.05 改善</td></tr>
+            <tr><td>リンク切れ</td><td class="su">0件</td><td class="su">2件 改善</td></tr>
+          </table></div>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="LCPを2秒切りたい。改善案を出して">LCPを2秒切りたい。改善案を出して</span></p>
         </div>
       </section>
 
@@ -884,6 +997,13 @@
       if(ev.key==='ArrowRight') j = (i+1) % tabs.length;
       if(ev.key==='ArrowLeft')  j = (i-1+tabs.length) % tabs.length;
       if(j !== null){ ev.preventDefault(); tabs[j].focus(); erabu(tabs[j]); }
+    });
+  });
+  /* タスク一覧からタブへ飛ぶ */
+  document.querySelectorAll('[data-tobu]').forEach(function(el){
+    el.addEventListener('click', function(){
+      var t = document.getElementById(el.dataset.tobu);
+      if(t){ erabu(t); t.focus(); }
     });
   });
 
