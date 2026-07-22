@@ -10,7 +10,7 @@
 
 1. Cowork の **設定 → プラグイン** でこのリポジトリを marketplace として追加:
    `https://github.com/UNISON-TECHNOLOGY/Browser_Worker-for-Claude-Cowark`
-2. **browser-worker** を有効化（「ローカルMCPサーバーを含む」ダイアログは「続ける」）
+2. **browser-worker** を有効化
 
 ブラウザ操作は **Claude in Chrome**（あなたの実ブラウザ）で行うため、ログイン済みの
 サイトがそのまま使えます。チャットの「+」→ コネクタで Claude in Chrome を ON にして
@@ -66,8 +66,7 @@
 | 汎用スキル 5 | web-design（LP/UI設計・CRO・モーション。リソース6本） / video-ad（動画広告・日本プリセット） / sns-jp（日本市場SNS運用） / ad-compliance-jp（広告法規チェック） / content-design（記事のC×P×T設計・ネタ帳運用） |
 | 業種スキル 6 | recruit / copy / sales / logical / business / storytelling（**人材業界パック** — 業種に合わせて差し替え可能な例） |
 | エージェント 3 | deliverable-writer（レポート執筆・sonnet）/ design-artisan（モックアップ生成・fable）/ design-critic（デザイン審査・sonnet） |
-| テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠） |
-| MCP | Playwright（ローカル Claude Code で使う場合のフォールバック） |
+| テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 |
 
 ## 業種カスタマイズ
 
