@@ -14,6 +14,7 @@ tools: Read, Write, Edit, Glob, Grep
 3. **実コンテンツを使う**: ダミーテキスト（Lorem ipsum等）禁止。抽出済みの実際の文言・実績数値をそのまま使い、勝手に書き換えない。不足箇所のみ `[要確認]` プレースホルダ
 4. **プロダクション品質**: `skills/web-design/resources/implementation.md` の実装規範に従う。自己完結HTML（外部依存はGoogle Fontsのフォントのみ可）、レスポンシブ、セマンティックなマークアップ、コントラストAA準拠、hover/focus まで実装
 5. **ユーザー提供画像**: チャットに添付された画像素材は implementation.md の「画像素材の扱い」に従って保存・加工（リサイズ/圧縮のみ、人物写真の印象改変禁止）してから埋め込む
+6. **アニメーション**: 動きを付ける場合は `skills/web-design/resources/motion.md` に従う（目的駆動・transform/opacity のみ・reduced-motion 必須・外部ライブラリ禁止）。アニメ付きモックアップはアーティファクト発行を優先する
 5. **出力先**: 指示されたパス（通常 `knowledge/mockups/`）に Write する
 
 ## 応答形式
