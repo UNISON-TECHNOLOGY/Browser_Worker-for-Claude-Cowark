@@ -2,35 +2,22 @@
      使い方: {{...}} を差し替える。CSSの改変は禁止（トークン :root の値のみ調整可）。
      セクションは .sec を複製し、章番号は漢数字（一、二、三…）で振る。 -->
 <style>
+/* 和紙×抹茶×漆 — 単一テーマ（紙は常に明るい。ダークモードでも切り替えない意匠上の決定） */
 :root{
-  --washi:#F4EDDC; --washi-2:#ECE2CB; --sumi:#26221C; --sumi-2:#5A5245;
-  --ai:#1E3A56; --ai-2:#2E5170; --shu:#B93A32; --kincha:#9C7A3C;
-  --line:#C9BC9E; --card:#FBF7EC;
+  --washi:#F6F0DE; --washi-2:#EDE4CB; --sumi:#2B211C; --sumi-2:#6B5D4E;
+  --ai:#55662F; --ai-2:#6E8248; --shu:#A63A2B; --kincha:#A08A4F;
+  --line:#CFC2A2; --card:#FCF8EC;
   --serif:"Shippori Mincho","Yu Mincho","YuMincho","Hiragino Mincho ProN","Noto Serif JP",serif;
   --gothic:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Noto Sans JP",sans-serif;
 }
-@media (prefers-color-scheme: dark){:root{
-  --washi:#1C1914; --washi-2:#242019; --sumi:#EAE1CC; --sumi-2:#A79A80;
-  --ai:#7FA3C4; --ai-2:#5C82A3; --shu:#D96A5F; --kincha:#C2A264;
-  --line:#453D2F; --card:#26221B;
-}}
-:root[data-theme="dark"]{
-  --washi:#1C1914; --washi-2:#242019; --sumi:#EAE1CC; --sumi-2:#A79A80;
-  --ai:#7FA3C4; --ai-2:#5C82A3; --shu:#D96A5F; --kincha:#C2A264;
-  --line:#453D2F; --card:#26221B;
-}
-:root[data-theme="light"]{
-  --washi:#F4EDDC; --washi-2:#ECE2CB; --sumi:#26221C; --sumi-2:#5A5245;
-  --ai:#1E3A56; --ai-2:#2E5170; --shu:#B93A32; --kincha:#9C7A3C;
-  --line:#C9BC9E; --card:#FBF7EC;
-}
+/* 変数名は旧来のまま意味だけ差し替え: --ai=抹茶（主調） --shu=朱漆（強調） --sumi=漆黒（文字） */
 *{box-sizing:border-box}
 body{margin:0;background:var(--washi);color:var(--sumi);font-family:var(--gothic);line-height:1.9;font-size:15px}
 .wrap{max-width:860px;margin:0 auto;padding:0 24px 96px}
 /* ---- 表紙 ---- */
 header.cover{position:relative;padding:72px 0 48px;border-bottom:3px double var(--line)}
 .cover .asanoha{position:absolute;inset:0;opacity:.5;pointer-events:none;
-  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="97" viewBox="0 0 56 97"><g stroke="%239C7A3C" stroke-opacity="0.16" stroke-width="1" fill="none"><path d="M28 0 L56 16 L56 48 L28 64 L0 48 L0 16 Z"/><path d="M28 0 L28 64 M0 16 L56 48 M56 16 L0 48"/><path d="M28 33 L56 49 L56 81 L28 97 L0 81 L0 49 Z" transform="translate(0,-1)"/></g></svg>');
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="97" viewBox="0 0 56 97"><g stroke="%23A08A4F" stroke-opacity="0.16" stroke-width="1" fill="none"><path d="M28 0 L56 16 L56 48 L28 64 L0 48 L0 16 Z"/><path d="M28 0 L28 64 M0 16 L56 48 M56 16 L0 48"/><path d="M28 33 L56 49 L56 81 L28 97 L0 81 L0 49 Z" transform="translate(0,-1)"/></g></svg>');
   -webkit-mask-image:linear-gradient(180deg,#000 30%,transparent);mask-image:linear-gradient(180deg,#000 30%,transparent)}
 .cover-inner{position:relative;display:flex;gap:28px;align-items:flex-start}
 .tate{writing-mode:vertical-rl;font-family:var(--serif);font-size:13px;letter-spacing:.5em;color:var(--kincha);border-left:1px solid var(--line);padding-left:14px;height:9.5em;flex:none}
