@@ -6,8 +6,17 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
-# Credential Guard: パスワード/認証情報フィールドへの入力は常時ブロック（フラグの有無に関係なく）
-if printf '%s' "$STDIN_JSON" | grep -qiE '"[^"]*(password|passwd|パスワード|暗証|otp|verification.?code|認証コード|secret|credential)[^"]*"'; then
+# Credential Guard: パスワード/認証情報フィールドへの「入力」を常時ブロック（フラグの有無に関係なく）
+# 対象は入力系操作のみ（form_input / playwright type・fill / computer の type・key）。
+# クリックやスクショは対象外（「パスワードをお忘れですか」リンクのクリック等を誤爆させない）
+IS_INPUT_OP=0
+if printf '%s' "$STDIN_JSON" | grep -qE '(form_input|browser_type|browser_fill_form)'; then
+  IS_INPUT_OP=1
+elif printf '%s' "$STDIN_JSON" | grep -q 'claude-in-chrome__computer' && \
+     printf '%s' "$STDIN_JSON" | grep -qE '"action"[[:space:]]*:[[:space:]]*"(type|key)"'; then
+  IS_INPUT_OP=1
+fi
+if [ "$IS_INPUT_OP" = "1" ] && printf '%s' "$STDIN_JSON" | grep -qiE '(password|passwd|パスワード|暗証|otp|verification.?code|認証コード|secret|credential)'; then
   deny "【Credential Guard】パスワード・認証情報フィールドへの入力はAIには許可されていません。ログイン・認証入力は人間が行ってください（ブラウザのパスワードマネージャ推奨）。完了したら操作を再開します。"
 fi
 
