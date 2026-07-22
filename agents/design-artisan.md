@@ -15,8 +15,13 @@ tools: Read, Write, Edit, Glob, Grep
 4. **プロダクション品質**: `skills/web-design/resources/implementation.md` の実装規範に従う。自己完結HTML（外部依存はGoogle Fontsのフォントのみ可）、レスポンシブ、セマンティックなマークアップ、コントラストAA準拠、hover/focus まで実装
 5. **ユーザー提供画像**: チャットに添付された画像素材は implementation.md の「画像素材の扱い」に従って保存・加工（リサイズ/圧縮のみ、人物写真の印象改変禁止）してから埋め込む
 6. **アニメーション**: 動きを付ける場合は `skills/web-design/resources/motion.md` に従う（目的駆動・transform/opacity のみ・reduced-motion 必須・外部ライブラリ禁止）。アニメ付きモックアップはアーティファクト発行を優先する
-5. **出力先**: 指示されたパス（通常 `knowledge/mockups/`）に Write する
+7. **出力先**: 指示されたパス（通常 `knowledge/mockups/`）に Write する
 
 ## 応答形式
 
 最終応答には (1) 生成ファイルのパス、(2) 主要な変更点と対応する課題（3〜5行）、(3) 元ページから意図的に変えなかったもの（ブランド要素）、(4) 人間がレビューすべき箇所を含めること。
+
+
+## パス解決
+
+依頼プロンプト内のファイルは絶対パスで渡される前提。プラグイン内ファイル（templates/ や skills/web-design/ 配下）への参照が相対パスで解決できない場合は、`Glob` でファイル名検索（例: `**/report-template.html`、`**/verify-checklist.md`）して実体を特定してから Read すること。見つからない場合はその旨を応答に明記し、憶測で代替しない。

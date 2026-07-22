@@ -53,11 +53,12 @@
 
 | 種類 | 内容 |
 |---|---|
-| コマンド 6 | delve-start / status / style / audit / report（自然文から自動発火） |
+| コマンド 7 | delve-start / status / style / audit / report / improve（自然文から自動発火） |
+| 日本語コマンド 6 | /サイト診断 /スタイル調査 /ページ改善 /タスク開始 /状態確認 /作業レポート |
 | フック 3 | 変更操作ゲート / ナビゲーション警告 / セッション開始時の引き継ぎ通知 |
 | 汎用スキル 1 | web-design（LP/UI設計・CRO・モーション。リソース6本） |
 | 業種スキル 6 | recruit / copy / sales / logical / business / storytelling（**人材業界パック** — 業種に合わせて差し替え可能な例） |
-| エージェント 1 | deliverable-writer（Opus・成果物執筆専任） |
+| エージェント 3 | deliverable-writer（レポート執筆・sonnet）/ design-artisan（モックアップ生成・fable）/ design-critic（デザイン審査・sonnet） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠） |
 | MCP | Playwright（ローカル Claude Code で使う場合のフォールバック） |
 
