@@ -60,7 +60,7 @@
 | コマンド 12 | delve-start / status / style / audit / report / improve / demo / watch / adlp / adscript / feedback（自然文から自動発火） |
 | 日本語コマンド 10 | /サイト診断 /スタイル調査 /ページ改善 /タスク開始 /状態確認 /作業レポート /デモ /競合ウォッチ /広告からLP /動画広告 |
 | フック 3 | 変更操作ゲート / ナビゲーション警告 / セッション開始時の引き継ぎ通知 |
-| 汎用スキル 4 | web-design（LP/UI設計・CRO・モーション。リソース6本） / video-ad（動画広告・日本プリセット） / sns-jp（日本市場SNS運用） / ad-compliance-jp（景表法・ステマ規制・薬機法・職安法チェック） |
+| 汎用スキル 5 | web-design（LP/UI設計・CRO・モーション。リソース6本） / video-ad（動画広告・日本プリセット） / sns-jp（日本市場SNS運用） / ad-compliance-jp（広告法規チェック） / content-design（記事のC×P×T設計・ネタ帳運用） |
 | 業種スキル 6 | recruit / copy / sales / logical / business / storytelling（**人材業界パック** — 業種に合わせて差し替え可能な例） |
 | エージェント 3 | deliverable-writer（レポート執筆・sonnet）/ design-artisan（モックアップ生成・fable）/ design-critic（デザイン審査・sonnet） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠） |
