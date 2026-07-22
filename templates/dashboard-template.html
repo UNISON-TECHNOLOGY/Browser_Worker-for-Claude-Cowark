@@ -1,15 +1,15 @@
 <!--
-  ブラウザワーカー ダッシュボード（正本テンプレート v6・タスク単位タブ）
+  ブラウザワーカー ダッシュボード（正本テンプレート v7・浮世絵ヘッダー + 歩く旅人）
   =====================================================================
   原則:
-    - タブは「タスク単位」で切る（全体 + 定常タスクごと）。各タブでシステム状態を可視化する:
-      フェーズ（①初回〜④最適化）/ 工程の飛び石図（A指令〜K成果報告・現在地・関所=変更前記録/承認）/
-      次回実行スケジュール / 承認待ちキュー / タスク固有KPI
-    - ラベル・見出しは平易な機能名のみ。世界観は視覚だけで表現する
-    - タブ切り替えでヘッダーの場面が旅をする（山→森→洞窟→川→庭園→秘湯）。物語は絵だけで語る
-    - ヘッダーは「わびさび」: べた塗り禁止（にじみ・霞・金箔の剥がれ・線描・低彩度）
-    - 遊びの装飾は本体の中に（紋モチーフ・円相透かし・鮫小紋・判子風バッジ・箔の欠片・道程一筆書き）
-    - ファーストビューで価値に到達（初期タブ「全体」直下にアラート+タスク一覧）
+    - タブは「タスク単位」（全体 + 定常タスクごと）。各タブでシステム状態を可視化:
+      状態カード（フェーズ①〜④/現在ステップ/次回実行/状態）+ 工程の飛び石図（A〜K・関所チップ）
+    - ヘッダーは一枚の浮世絵風ランドスケープ（クリーム空・藍の富士・金箔の月・青海波の雲）。
+      旅人（ブラウザワーカー）がタブを進めると尾根道を歩いて移動する。
+      道中の目印: 道標→松林→洞窟→橋→灯籠→温泉+楼閣。右上の峰に攻略済みサイトの社
+    - ラベル・見出しは平易な機能名のみ。タイトル札などの箱は置かない（タイトルは空に直書き）
+    - べた塗り禁止（にじみ・低彩度・和紙粒子）。遊びの装飾は本体の中に
+    - ファーストビューで価値に到達（全体タブ直下にアラート+タスク一覧）
   実例=雛形。数値・文言（見本データ）を knowledge/ の実データに差し替えて使う。
   CSS・構造・演出は変更しない。単一テーマ。外部読込なし。
 -->
@@ -18,7 +18,8 @@
   :root{
     --washi:#F7F1E1; --washi-2:#EFE5CC; --sumi:#2A211A; --sumi-70:rgba(42,33,26,.72);
     --tsuchi:#8B6B4A; --niwa:#3D4F2F; --niwa-2:#5C6E44; --koke:#8A9A66;
-    --shu:#A63A2B; --yuhi:#C9603B; --akane:#E19A5E; --tasogare:#584A57;
+    --shu:#A63A2B; --yuhi:#C9603B; --akane:#E19A5E;
+    --ai:#3A4660; --ai-2:#2A2E3C;
     --kin:#B08D3E; --kin-2:#D9BC6E; --kin-3:#E3CB85; --sakura:#E4AFB4; --sakura-2:#D68E96;
     --kinpaku:linear-gradient(105deg,#B08D3E 0%,#E3CB85 22%,#C9A54A 48%,#EAD79B 74%,#B08D3E 100%);
     --mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","YuMincho","MS PMincho",serif;
@@ -41,61 +42,58 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.02' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.48 0 0 0 0 0.38 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23w)'/%3E%3C/svg%3E");
   }
 
-  /* ============ ヘッダー帯（場面はタスクタブと連動して旅をする） ============ */
-  .hero{ position:relative; height:clamp(200px,28vh,280px); overflow:hidden; background:var(--sumi) }
-  .scene{
-    position:absolute; inset:0; opacity:0; transform:translateX(26px);
-    transition:opacity .8s ease,transform .8s ease; pointer-events:none;
+  /* ============ ヘッダー（浮世絵ランドスケープ + 歩く旅人） ============ */
+  .hero{
+    position:relative; height:clamp(220px,30vh,300px); overflow:hidden;
+    background:linear-gradient(to bottom,#F4EBD5 0%,#F0E2C4 62%,#E8D3B0 100%);
   }
-  .scene.ima{ opacity:1; transform:none }
-  .scene svg.e{ position:absolute; inset:0; width:100%; height:100% }
-  .sc-yama{ background:linear-gradient(to bottom,#584A57 0%,#7E5A52 44%,#A87957 66%,#8A6B52 78%,#5E523C 100%) }
-  .sc-mori{ background:linear-gradient(to bottom,#3A3242 0%,#41403A 56%,#2E3527 100%) }
-  .sc-ana{ background:#20150C }
-  .sc-kawa{ background:linear-gradient(to bottom,#4E4A5A 0%,#6E5E56 46%,#55604F 100%) }
-  .sc-niwa{ background:linear-gradient(to bottom,#6E5B66 0%,#96705C 46%,#B8875E 68%,#5E523C 74%,#4E4A36 100%) }
-  .sc-yu{ background:linear-gradient(to bottom,#584A57 0%,#7E5A52 38%,#A87957 58%,#B8875E 68%,#6E5A3F 72%,#5E523C 100%) }
-  .hero .washi-me{ opacity:.75; z-index:5 }
-
+  .hero svg.e{ position:absolute; inset:0; width:100%; height:100% }
+  .hero .washi-me{ opacity:.7; z-index:5 }
+  .hero-dai{ position:absolute; top:16px; left:clamp(18px,5vw,70px); z-index:6 }
+  .hero-dai h1{
+    font-size:clamp(19px,2.4vw,26px); font-weight:700; letter-spacing:.22em; color:var(--sumi);
+  }
   .kirameki{ animation:kirameku 4.2s ease-in-out infinite alternate }
   @keyframes kirameku{ from{opacity:.35} to{opacity:.7} }
   .hi-akari{ animation:yurameki 2.8s ease-in-out infinite alternate }
-  @keyframes yurameki{ from{opacity:.6} to{opacity:1} }
-  .yuge{
-    position:absolute; border-radius:50%; background:rgba(247,241,225,.26); filter:blur(9px);
-    animation:noboru 8s ease-in-out infinite;
-  }
-  @keyframes noboru{
-    0%{ transform:translateY(0) scale(1); opacity:0 }
-    25%{ opacity:.55 }
-    100%{ transform:translateY(-56px) scale(1.4); opacity:0 }
-  }
-  .hana{
-    position:absolute; top:-18px; width:9px; height:7px; background:var(--sakura);
-    border-radius:100% 4% 100% 4%; opacity:.8; z-index:4;
-    animation-name:chiru; animation-timing-function:linear; animation-iteration-count:infinite;
-  }
-  .hana:nth-child(odd){ background:var(--sakura-2) }
-  @keyframes chiru{
-    0%{ transform:translate(0,0) rotate(0deg) }
-    100%{ transform:translate(-9vw,340px) rotate(520deg) }
-  }
+  @keyframes yurameki{ from{opacity:.55} to{opacity:.95} }
+  .kumo-a{ animation:nagare 28s ease-in-out infinite alternate }
+  .kumo-b{ animation:nagare 36s ease-in-out infinite alternate-reverse }
+  @keyframes nagare{ from{transform:translateX(0)} to{transform:translateX(16px)} }
 
-  .daimei{
-    position:absolute; z-index:6; left:clamp(18px,6vw,90px); bottom:18px;
-    background:var(--washi); padding:14px 22px 12px; max-width:600px;
-    border-top:4px solid var(--kin); box-shadow:0 3px 16px rgba(20,12,6,.3);
+  /* 旅人（歩行はタブ切り替えと連動） */
+  #tabibito{ transition:transform 2s cubic-bezier(.42,.05,.35,1) }
+  #tabibito .muki{ transform-box:fill-box; transform-origin:center }
+  #tabibito .muki.gyaku{ transform:scaleX(-1) }
+  #tabibito .ashi{ transform-box:fill-box; transform-origin:50% 6% }
+  #tabibito .ude{ transform-box:fill-box; transform-origin:50% 10% }
+  #tabibito .karada{ transform-box:fill-box; transform-origin:center }
+  #tabibito.aruku .ashi-a{ animation:ashiA .5s linear infinite }
+  #tabibito.aruku .ashi-b{ animation:ashiB .5s linear infinite }
+  #tabibito.aruku .ude{ animation:udefuri .5s linear infinite }
+  #tabibito.aruku .karada{ animation:hazumi .25s linear infinite alternate }
+  @keyframes ashiA{ 0%{transform:rotate(20deg)} 50%{transform:rotate(-17deg)} 100%{transform:rotate(20deg)} }
+  @keyframes ashiB{ 0%{transform:rotate(-17deg)} 50%{transform:rotate(20deg)} 100%{transform:rotate(-17deg)} }
+  @keyframes udefuri{ 0%{transform:rotate(-9deg)} 50%{transform:rotate(11deg)} 100%{transform:rotate(-9deg)} }
+  @keyframes hazumi{ from{transform:translateY(0)} to{transform:translateY(-2.2px)} }
+  .taboji{ fill:none; stroke:#C9A54A; stroke-width:1.5; opacity:.8 }
+  .taboji.sugi{ fill:#D9BC6E }
+
+  @media (prefers-reduced-motion:reduce){
+    #tabibito{ transition:none }
+    .kumo-a,.kumo-b,.kirameki,.hi-akari{ animation:none }
   }
-  .daimei h1{ font-size:clamp(18px,2.2vw,24px); font-weight:700; letter-spacing:.14em; color:var(--sumi) }
-  .daimei .koshin{ font-family:var(--data); font-size:12.5px; color:var(--sumi-70); margin-top:3px; font-variant-numeric:tabular-nums }
-  .daimei .aikotoba{ font-size:12.5px; letter-spacing:.1em; color:var(--tsuchi); font-weight:700; margin-top:4px }
 
   /* ============ タブ（タスク札） ============ */
   .fudaretsu{
     position:sticky; top:0; z-index:50; background:var(--washi);
     border-bottom:2px solid var(--kin); box-shadow:0 2px 10px rgba(42,33,26,.08);
   }
-  .fudaretsu .naka{ max-width:1080px; margin:0 auto; display:flex; gap:4px; padding:10px 16px 0; overflow-x:auto }
+  .fudaretsu .naka{
+    max-width:1080px; margin:0 auto; display:flex; gap:4px; padding:10px 16px 0; overflow-x:auto;
+    scrollbar-width:none; -ms-overflow-style:none; align-items:flex-end;
+  }
+  .fudaretsu .naka::-webkit-scrollbar{ display:none; width:0; height:0 }
   .fuda-tab{
     appearance:none; border:none; cursor:pointer; background:var(--washi-2);
     font-family:var(--mincho); font-weight:700; font-size:14.5px; letter-spacing:.12em; color:var(--sumi-70);
@@ -114,6 +112,10 @@
   }
   .fuda-tab .kazu-chip.ki{ background:var(--kin) }
   .fuda-tab:focus-visible{ outline:2px solid var(--kin); outline-offset:-2px }
+  .koshin-mini{
+    margin-left:auto; padding:0 4px 10px 12px; font-family:var(--data); font-size:12px;
+    color:var(--sumi-70); white-space:nowrap; font-variant-numeric:tabular-nums; align-self:center;
+  }
 
   /* ============ 本体 ============ */
   .honbun{ position:relative; background:var(--washi); padding:40px 24px 40px }
@@ -164,7 +166,6 @@
     background-size:11px 11px;
   }
 
-  /* タスク状態カード（システム状態の要約） */
   .joho{
     display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0;
     background:var(--washi-2); border-top:4px solid var(--kin); padding:16px 8px;
@@ -181,7 +182,6 @@
   }
   .phase.p1{ border-color:var(--tsuchi); color:var(--tsuchi) }
 
-  /* 工程の飛び石（A〜K。システムのステップ図） */
   .kotei{ display:flex; align-items:flex-start; overflow-x:auto; padding:8px 2px 4px; margin-top:6px }
   .ishi{ flex:1; min-width:62px; display:flex; flex-direction:column; align-items:center; gap:6px; position:relative }
   .ishi + .ishi::before{
@@ -289,15 +289,6 @@
   .maki .koto{ flex:1 1 280px; font-weight:600; color:var(--sumi) }
   .maki .itsu{ font-family:var(--data); font-size:13px; color:var(--sumi-70); margin-left:auto; font-variant-numeric:tabular-nums }
 
-  .dekiru > div{ padding:14px 2px; border-bottom:1px solid rgba(42,33,26,.16) }
-  .dekiru > div:last-child{ border-bottom:none }
-  .dekiru .shitai{ font-size:13px; letter-spacing:.3em; color:var(--tsuchi); font-weight:700 }
-  .dekiru .iikata{ font-size:17px; font-weight:700; color:var(--niwa); margin:3px 0 2px; cursor:pointer; transition:color .25s }
-  .dekiru .iikata:hover{ color:var(--shu) }
-  .dekiru .iikata::before{ content:"「"; color:var(--kin) } .dekiru .iikata::after{ content:"」"; color:var(--kin) }
-  .dekiru .okoru{ font-size:14px; color:var(--sumi-70); font-weight:600 }
-  .dekiru .okoru::before{ content:"─ "; color:var(--kin) }
-
   .seika li{ list-style:none; display:flex; gap:14px; align-items:baseline; padding:12px 2px; border-bottom:1px solid rgba(42,33,26,.16); flex-wrap:wrap }
   .seika li:last-child{ border-bottom:none }
   .seika .tagui{
@@ -316,292 +307,244 @@
 
   .ashimoto{ position:relative; background:var(--washi); padding:20px 24px 70px; text-align:center }
   .ashimoto .kin-sen{ width:200px; height:2px; background:var(--kinpaku); margin:0 auto 30px }
-  .ashimoto .michinori{ max-width:720px; margin:0 auto 26px; opacity:.8 }
-  .ashimoto .michinori .sen{ stroke:var(--sumi-70); fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round }
-  .ashimoto .michinori .kin-sen2{ stroke:var(--kin); fill:none; stroke-width:1.6; stroke-linecap:round }
   .ashimoto p{ font-size:13.5px; letter-spacing:.2em; color:var(--sumi-70); font-weight:600; line-height:2.3 }
 
   @media (prefers-reduced-motion:reduce){
-    .hana,.yuge{ display:none }
-    .hi-akari,.kirameki{ animation:none }
     .bu .sho{ opacity:1; transform:none; transition:none }
-    .scene{ transition:none; transform:none }
   }
   @media (max-width:640px){
-    .daimei{ left:14px; right:14px; max-width:none; padding:12px 15px 10px }
     .stock-gyo{ grid-template-columns:80px 1fr 84px }
     .sec-head .mon{ width:26px; height:26px }
     .fuda-tab{ padding:10px 12px 8px; font-size:13px; letter-spacing:.06em }
     .joho .ko{ border-left:none; padding:6px 12px }
+    .koshin-mini{ display:none }
   }
 </style>
 
-<!-- 共有フィルタ（筆のにじみ） -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <filter id="fude" x="-8%" y="-8%" width="116%" height="116%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.017 0.041" numOctaves="3" seed="11" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="7"/>
-    </filter>
-    <filter id="fude2" x="-12%" y="-12%" width="124%" height="124%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.011 0.05" numOctaves="3" seed="4" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="13"/>
-    </filter>
-  </defs>
-</svg>
-
-<!-- ============ ヘッダー帯 ============ -->
+<!-- ============ ヘッダー（浮世絵ランドスケープ） ============ -->
 <header class="hero" id="hero">
-
-  <!-- 山（全体） -->
-  <div class="scene sc-yama ima" data-scene="zentai">
-    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <g filter="url(#fude)">
-        <circle cx="1050" cy="140" r="48" fill="#C9A54A" opacity=".5"/>
-        <circle cx="1050" cy="140" r="34" fill="#E3CB85" opacity=".6"/>
-      </g>
-      <g opacity=".8">
-        <polygon points="1028,116 1044,112 1040,126 1026,128" fill="#EAD79B"/>
-        <polygon points="1058,128 1076,124 1072,140 1056,138" fill="#D9BC6E"/>
-      </g>
-      <g filter="url(#fude2)">
-        <polygon points="0,178 240,112 470,180 720,124 980,184 1220,130 1440,178 1440,220 0,220" fill="#4A3E48" opacity=".5"/>
-      </g>
-      <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="-40" y="140" width="480" height="22" rx="11" opacity=".45"/>
-        <rect x="900" y="164" width="460" height="18" rx="9" opacity=".4"/>
-      </g>
-      <g filter="url(#fude)">
-        <polygon points="0,280 300,90 560,224 820,140 1120,270 1440,206 1440,280" fill="#332A34" opacity=".9"/>
-        <path d="M 302,120 C 272,164 350,180 320,216 C 296,248 366,254 348,278" fill="none"
-              stroke="#F7F1E1" stroke-width="3" stroke-dasharray="2 12" opacity=".7"/>
-      </g>
-      <g transform="translate(296,104)" filter="url(#fude)">
-        <circle cx="0" cy="-14" r="5" fill="#F7F1E1" opacity=".95"/>
-        <polygon points="-9,-15 9,-15 0,-22" fill="#F7F1E1" opacity=".95"/>
-        <polygon points="-4.5,-10 4.5,-10 6,7 -6,7" fill="#F7F1E1" opacity=".95"/>
-        <line x1="8" y1="-12" x2="12" y2="9" stroke="#F7F1E1" stroke-width="2.2" opacity=".95"/>
-      </g>
-      <g stroke="#2A211A" stroke-width="2" fill="none" opacity=".55" filter="url(#fude)">
-        <path d="M 620,64 q 9,-8 18,0 q 9,-8 18,0"/>
-        <path d="M 690,84 q 7,-6 14,0 q 7,-6 14,0"/>
-      </g>
-    </svg>
-  </div>
-
-  <!-- 森（スカウト送信） -->
-  <div class="scene sc-mori" data-scene="scout">
-    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <g filter="url(#fude)">
-        <circle cx="250" cy="64" r="30" fill="#E3CB85" opacity=".5"/>
-        <circle cx="250" cy="64" r="21" fill="#EFE5CC" opacity=".6"/>
-      </g>
-      <g fill="#EFE5CC" opacity=".6">
-        <circle cx="620" cy="42" r="2"/><circle cx="820" cy="70" r="1.7"/><circle cx="1080" cy="36" r="2"/>
-        <circle cx="1240" cy="84" r="1.7"/>
-      </g>
-      <g filter="url(#fude2)" opacity=".85">
-        <polygon points="60,224 130,102 200,224" fill="#2F3B26"/>
-        <polygon points="170,224 250,78 330,224" fill="#26301C"/>
-        <polygon points="1010,224 1090,90 1170,224" fill="#2F3B26"/>
-        <polygon points="1130,224 1210,108 1290,224" fill="#26301C"/>
-        <polygon points="1260,224 1340,94 1420,224" fill="#2F3B26"/>
-      </g>
-      <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="320" y="140" width="420" height="20" rx="10" opacity=".35"/>
-        <rect x="820" y="122" width="360" height="17" rx="8" opacity=".3"/>
-      </g>
-      <g filter="url(#fude2)" opacity=".95">
-        <polygon points="0,280 90,130 210,280" fill="#1C2415"/>
-        <polygon points="1240,280 1340,140 1440,280" fill="#161D10"/>
-      </g>
-      <g transform="translate(700,268)" filter="url(#fude)">
-        <circle class="hi-akari" cx="0" cy="-14" r="42" fill="#C9603B" opacity=".22"/>
-        <line x1="-17" y1="3" x2="17" y2="-5" stroke="#4A3524" stroke-width="6" stroke-linecap="round"/>
-        <line x1="-17" y1="-5" x2="17" y2="3" stroke="#5C4430" stroke-width="6" stroke-linecap="round"/>
-        <path class="hi-akari" d="M 0,-7 C -10,-17 -5,-30 0,-37 C 5,-30 10,-17 0,-7 Z" fill="#E19A5E"/>
-        <path class="hi-akari" d="M 0,-12 C -5,-17 -2,-24 0,-28 C 2,-24 5,-17 0,-12 Z" fill="#EFC98A"/>
-      </g>
-    </svg>
-  </div>
-
-  <!-- 洞窟（競合ウォッチ） -->
-  <div class="scene sc-ana" data-scene="watch">
-    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-      <g filter="url(#fude)">
-        <circle cx="1010" cy="150" r="110" fill="#C9603B" opacity=".4"/>
-        <circle cx="1010" cy="150" r="68" fill="#E19A5E" opacity=".6"/>
-        <circle cx="1010" cy="150" r="34" fill="#EFC98A" opacity=".85"/>
-      </g>
-      <g class="hi-akari" stroke="#EFE5CC" stroke-width="2.4" fill="none" opacity=".5" filter="url(#fude)">
-        <path d="M 940,90 C 932,74 948,62 940,46"/>
-        <path d="M 1010,82 C 1002,66 1018,54 1010,38"/>
-        <path d="M 1080,94 C 1072,78 1088,66 1080,50"/>
-      </g>
-      <path fill-rule="evenodd" fill="#20150C" filter="url(#fude2)" d="
-        M 0,0 H 1440 V 280 H 0 Z
-        M 830,56 C 920,18 1130,36 1200,102 C 1260,158 1230,224 1130,250
-        C 1020,278 880,262 820,196 C 764,134 760,102 830,56 Z"/>
-      <g fill="#20150C" filter="url(#fude)">
-        <polygon points="850,48 900,48 876,108"/>
-        <polygon points="1000,34 1060,34 1032,112"/>
-        <polygon points="1140,56 1190,56 1166,116"/>
-      </g>
-    </svg>
-    <span class="yuge" style="left:64%; top:28%; width:44px; height:22px; animation-delay:1s"></span>
-  </div>
-
-  <!-- 川（媒体管理） -->
-  <div class="scene sc-kawa" data-scene="baitai">
-    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="-40" y="80" width="520" height="22" rx="11" opacity=".4"/>
-        <rect x="880" y="66" width="460" height="20" rx="10" opacity=".35"/>
-      </g>
-      <g filter="url(#fude2)" opacity=".8">
-        <polygon points="0,150 200,96 420,152 640,110 900,156 1150,102 1440,150 1440,190 0,190" fill="#4A4650" opacity=".55"/>
-      </g>
-      <g filter="url(#fude2)" opacity=".85">
-        <polygon points="30,190 90,110 150,190" fill="#3A4432"/>
-        <polygon points="1290,190 1350,104 1410,190" fill="#3A4432"/>
-      </g>
-      <g filter="url(#fude)">
-        <path d="M 1440,150 C 1180,170 980,150 760,180 C 540,210 380,196 200,236 C 90,262 40,268 0,280 L 1440,280 Z"
-              fill="#5E6D6E" opacity=".75"/>
-        <path d="M 1220,166 C 1060,176 940,166 800,184" fill="none" stroke="#EFE5CC" stroke-width="2" opacity=".45"/>
-        <path d="M 700,196 C 560,214 460,206 330,236" fill="none" stroke="#EFE5CC" stroke-width="2" opacity=".4"/>
-        <path d="M 500,222 C 420,236 360,236 280,254" fill="none" stroke="#EFE5CC" stroke-width="1.6" opacity=".3"/>
-      </g>
-      <g filter="url(#fude)" opacity=".85">
-        <ellipse cx="470" cy="238" rx="24" ry="9" fill="#57503F"/>
-        <ellipse cx="560" cy="222" rx="19" ry="7" fill="#4E463C"/>
-        <ellipse cx="640" cy="208" rx="16" ry="6" fill="#57503F"/>
-      </g>
-      <g transform="translate(360,252)" filter="url(#fude)" stroke="#8B6B4A" fill="none" stroke-width="2.4" opacity=".95">
-        <polygon points="-11,0 11,0 9,-15 -9,-15"/>
-        <path d="M -9,-15 Q 0,-27 9,-15"/>
-      </g>
-      <g stroke="#D9BC6E" stroke-width="1.8" fill="none" opacity=".7" filter="url(#fude)">
-        <path d="M 900,190 Q 990,150 1080,182"/>
-        <line x1="924" y1="182" x2="924" y2="196"/><line x1="1056" y1="180" x2="1056" y2="192"/>
-      </g>
-    </svg>
-  </div>
-
-  <!-- 庭園（SNS運用） -->
-  <div class="scene sc-niwa" data-scene="sns">
-    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="-40" y="84" width="520" height="22" rx="11" opacity=".45"/>
-        <rect x="860" y="64" width="480" height="20" rx="10" opacity=".4"/>
-      </g>
-      <g filter="url(#fude2)">
-        <ellipse cx="180" cy="310" rx="200" ry="104" fill="#44523A" opacity=".6"/>
-        <ellipse cx="420" cy="330" rx="150" ry="76" fill="#5C6E44" opacity=".45"/>
-        <ellipse cx="1300" cy="310" rx="210" ry="104" fill="#44523A" opacity=".6"/>
-        <ellipse cx="1080" cy="332" rx="140" ry="72" fill="#5C6E44" opacity=".4"/>
-      </g>
-      <g filter="url(#fude)" opacity=".85">
-        <ellipse cx="620" cy="258" rx="24" ry="8" fill="#57503F"/>
-        <ellipse cx="690" cy="246" rx="20" ry="7" fill="#4E463C"/>
-        <ellipse cx="752" cy="234" rx="16" ry="6" fill="#57503F"/>
-      </g>
-      <g transform="translate(880,250)" stroke="#D9BC6E" stroke-width="1.9" fill="none" stroke-linecap="round" opacity=".85" filter="url(#fude)">
-        <line x1="-11" y1="0" x2="11" y2="0"/>
-        <line x1="-7" y1="0" x2="-7" y2="-22"/><line x1="7" y1="0" x2="7" y2="-22"/>
-        <path d="M -17,-22 L 0,-34 L 17,-22 Z"/>
-        <line x1="-21" y1="-40" x2="21" y2="-40"/>
-        <path d="M -15,-40 L 0,-52 L 15,-40"/>
-      </g>
-      <circle cx="880" cy="224" r="3.5" fill="#EFC98A" class="hi-akari" opacity=".9"/>
-      <g filter="url(#fude)">
-        <path d="M 96,280 C 106,222 88,190 118,148 C 130,124 168,118 188,94" fill="none" stroke="#332620" stroke-width="10" stroke-linecap="round" opacity=".9"/>
-        <path d="M 122,180 C 156,166 170,166 196,154" fill="none" stroke="#332620" stroke-width="6" stroke-linecap="round" opacity=".85"/>
-      </g>
-      <g fill="#E4AFB4" opacity=".85">
-        <circle cx="192" cy="86" r="10"/><circle cx="212" cy="100" r="8"/><circle cx="176" cy="102" r="7"/>
-        <circle cx="200" cy="116" r="9"/><circle cx="226" cy="120" r="6"/><circle cx="184" cy="132" r="6"/>
-      </g>
-      <g fill="#D68E96" opacity=".75">
-        <circle cx="196" cy="102" r="4.5"/><circle cx="210" cy="124" r="4"/><circle cx="182" cy="116" r="3.5"/>
-      </g>
-    </svg>
-  </div>
-
-  <!-- 秘湯（サイト診断） -->
-  <div class="scene sc-yu" data-scene="site">
-    <svg class="e" viewBox="0 0 1440 280" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <g filter="url(#fude)">
-        <circle cx="620" cy="158" r="54" fill="#C9A54A" opacity=".55"/>
-        <circle cx="620" cy="158" r="38" fill="#E3CB85" opacity=".6"/>
-      </g>
-      <g opacity=".85">
-        <polygon points="592,130 610,126 606,142 590,144" fill="#EAD79B"/>
-        <polygon points="626,118 648,122 644,138 624,134" fill="#D9BC6E"/>
-        <polygon points="594,166 616,160 620,180 600,184" fill="#C9A54A"/>
-      </g>
-      <g filter="url(#fude2)">
-        <polygon points="0,172 210,130 430,174 660,140 920,178 1160,132 1440,174 1440,208 0,208" fill="#4A3E48" opacity=".5"/>
-      </g>
-      <g fill="#F7F1E1" filter="url(#fude2)">
-        <rect x="-40" y="142" width="500" height="22" rx="11" opacity=".5"/>
-        <rect x="900" y="136" width="460" height="20" rx="10" opacity=".45"/>
-      </g>
-      <rect y="196" width="1440" height="84" fill="#8A6B52" opacity=".9" filter="url(#fude)"/>
-      <line x1="0" y1="197" x2="1440" y2="197" stroke="#E3CB85" stroke-width="2" opacity=".5" filter="url(#fude)"/>
-      <g class="kirameki" stroke="#E3CB85" stroke-linecap="round" filter="url(#fude)">
-        <line x1="556" y1="216" x2="700" y2="216" stroke-width="2.5" opacity=".5"/>
-        <line x1="590" y1="238" x2="668" y2="238" stroke-width="2" opacity=".4"/>
-        <line x1="540" y1="260" x2="716" y2="260" stroke-width="2" opacity=".3"/>
-      </g>
-      <g transform="translate(1075,196) scale(0.72)" filter="url(#fude)">
-        <g fill="#B08D3E" opacity=".1">
-          <rect x="-100" y="-46" width="200" height="40"/>
-          <rect x="-80" y="-98" width="160" height="34"/>
-          <rect x="-56" y="-146" width="112" height="30"/>
+  <svg class="e" viewBox="0 0 1440 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs>
+      <filter id="fude" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.017 0.041" numOctaves="3" seed="11" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="6"/>
+      </filter>
+      <filter id="fude2" x="-12%" y="-12%" width="124%" height="124%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.011 0.05" numOctaves="3" seed="4" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="11"/>
+      </filter>
+      <!-- 青海波 -->
+      <pattern id="sei-aka" width="36" height="16" patternUnits="userSpaceOnUse">
+        <g fill="none" stroke="#C96F5E" stroke-width="1.4" opacity=".85">
+          <circle cx="18" cy="18" r="15"/><circle cx="18" cy="18" r="10"/><circle cx="18" cy="18" r="5"/>
+          <circle cx="0" cy="26" r="15"/><circle cx="0" cy="26" r="10"/>
+          <circle cx="36" cy="26" r="15"/><circle cx="36" cy="26" r="10"/>
         </g>
-        <g stroke="#E3CB85" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".92">
-          <line x1="-128" y1="0" x2="128" y2="0"/>
-          <line x1="-112" y1="0" x2="-112" y2="18"/><line x1="112" y1="0" x2="112" y2="18"/>
-          <line x1="-38" y1="0" x2="-38" y2="18"/><line x1="38" y1="0" x2="38" y2="18"/>
-          <path d="M -124,-46 L -100,-64 L 100,-64 L 124,-46 Z"/>
-          <line x1="-100" y1="-46" x2="-100" y2="-6"/><line x1="100" y1="-46" x2="100" y2="-6"/>
-          <line x1="-100" y1="-6" x2="100" y2="-6"/>
-          <line x1="-60" y1="-40" x2="-60" y2="-10"/><line x1="0" y1="-40" x2="0" y2="-10"/><line x1="60" y1="-40" x2="60" y2="-10"/>
-          <path d="M -102,-98 L -80,-116 L 80,-116 L 102,-98 Z"/>
-          <line x1="-80" y1="-98" x2="-80" y2="-64"/><line x1="80" y1="-98" x2="80" y2="-64"/>
-          <path d="M -78,-146 L -52,-168 L 52,-168 L 78,-146 Z"/>
-          <line x1="-56" y1="-146" x2="-56" y2="-116"/><line x1="56" y1="-146" x2="56" y2="-116"/>
-          <line x1="0" y1="-168" x2="0" y2="-188"/>
+      </pattern>
+      <pattern id="sei-kin" width="36" height="16" patternUnits="userSpaceOnUse">
+        <g fill="none" stroke="#C9A54A" stroke-width="1.3" opacity=".7">
+          <circle cx="18" cy="18" r="15"/><circle cx="18" cy="18" r="10"/><circle cx="18" cy="18" r="5"/>
+          <circle cx="0" cy="26" r="15"/><circle cx="0" cy="26" r="10"/>
+          <circle cx="36" cy="26" r="15"/><circle cx="36" cy="26" r="10"/>
         </g>
-        <polygon points="0,-198 -8,-187 8,-187" fill="#EAD79B" opacity=".95"/>
-      </g>
-      <g filter="url(#fude2)">
-        <ellipse cx="1350" cy="300" rx="130" ry="64" fill="#44523A" opacity=".55"/>
-        <ellipse cx="130" cy="310" rx="150" ry="70" fill="#44523A" opacity=".5"/>
-      </g>
-    </svg>
-    <span class="yuge" style="left:42%; bottom:14%; width:52px; height:26px; animation-delay:0s"></span>
-    <span class="yuge" style="left:52%; bottom:9%; width:64px; height:30px; animation-delay:2.8s"></span>
-  </div>
+      </pattern>
+    </defs>
 
+    <!-- 金箔の月 -->
+    <g filter="url(#fude)">
+      <circle cx="1150" cy="84" r="62" fill="#C9A54A" opacity=".45"/>
+      <circle cx="1150" cy="84" r="50" fill="#D9BC6E" opacity=".75"/>
+      <circle cx="1150" cy="84" r="40" fill="#E3CB85"/>
+    </g>
+    <g opacity=".8">
+      <polygon points="1122,60 1142,54 1138,72 1120,74" fill="#EAD79B"/>
+      <polygon points="1156,48 1178,54 1172,70 1152,66" fill="#C9A54A"/>
+      <polygon points="1130,98 1152,92 1156,110 1136,114" fill="#B08D3E" opacity=".6"/>
+      <polygon points="1164,86 1184,82 1180,100 1162,100" fill="#EAD79B" opacity=".7"/>
+    </g>
+    <circle cx="1150" cy="84" r="70" fill="none" stroke="#C9A54A" stroke-width="1" opacity=".4" filter="url(#fude)"/>
+
+    <!-- 遠嶺 -->
+    <g filter="url(#fude2)">
+      <polygon points="0,208 160,168 330,210 470,182 620,212 620,300 0,300" fill="#55607A" opacity=".38"/>
+      <polygon points="820,214 980,178 1140,212 1300,184 1440,210 1440,300 820,300" fill="#55607A" opacity=".34"/>
+    </g>
+
+    <!-- 富士 -->
+    <g filter="url(#fude)">
+      <polygon points="380,252 720,54 1070,252" fill="#38445C"/>
+      <polygon points="380,252 720,54 1070,252 1070,262 380,262" fill="#38445C" opacity=".6"/>
+      <polygon points="636,102 660,116 684,100 706,118 730,98 754,116 778,102 804,120 720,54" fill="#F2E9D3"/>
+      <path d="M 560,252 L 690,110" stroke="#2A3348" stroke-width="3" opacity=".5" fill="none"/>
+      <path d="M 900,252 L 760,116" stroke="#2A3348" stroke-width="3" opacity=".4" fill="none"/>
+    </g>
+
+    <!-- 青海波の雲 -->
+    <g class="kumo-a" filter="url(#fude)">
+      <g>
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="#F7E9DC"/>
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="url(#sei-aka)"/>
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="none" stroke="#B0605A" stroke-width="1.6" opacity=".8"/>
+      </g>
+      <g transform="translate(400,52) scale(0.7)">
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="#F7EFDA"/>
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="url(#sei-kin)"/>
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="none" stroke="#C9A54A" stroke-width="1.8" opacity=".7"/>
+      </g>
+    </g>
+    <g class="kumo-b" filter="url(#fude)">
+      <g transform="translate(1180,140) scale(0.85)">
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="#F7E9DC"/>
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="url(#sei-aka)"/>
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="none" stroke="#B0605A" stroke-width="1.8" opacity=".8"/>
+      </g>
+      <g transform="translate(560,168) scale(0.6)">
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="#F7EFDA"/>
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="url(#sei-kin)"/>
+        <path d="M 40,150 a30,26 0 0 1 56,-14 a26,24 0 0 1 50,4 a24,22 0 0 1 40,14 q6,16 -10,20 l-130,0 q-16,-6 -6,-24 Z" fill="none" stroke="#C9A54A" stroke-width="1.8" opacity=".6"/>
+      </g>
+    </g>
+
+    <!-- 攻略済みサイトの峰（社の数 = 攻略済みサイト数） -->
+    <g filter="url(#fude)">
+      <polygon points="1150,262 1250,160 1330,214 1400,178 1440,214 1440,300 1150,300" fill="#3A4254" opacity=".9"/>
+    </g>
+    <g stroke="#D9BC6E" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".9" filter="url(#fude)">
+      <g transform="translate(1252,158)"><line x1="-7" y1="0" x2="7" y2="0"/><line x1="-5" y1="0" x2="-5" y2="-9"/><line x1="5" y1="0" x2="5" y2="-9"/><path d="M -9,-9 L 0,-16 L 9,-9"/></g>
+      <g transform="translate(1288,182)"><line x1="-6" y1="0" x2="6" y2="0"/><line x1="-4" y1="0" x2="-4" y2="-8"/><line x1="4" y1="0" x2="4" y2="-8"/><path d="M -8,-8 L 0,-14 L 8,-8"/></g>
+      <g transform="translate(1330,210)"><line x1="-7" y1="0" x2="7" y2="0"/><line x1="-5" y1="0" x2="-5" y2="-9"/><line x1="5" y1="0" x2="5" y2="-9"/><path d="M -9,-9 L 0,-16 L 9,-9"/></g>
+      <g transform="translate(1372,186)"><line x1="-6" y1="0" x2="6" y2="0"/><line x1="-4" y1="0" x2="-4" y2="-8"/><line x1="4" y1="0" x2="4" y2="-8"/><path d="M -8,-8 L 0,-14 L 8,-8"/></g>
+      <g transform="translate(1408,206)"><line x1="-6" y1="0" x2="6" y2="0"/><line x1="-4" y1="0" x2="-4" y2="-8"/><line x1="4" y1="0" x2="4" y2="-8"/><path d="M -8,-8 L 0,-14 L 8,-8"/></g>
+    </g>
+    <!-- 道標「攻略済み」 -->
+    <g filter="url(#fude)">
+      <line x1="1196" y1="258" x2="1196" y2="216" stroke="#6E5433" stroke-width="5"/>
+      <polygon points="1178,214 1246,214 1256,225 1246,236 1178,236" fill="#D9C9A0" stroke="#6E5433" stroke-width="2"/>
+    </g>
+    <text x="1184" y="230" font-size="13" font-weight="700" fill="#2A211A" letter-spacing="1"
+          style="font-family:'Shippori Mincho','Hiragino Mincho ProN','Yu Mincho',serif">攻略済み</text>
+
+    <!-- 尾根の道 -->
+    <g filter="url(#fude)">
+      <path d="M 0,262 C 140,254 240,264 360,258 C 500,252 600,264 720,258 C 860,252 980,264 1100,258 C 1240,252 1360,262 1440,258 L 1440,300 L 0,300 Z" fill="#2A2E3C"/>
+      <path d="M 0,264 C 140,256 240,266 360,260 C 500,254 600,266 720,260 C 860,254 980,266 1100,260 C 1240,254 1360,264 1440,260"
+            fill="none" stroke="#F2E9D3" stroke-width="2.4" stroke-dasharray="2 12" opacity=".55"/>
+    </g>
+
+    <!-- 道中の目印（左から: 道標 / 松林 / 洞窟 / 橋 / 灯籠 / 温泉+楼閣） -->
+    <g filter="url(#fude)">
+      <line x1="66" y1="258" x2="66" y2="232" stroke="#6E5433" stroke-width="4"/>
+      <rect x="52" y="228" width="28" height="12" fill="#D9C9A0" stroke="#6E5433" stroke-width="1.6"/>
+      <polygon points="106,258 118,226 130,258" fill="#33402C"/>
+    </g>
+    <g filter="url(#fude)" opacity=".95">
+      <polygon points="292,258 306,218 320,258" fill="#33402C"/>
+      <polygon points="312,258 328,208 344,258" fill="#26301C"/>
+      <polygon points="336,258 350,222 364,258" fill="#33402C"/>
+    </g>
+    <g filter="url(#fude)">
+      <path d="M 512,258 a36,30 0 0 1 72,0 Z" fill="#3A3242"/>
+      <path d="M 532,258 a16,15 0 0 1 32,0 Z" fill="#1C1410"/>
+    </g>
+    <g filter="url(#fude)">
+      <path d="M 748,258 Q 778,236 808,258" fill="none" stroke="#8B6B4A" stroke-width="5"/>
+      <line x1="756" y1="252" x2="756" y2="260" stroke="#6E5433" stroke-width="3"/>
+      <line x1="800" y1="252" x2="800" y2="260" stroke="#6E5433" stroke-width="3"/>
+    </g>
+    <g transform="translate(1008,258)" stroke="#B08D3E" stroke-width="1.9" fill="none" stroke-linecap="round" opacity=".95" filter="url(#fude)">
+      <line x1="-9" y1="0" x2="9" y2="0"/>
+      <line x1="-6" y1="0" x2="-6" y2="-17"/><line x1="6" y1="0" x2="6" y2="-17"/>
+      <path d="M -14,-17 L 0,-27 L 14,-17"/>
+      <line x1="-17" y1="-32" x2="17" y2="-32"/>
+      <path d="M -12,-32 L 0,-42 L 12,-32"/>
+    </g>
+    <ellipse cx="1042" cy="256" rx="16" ry="6" fill="#44523A" filter="url(#fude)"/>
+    <g filter="url(#fude)">
+      <ellipse cx="1238" cy="256" rx="36" ry="8" fill="#7E97A0" opacity=".85"/>
+      <g class="hi-akari" stroke="#F2E9D3" stroke-width="2" fill="none" opacity=".6">
+        <path d="M 1224,246 C 1220,238 1228,232 1224,224"/>
+        <path d="M 1240,244 C 1236,236 1244,230 1240,222"/>
+        <path d="M 1254,247 C 1250,239 1258,233 1254,225"/>
+      </g>
+      <g transform="translate(1290,254) scale(0.6)" stroke="#C9A54A" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".95">
+        <line x1="-34" y1="0" x2="34" y2="0"/>
+        <line x1="-26" y1="0" x2="-26" y2="-14"/><line x1="26" y1="0" x2="26" y2="-14"/>
+        <path d="M -40,-14 L -30,-26 L 30,-26 L 40,-14"/>
+        <line x1="-22" y1="-26" x2="-22" y2="-38"/><line x1="22" y1="-26" x2="22" y2="-38"/>
+        <path d="M -30,-38 L -20,-48 L 20,-48 L 30,-38"/>
+        <line x1="0" y1="-48" x2="0" y2="-58"/>
+      </g>
+    </g>
+
+    <!-- 旅の停留点 -->
+    <circle class="taboji sugi" cx="86" cy="276" r="4"/>
+    <circle class="taboji" cx="317" cy="276" r="4"/>
+    <circle class="taboji" cx="547" cy="276" r="4"/>
+    <circle class="taboji" cx="778" cy="276" r="4"/>
+    <circle class="taboji" cx="1008" cy="276" r="4"/>
+    <circle class="taboji" cx="1238" cy="276" r="4"/>
+
+    <!-- 旅人（ブラウザワーカー）: タブと連動して歩く -->
+    <g id="tabibito" style="transform:translateX(86px)">
+      <g class="muki">
+        <g class="karada">
+          <!-- 背負い籠 + 茣蓙 + 短冊 -->
+          <rect x="-30" y="180" width="22" height="8" rx="4" fill="#D9C9A0" stroke="#8B6B4A" stroke-width="1.4"/>
+          <line x1="-25" y1="180" x2="-25" y2="188" stroke="#8B6B4A" stroke-width="1.2"/>
+          <line x1="-13" y1="180" x2="-13" y2="188" stroke="#8B6B4A" stroke-width="1.2"/>
+          <g transform="rotate(7 -14 170)"><rect x="-17" y="162" width="7" height="16" fill="#F7F1E1" stroke="#B0885E" stroke-width="1"/><circle cx="-13.5" cy="166" r="1.4" fill="#A63A2B"/></g>
+          <rect x="-29" y="188" width="18" height="30" rx="3" fill="#A08050" stroke="#6E5433" stroke-width="1.5"/>
+          <line x1="-27" y1="196" x2="-13" y2="196" stroke="#D9BC6E" stroke-width="1.2" opacity=".8"/>
+          <line x1="-27" y1="203" x2="-13" y2="203" stroke="#D9BC6E" stroke-width="1.2" opacity=".8"/>
+          <line x1="-27" y1="210" x2="-13" y2="210" stroke="#D9BC6E" stroke-width="1.2" opacity=".8"/>
+          <line x1="-11" y1="192" x2="-2" y2="198" stroke="#6E5433" stroke-width="2.5"/>
+          <!-- 脚（歩行で交互に振れる） -->
+          <g class="ashi ashi-a">
+            <line x1="4" y1="222" x2="9" y2="248" stroke="#3A4660" stroke-width="8"/>
+            <line x1="7" y1="238" x2="10" y2="250" stroke="#E8DFC8" stroke-width="8"/>
+            <ellipse cx="11" cy="253" rx="7" ry="3" fill="#2A211A"/>
+          </g>
+          <g class="ashi ashi-b">
+            <line x1="-2" y1="222" x2="-7" y2="248" stroke="#333D54" stroke-width="8"/>
+            <line x1="-5" y1="238" x2="-8" y2="250" stroke="#DCD2B8" stroke-width="8"/>
+            <ellipse cx="-8" cy="253" rx="7" ry="3" fill="#2A211A"/>
+          </g>
+          <!-- 胴（藍の道中着 + 金の帯） -->
+          <path d="M -12,192 Q 0,186 12,192 L 15,224 Q 0,230 -15,224 Z" fill="#3A4660" stroke="#2A2E3C" stroke-width="1.6"/>
+          <line x1="-13" y1="214" x2="13" y2="214" stroke="#C9A54A" stroke-width="3"/>
+          <!-- 前腕 + 杖 -->
+          <g class="ude">
+            <line x1="9" y1="196" x2="19" y2="212" stroke="#3A4660" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="20" cy="214" r="3.2" fill="#E8C39A"/>
+            <line x1="22" y1="176" x2="22" y2="254" stroke="#8B6B4A" stroke-width="3.4" stroke-linecap="round"/>
+            <circle cx="22" cy="175" r="2.6" fill="#6E5433"/>
+          </g>
+          <!-- 頭（丁髷 + 笑顔） -->
+          <circle cx="2" cy="172" r="11" fill="#E8C39A" stroke="#6E5433" stroke-width="1"/>
+          <path d="M -9,168 A 11,11 0 0 1 13,168 L 10,163 Q 2,158 -6,163 Z" fill="#2A211A"/>
+          <rect x="-2" y="155" width="9" height="5" rx="2.4" fill="#2A211A" transform="rotate(-12 2 158)"/>
+          <circle cx="8" cy="171" r="1.4" fill="#2A211A"/>
+          <path d="M 5,177 q 3,2.4 6,0" stroke="#2A211A" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+          <!-- 襟元の朱 -->
+          <path d="M -3,186 L 2,192 L 7,186" fill="none" stroke="#A63A2B" stroke-width="2.4"/>
+        </g>
+      </g>
+    </g>
+  </svg>
   <div class="washi-me"></div>
-  <div class="daimei">
-    <h1>ブラウザワーカー ダッシュボード</h1>
-    <p class="koshin">最終更新 2026-07-22 17:04 ・ 見本データ</p>
-    <p class="aikotoba">仕事にゆとりを。安心した進捗で、休日に愁いを残さない。</p>
-  </div>
+  <div class="hero-dai"><h1>ブラウザワーカー ダッシュボード</h1></div>
 </header>
 
 <!-- ============ タブ（タスク単位） ============ -->
 <nav class="fudaretsu" aria-label="タスク切り替え">
   <div class="naka" role="tablist">
-    <button class="fuda-tab ima" role="tab" aria-selected="true" data-pane="p-zentai" data-scene="zentai" id="t-zentai">全体<span class="kazu-chip">2</span></button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-scout" data-scene="scout" id="t-scout">スカウト送信<span class="kazu-chip ki">3</span></button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-watch" data-scene="watch" id="t-watch">競合ウォッチ</button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-baitai" data-scene="baitai" id="t-baitai">媒体管理<span class="kazu-chip">1</span></button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-sns" data-scene="sns" id="t-sns">SNS運用<span class="kazu-chip">1</span></button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-site" data-scene="site" id="t-site">サイト診断</button>
+    <button class="fuda-tab ima" role="tab" aria-selected="true" data-pane="p-zentai" id="t-zentai">全体<span class="kazu-chip">2</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-scout" id="t-scout">スカウト送信<span class="kazu-chip ki">3</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-watch" id="t-watch">競合ウォッチ</button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-baitai" id="t-baitai">媒体管理<span class="kazu-chip">1</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-sns" id="t-sns">SNS運用<span class="kazu-chip">1</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-site" id="t-site">サイト診断</button>
+    <span class="koshin-mini">最終更新 2026-07-22 17:04・見本データ</span>
   </div>
 </nav>
 
@@ -639,7 +582,7 @@
         <div class="sho">
           <div class="sec-head">
             <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><ellipse class="sen" cx="11" cy="23" rx="4" ry="2.4"/><ellipse class="sen" cx="18" cy="17.5" rx="3.5" ry="2.1"/><ellipse class="sen" cx="24" cy="12" rx="3" ry="1.8"/></svg>
-            <h2>タスク一覧</h2><span class="sode">定常タスクの現在地（タブ名クリックで詳細）</span>
+            <h2>タスク一覧</h2><span class="sode">定常タスクの現在地（タスク名クリックで詳細）</span>
           </div>
           <div class="sec-sita"></div>
           <div class="hyo-maki"><table class="hyo">
@@ -948,17 +891,6 @@
 
 <footer class="ashimoto">
   <div class="kin-sen"></div>
-  <svg class="michinori" viewBox="0 0 1100 60" aria-hidden="true">
-    <path class="sen" d="M20 48 H1080" stroke-dasharray="1 9" opacity=".5"/>
-    <path class="sen" d="M90 48 L122 16 L142 34 L156 22 L182 48"/>
-    <path class="sen" d="M320 48 L334 26 L348 48 M338 48 L352 22 L366 48"/>
-    <path class="sen" d="M540 48 a26 22 0 0 1 52 0"/>
-    <path class="sen" d="M556 48 a10 9 0 0 1 20 0"/>
-    <path class="sen" d="M770 46 a16 7 0 0 0 32 0 z"/>
-    <path class="kin-sen2" d="M778 36 q-2 -5 1 -9 M786 38 q-2 -6 1 -11 M794 36 q-2 -5 1 -9"/>
-    <path class="kin-sen2" d="M980 48 v-14 M964 34 h32 M968 34 l12 -10 l12 10"/>
-    <circle cx="1004" cy="22" r="2" fill="#B08D3E" stroke="none"/>
-  </svg>
   <p>
     このダッシュボードは定常タスクの締めごとに自動更新される。<br>
     本ページは見本データ ── 実運用では knowledge/ の実データから生成される。
@@ -971,11 +903,17 @@
 (function(){
   var shizuka = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---- タブ切り替え（ヘッダーの場面も連動して旅をする） ---- */
+  /* ---- タブ切り替え + 旅人の歩行 ---- */
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.fuda-tab'));
   var panes = Array.prototype.slice.call(document.querySelectorAll('.pane'));
-  var scenes = Array.prototype.slice.call(document.querySelectorAll('.scene'));
+  var tabi = document.getElementById('tabibito');
+  var muki = tabi.querySelector('.muki');
+  var teishi = Array.prototype.slice.call(document.querySelectorAll('.taboji'));
+  var stops = [86, 317, 547, 778, 1008, 1238];
+  var genzai = 0, aruT = null;
+
   function erabu(tab){
+    var i = tabs.indexOf(tab);
     tabs.forEach(function(t){
       var on = (t === tab);
       t.classList.toggle('ima', on);
@@ -986,9 +924,17 @@
       p.classList.toggle('ima', on);
       if(on){ p.removeAttribute('hidden'); } else { p.setAttribute('hidden',''); }
     });
-    scenes.forEach(function(s){
-      s.classList.toggle('ima', s.dataset.scene === tab.dataset.scene);
-    });
+    if(i !== genzai){
+      muki.classList.toggle('gyaku', i < genzai);
+      tabi.style.transform = 'translateX(' + stops[i] + 'px)';
+      if(!shizuka){
+        tabi.classList.add('aruku');
+        clearTimeout(aruT);
+        aruT = setTimeout(function(){ tabi.classList.remove('aruku'); }, 2050);
+      }
+      teishi.forEach(function(d,j){ d.classList.toggle('sugi', j <= i); });
+      genzai = i;
+    }
   }
   tabs.forEach(function(t,i){
     t.addEventListener('click', function(){ erabu(t); });
@@ -999,7 +945,6 @@
       if(j !== null){ ev.preventDefault(); tabs[j].focus(); erabu(tabs[j]); }
     });
   });
-  /* タスク一覧からタブへ飛ぶ */
   document.querySelectorAll('[data-tobu]').forEach(function(el){
     el.addEventListener('click', function(){
       var t = document.getElementById(el.dataset.tobu);
@@ -1007,30 +952,13 @@
     });
   });
 
-  /* ---- セクションの出現（控えめなフェード） ---- */
+  /* ---- セクションの出現 ---- */
   var deru = new IntersectionObserver(function(es){
     es.forEach(function(e){
       if(e.isIntersecting){ e.target.classList.add('mieru'); deru.unobserve(e.target); }
     });
   },{threshold:.18});
   document.querySelectorAll('.bu').forEach(function(el){ deru.observe(el); });
-
-  /* ---- 桜の花びら（庭園・秘湯の場面のみ・少量） ---- */
-  if(!shizuka){
-    ['.sc-niwa','.sc-yu'].forEach(function(sel){
-      var sc = document.querySelector(sel);
-      for(var i=0;i<6;i++){
-        var h = document.createElement('span');
-        h.className = 'hana';
-        h.style.left = (5 + Math.random()*34) + '%';
-        h.style.animationDuration = (7 + Math.random()*6) + 's';
-        h.style.animationDelay = (Math.random()*7) + 's';
-        h.style.opacity = (0.4 + Math.random()*0.45).toFixed(2);
-        h.style.transform = 'scale(' + (0.65 + Math.random()*0.6).toFixed(2) + ')';
-        sc.appendChild(h);
-      }
-    });
-  }
 
   /* ---- サマリー数値のカウントアップ ---- */
   var kazoe = new IntersectionObserver(function(es){
@@ -1051,7 +979,7 @@
   },{threshold:.6});
   document.querySelectorAll('.kazoeru').forEach(function(el){ kazoe.observe(el); });
 
-  /* ---- バーの伸び（実行履歴・ストック） ---- */
+  /* ---- バーの伸び ---- */
   var nobi = new IntersectionObserver(function(es){
     es.forEach(function(e){
       if(!e.isIntersecting) return;
