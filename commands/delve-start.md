@@ -5,6 +5,7 @@ argument-hint: <タスク名>
 
 Delvework のタスク「$ARGUMENTS」を開始してください。
 
+0. `tasks/$ARGUMENTS.yaml`（登録済み定常タスク。/delve-task が生成）があれば Read し、その steps を実行計画の正とする（destructive: true/auto のステップは Step H で人の承認を必ず取る）。なければ依頼文から計画を組む
 1. ワークスペースに `memory/.workflow/` と `knowledge/sites/` がなければ作成する
 2. フラグを初期化する:
    ```bash
