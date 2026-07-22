@@ -25,3 +25,7 @@ tools: Read, Write, Edit, Glob, Grep
 ## パス解決
 
 依頼プロンプト内のファイルは絶対パスで渡される前提。プラグイン内ファイル（templates/ や skills/web-design/ 配下）への参照が相対パスで解決できない場合は、`Glob` でファイル名検索（例: `**/report-template.html`、`**/verify-checklist.md`）して実体を特定してから Read すること。見つからない場合はその旨を応答に明記し、憶測で代替しない。
+
+## 学習記録の反映
+
+作業前に `knowledge/feedback/lessons.md`（なければスキップ）を Read し、NG エントリは禁止事項、OK エントリは優先パターンとして適用すること。lessons.md とスキル原則が矛盾する場合は lessons.md（ユーザーの実フィードバック）を優先する。

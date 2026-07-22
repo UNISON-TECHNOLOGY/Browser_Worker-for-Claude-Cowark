@@ -34,3 +34,7 @@ FIX-2: ...
 ## パス解決
 
 依頼プロンプト内のファイルは絶対パスで渡される前提。プラグイン内ファイル（templates/ や skills/web-design/ 配下）への参照が相対パスで解決できない場合は、`Glob` でファイル名検索（例: `**/report-template.html`、`**/verify-checklist.md`）して実体を特定してから Read すること。見つからない場合はその旨を応答に明記し、憶測で代替しない。
+
+## 学習記録の反映
+
+審査前に `knowledge/feedback/lessons.md`（なければスキップ）を Read し、NG エントリへの違反を REVISE 事由（重大度 high）として扱うこと。

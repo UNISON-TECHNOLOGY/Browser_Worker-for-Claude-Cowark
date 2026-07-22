@@ -55,7 +55,7 @@
 
 | 種類 | 内容 |
 |---|---|
-| コマンド 10 | delve-start / status / style / audit / report / improve / demo / watch / adlp（自然文から自動発火） |
+| コマンド 11 | delve-start / status / style / audit / report / improve / demo / watch / adlp / feedback（自然文から自動発火） |
 | 日本語コマンド 9 | /サイト診断 /スタイル調査 /ページ改善 /タスク開始 /状態確認 /作業レポート /デモ /競合ウォッチ /広告からLP |
 | フック 3 | 変更操作ゲート / ナビゲーション警告 / セッション開始時の引き継ぎ通知 |
 | 汎用スキル 1 | web-design（LP/UI設計・CRO・モーション。リソース6本） |
