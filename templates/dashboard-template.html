@@ -1,10 +1,13 @@
 <!--
-  ブラウザワーカー ダッシュボード（正本テンプレート v3）
+  ブラウザワーカー ダッシュボード（正本テンプレート v4）
   =====================================================================
   原則:
-    - ラベル・見出しは平易な機能名のみ。世界観（秘湯紀行）は視覚＝ヘッダーの絵・
-      和紙の質感・金の罫・明朝体・控えめな動きだけで表現する（語彙で表現しない）
-    - ファーストビューで価値に到達する: ヘッダー帯(約300px)の直下にアラートとサマリー
+    - ラベル・見出しは平易な機能名のみ。世界観は視覚だけで表現する
+    - ファーストビューで価値に到達（ヘッダー帯は max 320px、直下にアラート+サマリー)
+    - ヘッダーは「わびさび」: べた塗り禁止。筆のにじみ(displacement)・霞・金箔の剥がれ・
+      線描の楼閣・低彩度で描く
+    - 遊びの装飾は本体の中に: 節ごとの紋モチーフ・円相の透かし・鮫小紋・判子風バッジ・
+      金箔の欠片・末尾の道程一筆書き
   実例=雛形。数値・文言（見本データ）を knowledge/ の実データに差し替えて使う。
   CSS・構造・演出は変更しない。単一テーマ（紙は常に明るい。ダーク変種禁止）。
   外部読込なし（フォント・画像・CDNすべて不使用）。
@@ -14,8 +17,8 @@
   :root{
     --washi:#F7F1E1; --washi-2:#EFE5CC; --sumi:#2A211A; --sumi-70:rgba(42,33,26,.72);
     --tsuchi:#8B6B4A; --niwa:#3D4F2F; --niwa-2:#5C6E44; --koke:#8A9A66;
-    --shu:#A63A2B; --yuhi:#C9603B; --akane:#E19A5E; --tasogare:#54405A;
-    --kin:#B08D3E; --kin-2:#D9BC6E; --sakura:#E4AFB4; --sakura-2:#D68E96;
+    --shu:#A63A2B; --yuhi:#C9603B; --akane:#E19A5E; --tasogare:#584A57;
+    --kin:#B08D3E; --kin-2:#D9BC6E; --kin-3:#E3CB85; --sakura:#E4AFB4; --sakura-2:#D68E96;
     --kinpaku:linear-gradient(105deg,#B08D3E 0%,#E3CB85 22%,#C9A54A 48%,#EAD79B 74%,#B08D3E 100%);
     --mincho:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho","YuMincho","MS PMincho",serif;
     --data:"BIZ UDPGothic","Hiragino Kaku Gothic ProN","Yu Gothic UI",Meiryo,sans-serif;
@@ -37,28 +40,29 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.02' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.48 0 0 0 0 0.38 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23w)'/%3E%3C/svg%3E");
   }
 
-  /* ============ ヘッダー帯（絵は背景。すぐ下に本体） ============ */
+  /* ============ ヘッダー帯（わびさび: 低彩度・にじみ・霞・金箔） ============ */
   .hero{
     position:relative; height:clamp(230px,34vh,320px); overflow:hidden;
-    background:linear-gradient(to bottom,var(--tasogare) 0%,#9C5A54 34%,var(--yuhi) 58%,var(--akane) 72%,#B77B4E 74%,#6E5A3F 100%);
+    background:linear-gradient(to bottom,#584A57 0%,#7E5A52 38%,#A87957 58%,#B8875E 68%,#6E5A3F 72%,#5E523C 100%);
   }
   .hero svg.e{ position:absolute; inset:0; width:100%; height:100% }
-  .kirameki{ animation:kirameku 3.2s ease-in-out infinite alternate }
-  @keyframes kirameku{ from{opacity:.45} to{opacity:.85} }
-  .hi-akari{ animation:yurameki 2.6s ease-in-out infinite alternate }
-  @keyframes yurameki{ from{opacity:.7} to{opacity:1} }
+  .hero .washi-me{ opacity:.75 }
+  .kirameki{ animation:kirameku 4.2s ease-in-out infinite alternate }
+  @keyframes kirameku{ from{opacity:.35} to{opacity:.7} }
+  .hi-akari{ animation:yurameki 2.8s ease-in-out infinite alternate }
+  @keyframes yurameki{ from{opacity:.6} to{opacity:1} }
   .yuge{
-    position:absolute; border-radius:50%; background:rgba(247,241,225,.32); filter:blur(8px);
-    animation:noboru 7s ease-in-out infinite;
+    position:absolute; border-radius:50%; background:rgba(247,241,225,.26); filter:blur(9px);
+    animation:noboru 8s ease-in-out infinite;
   }
   @keyframes noboru{
     0%{ transform:translateY(0) scale(1); opacity:0 }
-    25%{ opacity:.6 }
-    100%{ transform:translateY(-60px) scale(1.4); opacity:0 }
+    25%{ opacity:.55 }
+    100%{ transform:translateY(-56px) scale(1.4); opacity:0 }
   }
   .hana{
-    position:absolute; top:-18px; width:10px; height:8px; background:var(--sakura);
-    border-radius:100% 4% 100% 4%; opacity:.9; z-index:4;
+    position:absolute; top:-18px; width:9px; height:7px; background:var(--sakura);
+    border-radius:100% 4% 100% 4%; opacity:.8; z-index:4;
     animation-name:chiru; animation-timing-function:linear; animation-iteration-count:infinite;
   }
   .hana:nth-child(odd){ background:var(--sakura-2) }
@@ -67,7 +71,6 @@
     100%{ transform:translate(-9vw,380px) rotate(520deg) }
   }
 
-  /* タイトル札（機能名で名乗る） */
   .daimei{
     position:absolute; z-index:6; left:clamp(18px,6vw,90px); bottom:24px;
     background:var(--washi); padding:18px 26px 16px; max-width:640px;
@@ -82,14 +85,25 @@
   .honbun > .washi-me{ position:fixed; z-index:0 }
   .uchi{ position:relative; z-index:1; max-width:1080px; margin:0 auto }
 
-  /* セクション共通 */
   .bu{ margin-bottom:80px }
   .bu .sho{ opacity:0; transform:translateY(16px); transition:opacity .8s ease,transform .8s ease }
   .bu.mieru .sho{ opacity:1; transform:none }
-  .sec-head{ display:flex; align-items:baseline; gap:16px; margin-bottom:8px }
+
+  /* 節見出し + 紋モチーフ（遊びの装飾①） */
+  .sec-head{ display:flex; align-items:center; gap:14px; margin-bottom:8px }
+  .sec-head .mon{ width:32px; height:32px; flex:none }
+  .mon .waku{ stroke:var(--kin); opacity:.4; fill:none; stroke-width:1 }
+  .mon .sen{ stroke:var(--kin); fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round }
+  .mon .nuri{ fill:var(--kin); stroke:none; opacity:.85 }
   .sec-head h2{ font-size:clamp(19px,2.4vw,23px); font-weight:700; letter-spacing:.2em; color:var(--niwa) }
-  .sec-head .sode{ margin-left:auto; font-size:12px; letter-spacing:.2em; color:var(--tsuchi); font-weight:600 }
-  .sec-sita{ width:76px; height:3px; background:var(--kinpaku); margin-bottom:28px }
+  .sec-head .sode{ margin-left:auto; font-size:12px; letter-spacing:.2em; color:var(--tsuchi); font-weight:600; align-self:flex-end }
+  /* 金箔の欠片（遊びの装飾②） */
+  .sec-sita{ width:76px; height:3px; background:var(--kinpaku); margin-bottom:28px; position:relative }
+  .sec-sita::after{
+    content:""; position:absolute; right:-16px; top:-4px; width:7px; height:9px;
+    background:var(--kin-3); opacity:.75; transform:rotate(21deg);
+    clip-path:polygon(12% 0,100% 22%,84% 100%,0 74%);
+  }
 
   /* 次の一手 */
   .te{
@@ -99,15 +113,22 @@
   .te .te-mei{ color:var(--tsuchi); letter-spacing:.3em; font-size:12.5px; white-space:nowrap; font-weight:700 }
   .iu{
     color:var(--niwa); font-weight:700; font-size:16px; cursor:pointer;
-    border-bottom:1px dashed var(--kin); padding-bottom:1px;
+    border-bottom:1px dashed var(--kin); padding-bottom:1px; transition:color .25s;
   }
   .iu::before{ content:"「"; color:var(--kin) } .iu::after{ content:"」"; color:var(--kin) }
+  .iu:hover{ color:var(--shu) }
   .utsushi{
     position:fixed; left:50%; bottom:34px; transform:translate(-50%,10px); z-index:70;
     background:var(--sumi); color:var(--washi); font-size:13.5px; letter-spacing:.2em;
     padding:10px 22px; opacity:0; pointer-events:none; transition:opacity .35s,transform .35s;
   }
   .utsushi.miseru{ opacity:1; transform:translate(-50%,0) }
+
+  /* 鮫小紋（遊びの装飾③ — 面に細かい点の紋様） */
+  .komon{
+    background-image:radial-gradient(circle at 3px 3px, rgba(42,33,26,.07) 0 1.2px, transparent 1.6px);
+    background-size:11px 11px;
+  }
 
   /* アラート */
   .alert{ border-left:5px solid var(--shu); background:var(--washi-2); padding:20px 26px }
@@ -116,15 +137,32 @@
     padding:10px 0; border-bottom:1px solid rgba(42,33,26,.14); font-weight:600;
   }
   .alert li:last-child{ border-bottom:none }
-  .alert .omo{ color:var(--shu); font-size:12px; letter-spacing:.2em; border:1px solid var(--shu); padding:2px 8px; white-space:nowrap; font-weight:700 }
   .alert .naiyo{ flex:1 1 260px }
 
-  /* サマリー（stat タイル） */
+  /* 判子風バッジ（遊びの装飾④ — わずかに傾く） */
+  .omo,.shirushi{
+    display:inline-block; font-size:11.5px; letter-spacing:.2em; padding:2px 9px;
+    white-space:nowrap; font-weight:700; border-radius:3px; transform:rotate(-2.4deg);
+  }
+  li:nth-child(even) .omo, li:nth-child(even) .shirushi{ transform:rotate(1.8deg) }
+  .omo{ color:var(--shu); border:1.5px solid var(--shu) }
+  .shirushi.dai{ color:var(--shu); border:1.5px solid var(--shu) }
+  .shirushi.chu{ color:var(--tsuchi); border:1.5px solid var(--tsuchi) }
+  .shirushi.yo{ color:var(--niwa); border:1.5px solid var(--niwa) }
+
+  /* サマリー（statタイル + 円相の透かし = 遊びの装飾⑤) */
   .stat{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:18px }
-  .fuda-t{ background:var(--washi-2); border-top:4px solid var(--kin); padding:20px 20px 16px; text-align:center }
+  .fuda-t{
+    background:var(--washi-2); border-top:4px solid var(--kin); padding:20px 20px 16px;
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .fuda-t::before{
+    content:""; position:absolute; right:-26px; top:-26px; width:92px; height:92px;
+    border:2.5px solid var(--kin); border-radius:50%; opacity:.16;
+  }
   .fuda-t .kazu{
     font-family:var(--mincho); font-size:clamp(30px,3.6vw,40px); font-weight:700; color:var(--sumi);
-    font-variant-numeric:tabular-nums; line-height:1.3;
+    font-variant-numeric:tabular-nums; line-height:1.3; position:relative;
   }
   .fuda-t .kazu .tan{ font-size:16px; margin-left:2px; color:var(--sumi-70) }
   .fuda-t .mei{ font-size:13px; letter-spacing:.24em; color:var(--tsuchi); font-weight:700; margin-top:6px }
@@ -137,39 +175,46 @@
     font-family:var(--mincho); font-weight:700; letter-spacing:.16em; font-size:13.5px; color:var(--niwa);
     text-align:left; padding:10px 12px; border-bottom:2px solid var(--niwa);
   }
-  .hyo td{ padding:11px 12px; border-bottom:1px solid rgba(42,33,26,.16); font-variant-numeric:tabular-nums }
+  .hyo td{ padding:11px 12px; border-bottom:1px solid rgba(42,33,26,.16); font-variant-numeric:tabular-nums; transition:background .25s }
+  .hyo tr:hover td{ background:rgba(176,141,62,.08) }
   .hyo .su{ text-align:right }
   .hyo th.su{ text-align:right }
   .hyo .kei{ color:var(--shu); font-weight:700 }
   .hyo-maki{ overflow-x:auto }
 
-  /* 直近7日の実行（バー） */
+  /* 直近7日の実行 */
   .nanoka{ display:flex; gap:12px; align-items:flex-end; height:120px; margin:6px 0 10px }
   .hi-bou{ flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; height:100%; justify-content:flex-end }
-  .hi-bou .bou{ width:100%; max-width:44px; background:var(--koke); border-top:3px solid var(--niwa); transition:height 1s ease }
-  .hi-bou.shippai .bou{ background:#C99A8D; border-top-color:var(--shu) }
+  .hi-bou .bou{
+    width:100%; max-width:44px; background:var(--koke); border-top:3px solid var(--niwa);
+    transition:height 1s ease; border-radius:3px 3px 0 0;
+    background-image:radial-gradient(circle at 3px 3px, rgba(247,241,225,.35) 0 1.2px, transparent 1.6px);
+    background-size:9px 9px;
+  }
+  .hi-bou.shippai .bou{ background-color:#C99A8D; border-top-color:var(--shu) }
   .hi-bou .hi{ font-family:var(--data); font-size:12px; color:var(--sumi-70); letter-spacing:.05em }
   .nanoka-chu{ font-size:13.5px; color:var(--sumi-70); font-weight:600; letter-spacing:.06em }
   .nanoka-chu .ten{ display:inline-block; width:10px; height:10px; margin:0 4px 0 12px; vertical-align:baseline }
   .ten-sei{ background:var(--koke) } .ten-hi{ background:#C99A8D }
 
-  /* ストック充足バー */
+  /* ストック充足バー（鮫小紋入り） */
   .stock{ display:grid; gap:16px }
   .stock-gyo{ display:grid; grid-template-columns:110px 1fr 110px; gap:14px; align-items:center }
   .stock-gyo .dare{ font-weight:700; letter-spacing:.14em; font-size:15px }
   .stock-obi{ height:16px; background:var(--washi-2); border:1px solid rgba(42,33,26,.2); position:relative }
-  .stock-obi .mi{ position:absolute; inset:0 auto 0 0; background:var(--koke); border-right:3px solid var(--niwa); transition:width 1.2s ease }
-  .stock-gyo.tarinai .stock-obi .mi{ background:#D8A79A; border-right-color:var(--shu) }
+  .stock-obi .mi{
+    position:absolute; inset:0 auto 0 0; background-color:var(--koke); border-right:3px solid var(--niwa);
+    transition:width 1.2s ease;
+    background-image:radial-gradient(circle at 3px 3px, rgba(247,241,225,.35) 0 1.2px, transparent 1.6px);
+    background-size:9px 9px;
+  }
+  .stock-gyo.tarinai .stock-obi .mi{ background-color:#D8A79A; border-right-color:var(--shu) }
   .stock-gyo .wari{ font-family:var(--data); font-size:14.5px; text-align:right; font-variant-numeric:tabular-nums; font-weight:600 }
   .stock-gyo.tarinai .wari{ color:var(--shu); font-weight:700 }
 
-  /* リスト（競合ウォッチ・学習記録） */
+  /* リスト */
   .maki li{ list-style:none; display:flex; gap:14px; align-items:baseline; padding:12px 2px; border-bottom:1px solid rgba(42,33,26,.16); flex-wrap:wrap }
   .maki li:last-child{ border-bottom:none }
-  .maki .shirushi{ font-size:11.5px; letter-spacing:.2em; padding:2px 9px; white-space:nowrap; font-weight:700 }
-  .shirushi.dai{ color:var(--shu); border:1px solid var(--shu) }
-  .shirushi.chu{ color:var(--tsuchi); border:1px solid var(--tsuchi) }
-  .shirushi.yo{ color:var(--niwa); border:1px solid var(--niwa) }
   .maki .moto{ font-weight:700; letter-spacing:.1em; white-space:nowrap }
   .maki .koto{ flex:1 1 280px; font-weight:600; color:var(--sumi) }
   .maki .itsu{ font-family:var(--data); font-size:13px; color:var(--sumi-70); margin-left:auto; font-variant-numeric:tabular-nums }
@@ -177,11 +222,12 @@
   .nirin{ display:grid; grid-template-columns:1fr 1fr; gap:56px }
   @media (max-width:820px){ .nirin{ grid-template-columns:1fr } }
 
-  /* できること（定義リスト） */
+  /* できること */
   .dekiru > div{ padding:16px 2px; border-bottom:1px solid rgba(42,33,26,.16) }
   .dekiru > div:last-child{ border-bottom:none }
   .dekiru .shitai{ font-size:13px; letter-spacing:.3em; color:var(--tsuchi); font-weight:700 }
-  .dekiru .iikata{ font-size:17.5px; font-weight:700; color:var(--niwa); margin:4px 0 2px; cursor:pointer }
+  .dekiru .iikata{ font-size:17.5px; font-weight:700; color:var(--niwa); margin:4px 0 2px; cursor:pointer; transition:color .25s }
+  .dekiru .iikata:hover{ color:var(--shu) }
   .dekiru .iikata::before{ content:"「"; color:var(--kin) } .dekiru .iikata::after{ content:"」"; color:var(--kin) }
   .dekiru .okoru{ font-size:14px; color:var(--sumi-70); font-weight:600 }
   .dekiru .okoru::before{ content:"─ "; color:var(--kin) }
@@ -189,19 +235,26 @@
   /* 生成物 */
   .seika li{ list-style:none; display:flex; gap:14px; align-items:baseline; padding:12px 2px; border-bottom:1px solid rgba(42,33,26,.16); flex-wrap:wrap }
   .seika li:last-child{ border-bottom:none }
-  .seika .tagui{ font-size:11.5px; letter-spacing:.2em; padding:2px 9px; font-weight:700; white-space:nowrap }
-  .tagui.gd{ color:var(--niwa); border:1px solid var(--niwa) }
-  .tagui.rp{ color:var(--tsuchi); border:1px solid var(--tsuchi) }
-  .tagui.mk{ color:var(--shu); border:1px solid var(--shu) }
+  .seika .tagui{
+    font-size:11.5px; letter-spacing:.2em; padding:2px 9px; font-weight:700; white-space:nowrap;
+    border-radius:3px; transform:rotate(-2deg);
+  }
+  .seika li:nth-child(even) .tagui{ transform:rotate(1.6deg) }
+  .tagui.gd{ color:var(--niwa); border:1.5px solid var(--niwa) }
+  .tagui.rp{ color:var(--tsuchi); border:1.5px solid var(--tsuchi) }
+  .tagui.mk{ color:var(--shu); border:1.5px solid var(--shu) }
   .seika a{ font-weight:700; letter-spacing:.06em; color:var(--niwa); text-decoration:none; border-bottom:1px dashed var(--kin) }
   .seika .itsu{ font-family:var(--data); font-size:13px; color:var(--sumi-70); margin-left:auto; font-variant-numeric:tabular-nums }
   .seika .tokoro{ font-family:var(--data); font-size:13px; color:var(--sumi-70) }
 
   .chu{ border-left:4px solid var(--shu); padding:6px 0 6px 18px; font-size:14.5px; color:var(--sumi-70); font-weight:600; letter-spacing:.05em }
 
-  /* フッター */
+  /* フッター + 道程の一筆書き（遊びの装飾⑥） */
   .ashimoto{ position:relative; background:var(--washi); padding:20px 24px 70px; text-align:center }
-  .ashimoto .kin-sen{ width:200px; height:2px; background:var(--kinpaku); margin:0 auto 32px }
+  .ashimoto .kin-sen{ width:200px; height:2px; background:var(--kinpaku); margin:0 auto 30px }
+  .ashimoto .michinori{ max-width:720px; margin:0 auto 26px; opacity:.8 }
+  .ashimoto .michinori .sen{ stroke:var(--sumi-70); fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round }
+  .ashimoto .michinori .kin-sen2{ stroke:var(--kin); fill:none; stroke-width:1.6; stroke-linecap:round }
   .ashimoto p{ font-size:13.5px; letter-spacing:.2em; color:var(--sumi-70); font-weight:600; line-height:2.3 }
 
   @media (prefers-reduced-motion:reduce){
@@ -212,70 +265,129 @@
   @media (max-width:640px){
     .daimei{ left:14px; right:14px; max-width:none; padding:14px 18px 12px }
     .stock-gyo{ grid-template-columns:80px 1fr 84px }
+    .sec-head .mon{ width:26px; height:26px }
   }
 </style>
 
-<!-- ============ ヘッダー帯（絵は背景・情報はタイトル札） ============ -->
+<!-- ============ ヘッダー帯（わびさび: にじみ・霞・金箔・線描） ============ -->
 <header class="hero" id="hero">
   <svg class="e" viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-    <!-- 夕日 -->
-    <circle cx="640" cy="208" r="86" fill="#EFC98A" opacity=".5"/>
-    <circle cx="640" cy="208" r="60" fill="#F2D9A0"/>
-    <!-- 遠山 -->
-    <polygon points="0,206 200,150 420,204 640,158 900,208 1150,152 1440,206 1440,224 0,224" fill="#6E5570" opacity=".7"/>
-    <!-- 湯の水面 -->
-    <rect y="218" width="1440" height="102" fill="#B77B4E"/>
-    <rect y="218" width="1440" height="6" fill="#F2D9A0" opacity=".9"/>
-    <polygon class="kirameki" points="600,224 680,224 712,320 568,320" fill="#EFC98A" opacity=".55"/>
-    <g class="kirameki" stroke="#F2D9A0" stroke-width="2.5" opacity=".7">
-      <line x1="580" y1="252" x2="740" y2="252"/><line x1="606" y1="282" x2="716" y2="282"/>
+    <defs>
+      <!-- 筆のにじみ（輪郭を歪ませ、べた塗りを殺す） -->
+      <filter id="fude" x="-8%" y="-8%" width="116%" height="116%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.017 0.041" numOctaves="3" seed="11" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="7"/>
+      </filter>
+      <filter id="fude2" x="-12%" y="-12%" width="124%" height="124%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.011 0.05" numOctaves="3" seed="4" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="13"/>
+      </filter>
+    </defs>
+
+    <!-- 夕日 = 金箔の剥がれ（べた円ではなく箔片の集まり） -->
+    <g filter="url(#fude)">
+      <circle cx="620" cy="184" r="66" fill="#C9A54A" opacity=".55"/>
+      <circle cx="620" cy="184" r="46" fill="#E3CB85" opacity=".6"/>
     </g>
-    <!-- 金の楼閣 -->
-    <g transform="translate(1080,218) scale(0.74)">
-      <rect x="-130" y="-6" width="260" height="10" fill="#4A3524"/>
-      <g fill="#2A211A" opacity=".9">
-        <rect x="-118" y="4" width="8" height="22"/><rect x="110" y="4" width="8" height="22"/>
-        <rect x="-40" y="4" width="8" height="22"/><rect x="32" y="4" width="8" height="22"/>
+    <g opacity=".85">
+      <polygon points="588,150 606,146 602,162 586,164" fill="#EAD79B"/>
+      <polygon points="626,138 648,142 644,158 624,154" fill="#D9BC6E"/>
+      <polygon points="590,190 612,184 616,204 596,208" fill="#C9A54A"/>
+      <polygon points="634,172 660,168 656,190 636,192" fill="#EAD79B" opacity=".8"/>
+      <polygon points="604,214 622,210 620,226 606,224" fill="#D9BC6E" opacity=".7"/>
+      <polygon points="662,196 676,192 674,206 660,206" fill="#C9A54A" opacity=".6"/>
+    </g>
+    <circle cx="620" cy="184" r="78" fill="none" stroke="#E3CB85" stroke-width="1.2" opacity=".35" filter="url(#fude)"/>
+
+    <!-- 遠山（墨の濃淡、にじむ稜線） -->
+    <g filter="url(#fude2)">
+      <polygon points="0,196 210,148 430,198 660,158 920,202 1160,150 1440,198 1440,236 0,236" fill="#4A3E48" opacity=".5"/>
+      <polygon points="0,214 260,178 520,216 800,184 1080,218 1300,192 1440,214 1440,248 0,248" fill="#3A3038" opacity=".6"/>
+    </g>
+
+    <!-- 霞（大和絵の横雲。余白をつくる） -->
+    <g fill="#F7F1E1" filter="url(#fude2)">
+      <rect x="-40" y="168" width="520" height="26" rx="13" opacity=".5"/>
+      <rect x="120" y="188" width="330" height="18" rx="9" opacity=".38"/>
+      <rect x="880" y="160" width="480" height="24" rx="12" opacity=".45"/>
+      <rect x="1040" y="182" width="300" height="16" rx="8" opacity=".33"/>
+    </g>
+
+    <!-- 湯の水面（低彩度。金の反映は掠れ線で） -->
+    <rect y="226" width="1440" height="94" fill="#8A6B52" opacity=".9" filter="url(#fude)"/>
+    <line x1="0" y1="227" x2="1440" y2="227" stroke="#E3CB85" stroke-width="2" opacity=".5" filter="url(#fude)"/>
+    <g class="kirameki" stroke="#E3CB85" stroke-linecap="round" filter="url(#fude)">
+      <line x1="556" y1="248" x2="700" y2="248" stroke-width="2.5" opacity=".5"/>
+      <line x1="590" y1="270" x2="668" y2="270" stroke-width="2" opacity=".4"/>
+      <line x1="540" y1="292" x2="716" y2="292" stroke-width="2" opacity=".3"/>
+    </g>
+
+    <!-- 楼閣（蒔絵風の金の線描。面で塗らない） -->
+    <g transform="translate(1075,226) scale(0.82)" filter="url(#fude)">
+      <g fill="#B08D3E" opacity=".1">
+        <rect x="-100" y="-46" width="200" height="40"/>
+        <rect x="-80" y="-98" width="160" height="34"/>
+        <rect x="-56" y="-146" width="112" height="30"/>
       </g>
-      <rect x="-100" y="-46" width="200" height="40" fill="#3A2C1E"/>
-      <g fill="#D9BC6E"><rect x="-92" y="-40" width="20" height="28"/><rect x="-58" y="-40" width="20" height="28"/>
-        <rect x="-24" y="-40" width="20" height="28"/><rect x="10" y="-40" width="20" height="28"/>
-        <rect x="44" y="-40" width="20" height="28"/><rect x="72" y="-40" width="20" height="28"/></g>
-      <polygon points="-124,-46 124,-46 100,-64 -100,-64" fill="#B08D3E"/>
-      <rect x="-80" y="-98" width="160" height="34" fill="#B08D3E"/>
-      <g fill="#8A6A2E"><rect x="-68" y="-92" width="16" height="22"/><rect x="-38" y="-92" width="16" height="22"/>
-        <rect x="-8" y="-92" width="16" height="22"/><rect x="22" y="-92" width="16" height="22"/><rect x="52" y="-92" width="16" height="22"/></g>
-      <polygon points="-102,-98 102,-98 80,-116 -80,-116" fill="#D9BC6E"/>
-      <rect x="-56" y="-146" width="112" height="30" fill="#B08D3E"/>
-      <g fill="#8A6A2E"><rect x="-44" y="-140" width="14" height="18"/><rect x="-16" y="-140" width="14" height="18"/>
-        <rect x="12" y="-140" width="14" height="18"/><rect x="30" y="-140" width="14" height="18"/></g>
-      <polygon points="-78,-146 78,-146 52,-168 -52,-168" fill="#D9BC6E"/>
-      <line x1="0" y1="-168" x2="0" y2="-186" stroke="#D9BC6E" stroke-width="3"/>
-      <polygon points="0,-198 -9,-186 9,-186" fill="#EAD79B"/>
-      <rect class="kirameki" x="-100" y="8" width="200" height="34" fill="#D9BC6E" opacity=".3"/>
+      <g stroke="#E3CB85" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".92">
+        <line x1="-128" y1="0" x2="128" y2="0"/>
+        <line x1="-112" y1="0" x2="-112" y2="18"/><line x1="112" y1="0" x2="112" y2="18"/>
+        <line x1="-38" y1="0" x2="-38" y2="18"/><line x1="38" y1="0" x2="38" y2="18"/>
+        <path d="M -124,-46 L -100,-64 L 100,-64 L 124,-46 Z"/>
+        <line x1="-100" y1="-46" x2="-100" y2="-6"/><line x1="100" y1="-46" x2="100" y2="-6"/>
+        <line x1="-100" y1="-6" x2="100" y2="-6"/>
+        <line x1="-60" y1="-40" x2="-60" y2="-10"/><line x1="0" y1="-40" x2="0" y2="-10"/><line x1="60" y1="-40" x2="60" y2="-10"/>
+        <path d="M -102,-98 L -80,-116 L 80,-116 L 102,-98 Z"/>
+        <line x1="-80" y1="-98" x2="-80" y2="-64"/><line x1="80" y1="-98" x2="80" y2="-64"/>
+        <line x1="-40" y1="-92" x2="-40" y2="-70"/><line x1="40" y1="-92" x2="40" y2="-70"/>
+        <path d="M -78,-146 L -52,-168 L 52,-168 L 78,-146 Z"/>
+        <line x1="-56" y1="-146" x2="-56" y2="-116"/><line x1="56" y1="-146" x2="56" y2="-116"/>
+        <line x1="0" y1="-168" x2="0" y2="-188"/>
+      </g>
+      <polygon points="0,-198 -8,-187 8,-187" fill="#EAD79B" opacity=".95"/>
+      <g class="kirameki" stroke="#D9BC6E" stroke-width="1.6" opacity=".4">
+        <line x1="-88" y1="16" x2="-30" y2="16"/><line x1="10" y1="24" x2="92" y2="24"/>
+      </g>
     </g>
-    <!-- 庭（刈込・灯籠） -->
-    <ellipse cx="1330" cy="330" rx="150" ry="86" fill="#3D4F2F"/>
-    <ellipse cx="1180" cy="344" rx="100" ry="60" fill="#5C6E44"/>
-    <g transform="translate(872,320) scale(0.8)" fill="#4E463C">
-      <rect x="-10" y="-38" width="20" height="20"/>
-      <polygon points="-22,-38 22,-38 14,-52 -14,-52"/>
-      <rect x="-7" y="-72" width="14" height="20" fill="#3B342C"/>
-      <polygon points="-18,-72 18,-72 10,-84 -10,-84"/>
-      <circle cx="0" cy="-62" r="4" fill="#EFC98A" class="hi-akari"/>
+
+    <!-- 庭（墨のぼかしの刈込・線描の灯籠） -->
+    <g filter="url(#fude2)">
+      <ellipse cx="1345" cy="330" rx="140" ry="80" fill="#44523A" opacity=".55"/>
+      <ellipse cx="1205" cy="345" rx="95" ry="55" fill="#5C6E44" opacity=".4"/>
     </g>
-    <!-- 遅咲きの桜（左） -->
-    <path d="M 120,320 C 128,250 108,216 138,168 C 150,142 190,136 208,112" fill="none" stroke="#3B2A20" stroke-width="13" stroke-linecap="round"/>
-    <g fill="#E4AFB4">
-      <circle cx="214" cy="104" r="40"/><circle cx="258" cy="132" r="34"/><circle cx="172" cy="130" r="32"/>
-      <circle cx="226" cy="164" r="36"/><circle cx="278" cy="174" r="26"/>
+    <g transform="translate(880,320) scale(0.85)" stroke="#D9BC6E" stroke-width="1.8" fill="none" stroke-linecap="round" opacity=".8" filter="url(#fude)">
+      <line x1="-10" y1="-18" x2="10" y2="-18"/>
+      <line x1="-6" y1="-18" x2="-6" y2="-38"/><line x1="6" y1="-18" x2="6" y2="-38"/>
+      <path d="M -16,-38 L 0,-50 L 16,-38 Z"/>
+      <line x1="-20" y1="-56" x2="20" y2="-56"/>
+      <path d="M -14,-56 L 0,-68 L 14,-56"/>
     </g>
-    <g fill="#D68E96" opacity=".85">
-      <circle cx="198" cy="142" r="21"/><circle cx="248" cy="150" r="18"/>
+    <circle cx="880" cy="273" r="3.5" fill="#EFC98A" class="hi-akari" opacity=".9"/>
+
+    <!-- 遅咲きの桜（墨の枝 + 疎らな花。塊にしない） -->
+    <g filter="url(#fude)">
+      <path d="M 96,320 C 106,258 88,224 118,178 C 130,152 168,146 188,120" fill="none" stroke="#332620" stroke-width="10" stroke-linecap="round" opacity=".9"/>
+      <path d="M 122,212 C 156,196 170,196 196,184" fill="none" stroke="#332620" stroke-width="6" stroke-linecap="round" opacity=".85"/>
+    </g>
+    <g fill="#E4AFB4" opacity=".85">
+      <circle cx="192" cy="112" r="10"/><circle cx="212" cy="126" r="8"/><circle cx="176" cy="128" r="7"/>
+      <circle cx="200" cy="142" r="9"/><circle cx="226" cy="146" r="6"/><circle cx="184" cy="158" r="6"/>
+      <circle cx="214" cy="164" r="5"/><circle cx="164" cy="144" r="5"/>
+      <circle cx="204" cy="182" r="4.5"/><circle cx="230" cy="186" r="4"/>
+    </g>
+    <g fill="#D68E96" opacity=".75">
+      <circle cx="196" cy="128" r="4.5"/><circle cx="210" cy="150" r="4"/><circle cx="182" cy="142" r="3.5"/>
+      <circle cx="240" cy="170" r="3"/><circle cx="156" cy="160" r="2.5"/>
+    </g>
+
+    <!-- 手前の霞（画面下辺を軽く覆い、絵と札をなじませる） -->
+    <g fill="#F7F1E1" filter="url(#fude2)">
+      <rect x="300" y="296" width="560" height="22" rx="11" opacity=".28"/>
+      <rect x="960" y="304" width="420" height="18" rx="9" opacity=".24"/>
     </g>
   </svg>
-  <span class="yuge" style="left:40%; bottom:18%; width:56px; height:28px; animation-delay:0s"></span>
-  <span class="yuge" style="left:52%; bottom:12%; width:70px; height:34px; animation-delay:2.6s"></span>
+  <span class="yuge" style="left:42%; bottom:16%; width:52px; height:26px; animation-delay:0s"></span>
+  <span class="yuge" style="left:52%; bottom:11%; width:64px; height:30px; animation-delay:2.8s"></span>
   <div class="washi-me"></div>
   <div class="daimei">
     <h1>ブラウザワーカー ダッシュボード</h1>
@@ -290,11 +402,14 @@
   <div class="uchi">
 
     <!-- アラート -->
-    <section class="bu kado" id="s-alert">
+    <section class="bu" id="s-alert">
       <div class="sho">
-        <div class="sec-head"><h2>アラート</h2><span class="sode">先に対応が必要なもの 2件</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M10.5 19.5 a6.5 6.5 0 0 1 13 0 v1.5 h-13 z M15 10.5 q2 -2.5 4 0"/><circle class="nuri" cx="17" cy="24.5" r="1.6"/></svg>
+          <h2>アラート</h2><span class="sode">先に対応が必要なもの 2件</span>
+        </div>
         <div class="sec-sita"></div>
-        <ul class="alert">
+        <ul class="alert komon">
           <li>
             <span class="omo">急ぎ</span>
             <span class="naiyo">求人媒体Aの残り掲載枠が <strong>2件</strong>（契約期限 7/31 まで9日）</span>
@@ -310,9 +425,12 @@
     </section>
 
     <!-- サマリー -->
-    <section class="bu kado" id="s-stat">
+    <section class="bu" id="s-stat">
       <div class="sho">
-        <div class="sec-head"><h2>サマリー</h2><span class="sode">現在のようす</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 24 L8.5 12.5 M17 24 L13.5 10.5 M17 24 L20.5 10.5 M17 24 L25.5 12.5 M8.5 12.5 Q17 6.5 25.5 12.5"/></svg>
+          <h2>サマリー</h2><span class="sode">現在のようす</span>
+        </div>
         <div class="sec-sita"></div>
         <div class="stat">
           <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="1">0</span><span class="tan">件</span></div><div class="mei">進行中タスク</div><div class="sa onaji">承認待ち 3通</div></div>
@@ -324,9 +442,12 @@
     </section>
 
     <!-- 進行中タスク -->
-    <section class="bu kado" id="s-task">
+    <section class="bu" id="s-task">
       <div class="sho">
-        <div class="sec-head"><h2>進行中タスク</h2><span class="sode">止まっている理由まで表示</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><ellipse class="sen" cx="11" cy="23" rx="4" ry="2.4"/><ellipse class="sen" cx="18" cy="17.5" rx="3.5" ry="2.1"/><ellipse class="sen" cx="24" cy="12" rx="3" ry="1.8"/></svg>
+          <h2>進行中タスク</h2><span class="sode">止まっている理由まで表示</span>
+        </div>
         <div class="sec-sita"></div>
         <div class="hyo-maki"><table class="hyo">
           <tr><th>タスク</th><th>フェーズ</th><th>現在地</th><th>引き継ぎ</th></tr>
@@ -337,9 +458,12 @@
     </section>
 
     <!-- 直近7日の実行 -->
-    <section class="bu kado" id="s-nanoka">
+    <section class="bu" id="s-nanoka">
       <div class="sho">
-        <div class="sec-head"><h2>直近7日の実行</h2><span class="sode">定常タスクの実行履歴</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M11 24.5 L23 21.5 M11 21.5 L23 24.5 M17 20 C13.5 16.5 15.5 12 17 9.5 C18.5 12 20.5 16.5 17 20 Z"/></svg>
+          <h2>直近7日の実行</h2><span class="sode">定常タスクの実行履歴</span>
+        </div>
         <div class="sec-sita"></div>
         <div class="nanoka">
           <div class="hi-bou"><div class="bou" data-take="45%"></div><span class="hi">7/16</span></div>
@@ -355,9 +479,12 @@
     </section>
 
     <!-- 媒体サマリー -->
-    <section class="bu kado" id="s-baitai">
+    <section class="bu" id="s-baitai">
       <div class="sho">
-        <div class="sec-head"><h2>媒体サマリー</h2><span class="sode">主要数値と前回比</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="11.5" y="10.5" width="11" height="14" rx="5.5"/><path class="sen" d="M11.5 15 h11 M11.5 20 h11 M14.5 8.5 h5 M14.5 26.5 h5"/></svg>
+          <h2>媒体サマリー</h2><span class="sode">主要数値と前回比</span>
+        </div>
         <div class="sec-sita"></div>
         <div class="hyo-maki"><table class="hyo">
           <tr><th>媒体</th><th class="su">主要数値</th><th class="su">前回比</th><th>備考</th></tr>
@@ -371,9 +498,12 @@
     </section>
 
     <!-- SNSストック -->
-    <section class="bu kado" id="s-stock">
+    <section class="bu" id="s-stock">
       <div class="sho">
-        <div class="sec-head"><h2>SNSストック</h2><span class="sode">投稿ストックの充足率（目標比）</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="10" y="12" width="14" height="11"/><path class="sen" d="M10 17.5 h14 M17 12 v11"/></svg>
+          <h2>SNSストック</h2><span class="sode">投稿ストックの充足率（目標比）</span>
+        </div>
         <div class="sec-sita"></div>
         <div class="stock">
           <div class="stock-gyo tarinai"><span class="dare">X</span><div class="stock-obi"><div class="mi" data-mi="21%"></div></div><span class="wari">21%（1.5日）</span></div>
@@ -385,9 +515,12 @@
     </section>
 
     <!-- 競合ウォッチ -->
-    <section class="bu kado" id="s-watch">
+    <section class="bu" id="s-watch">
       <div class="sho">
-        <div class="sec-head"><h2>競合ウォッチ</h2><span class="sode">直近の変更検知（重要度順)</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M8 20 q4 -6.5 8 0 M17 15.5 q4 -6.5 8 0"/></svg>
+          <h2>競合ウォッチ</h2><span class="sode">直近の変更検知（重要度順）</span>
+        </div>
         <div class="sec-sita"></div>
         <ul class="maki">
           <li><span class="shirushi dai">重要</span><span class="moto">競合C社</span><span class="koto">求人の給与レンジを上方改定（+2万円）。同職種で当社と逆転</span><span class="itsu">7/21</span></li>
@@ -399,10 +532,13 @@
     </section>
 
     <!-- サイト健康 + 学習記録 -->
-    <section class="bu kado" id="s-site">
+    <section class="bu" id="s-site">
       <div class="sho nirin">
         <div>
-          <div class="sec-head"><h2>サイト健康</h2><span class="sode">自社サイトの計測値</span></div>
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 25.5 V13 M17 18.5 L11 15.5 M17 18.5 L23 15.5 M17 13 L12.5 9.5 M17 13 L21.5 9.5"/></svg>
+            <h2>サイト健康</h2><span class="sode">自社サイトの計測値</span>
+          </div>
           <div class="sec-sita"></div>
           <div class="hyo-maki"><table class="hyo">
             <tr><th>指標</th><th class="su">今回</th><th class="su">前回</th></tr>
@@ -412,7 +548,10 @@
           </table></div>
         </div>
         <div>
-          <div class="sec-head"><h2>学習記録</h2><span class="sode">直近に追加された OK / NG</span></div>
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M12 24 L21 11"/><path class="nuri" d="M12 24 L10.5 27.5 L14.5 26 Z"/><path class="sen" d="M19.5 9 l3 2"/></svg>
+            <h2>学習記録</h2><span class="sode">直近に追加された OK / NG</span>
+          </div>
           <div class="sec-sita"></div>
           <ul class="maki">
             <li><span class="shirushi yo">OK</span><span class="koto">スカウト件名は13字以内 + 大学名なしの方が開封が高い</span></li>
@@ -424,9 +563,12 @@
     </section>
 
     <!-- 蓄積と成長 -->
-    <section class="bu kado" id="s-sodachi">
+    <section class="bu" id="s-sodachi">
       <div class="sho">
-        <div class="sec-head"><h2>蓄積と成長</h2><span class="sode">使うほど自分専用になる</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 26 C17 21 17 18 17 14.5 M17 17.5 C13 17 10.5 14 10 10.5 C14 11 16.5 13.5 17 17.5 M17 14.5 C21 14 23.5 11 24 7.5 C20 8 17.5 10.5 17 14.5"/></svg>
+          <h2>蓄積と成長</h2><span class="sode">使うほど自分専用になる</span>
+        </div>
         <div class="sec-sita"></div>
         <div class="stat">
           <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="8">0</span><span class="tan">個</span></div><div class="mei">習得スキル</div><div class="sa yoi">今週 +2</div></div>
@@ -449,9 +591,12 @@
     </section>
 
     <!-- できること -->
-    <section class="bu kado" id="s-dekiru">
+    <section class="bu" id="s-dekiru">
       <div class="sho">
-        <div class="sec-head"><h2>できること</h2><span class="sode">迷ったら、そのまま言う</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M10.5 16 h13 v5.5 a6.5 3.5 0 0 1 -13 0 Z M13.5 12.5 q1 -2 0 -3.5 M18 12.5 q1 -2 0 -3.5"/></svg>
+          <h2>できること</h2><span class="sode">迷ったら、そのまま言う</span>
+        </div>
         <div class="sec-sita"></div>
         <div class="dekiru">
           <div>
@@ -485,9 +630,12 @@
     </section>
 
     <!-- 生成物 -->
-    <section class="bu kado" id="s-seika">
+    <section class="bu" id="s-seika">
       <div class="sho">
-        <div class="sec-head"><h2>生成物</h2><span class="sode">発行済みアーティファクト</span></div>
+        <div class="sec-head">
+          <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="11.5" y="13" width="11" height="11" transform="rotate(45 17 18.5)"/><circle class="sen" cx="17" cy="10.5" r="2.2"/></svg>
+          <h2>生成物</h2><span class="sode">発行済みアーティファクト</span>
+        </div>
         <div class="sec-sita"></div>
         <ul class="seika">
           <li><span class="tagui gd">ガイド</span><a href="#">Delvework 操作ガイド（和風総本家版）</a><span class="itsu">7/22</span></li>
@@ -502,6 +650,18 @@
 
 <footer class="ashimoto">
   <div class="kin-sen"></div>
+  <!-- 道程の一筆書き（山→森→洞窟→秘湯。装飾のみ） -->
+  <svg class="michinori" viewBox="0 0 1100 60" aria-hidden="true">
+    <path class="sen" d="M20 48 H1080" stroke-dasharray="1 9" opacity=".5"/>
+    <path class="sen" d="M90 48 L122 16 L142 34 L156 22 L182 48"/>
+    <path class="sen" d="M320 48 L334 26 L348 48 M338 48 L352 22 L366 48"/>
+    <path class="sen" d="M540 48 a26 22 0 0 1 52 0"/>
+    <path class="sen" d="M556 48 a10 9 0 0 1 20 0"/>
+    <path class="sen" d="M770 46 a16 7 0 0 0 32 0 z"/>
+    <path class="kin-sen2" d="M778 36 q-2 -5 1 -9 M786 38 q-2 -6 1 -11 M794 36 q-2 -5 1 -9"/>
+    <path class="kin-sen2" d="M980 48 v-14 M964 34 h32 M968 34 l12 -10 l12 10"/>
+    <circle cx="1004" cy="22" r="2" fill="#B08D3E" stroke="none"/>
+  </svg>
   <p>
     このダッシュボードは定常タスクの締めごとに自動更新される。<br>
     本ページは見本データ ── 実運用では knowledge/ の実データから生成される。
@@ -525,14 +685,14 @@
   /* ---- 桜の花びら（ヘッダー帯の中だけ・少量） ---- */
   if(!shizuka){
     var hero = document.getElementById('hero');
-    for(var i=0;i<8;i++){
+    for(var i=0;i<7;i++){
       var h = document.createElement('span');
       h.className = 'hana';
-      h.style.left = (6 + Math.random()*40) + '%';
+      h.style.left = (5 + Math.random()*32) + '%';
       h.style.animationDuration = (7 + Math.random()*6) + 's';
       h.style.animationDelay = (Math.random()*7) + 's';
-      h.style.opacity = (0.5 + Math.random()*0.5).toFixed(2);
-      h.style.transform = 'scale(' + (0.7 + Math.random()*0.6).toFixed(2) + ')';
+      h.style.opacity = (0.4 + Math.random()*0.45).toFixed(2);
+      h.style.transform = 'scale(' + (0.65 + Math.random()*0.6).toFixed(2) + ')';
       hero.appendChild(h);
     }
   }
