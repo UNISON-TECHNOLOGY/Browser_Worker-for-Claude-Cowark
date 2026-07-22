@@ -115,6 +115,17 @@
 | V19 | delve-start が tasks/*.yaml を実行計画として読む（エンジンと荷物の接続） |
 | V14 | 日本語エイリアス（/定常タスク を含む）が発火する |
 
+### 実施記録 2026-07-22（Cowork, v0.63.0）— ✅ 合格
+
+**PASS 17 / FAIL 0 / SKIP 2**（V8 自然文発火=未観測、V16 Slack=コネクタ未接続）
+
+- コア全通過: ゲート（V3/V4）・Credential Guard（V5・クリック誤爆なし）・DB 9テーブル（V6）・台帳20/20+スキル12一致（V17）
+- **新機能全通過**: V18 タスク登録（verify-loop.yaml + loops.yaml 生成・スキーマ機械確認）/ V19 YAML実行連携（delve-startが steps を計画の正に採用→読み取り完走→remove で消滅確認、navigate-warn.sh の警告も観測）/ V11 ダッシュボード（ドメイン5タブ・stops5点・旅人保持・実データ、攻略済みの峰の社が実数=1軒に連動）
+- サブエージェント: V9 deliverable-writer=sonnet-5 / V10 design-artisan=**fable-5で起動**（フォールバックなし）。チャットに委譲プロンプト文面が見えるのは Cowork の Agent 呼び出し表示仕様で、手渡しではない
+- 環境知見: ①プラグイン実体は `/root/.claude/plugins/synced/browser-worker`（相対 templates/ 不達 → Globフォールバック必須・現行記述で対応済み）②sqlite3 CLI 不在 → python3 標準ライブラリで代替可 ③create_artifact は一過性502あり（リトライで解消）・既存IDは update 経路が正
+- 生成物確認: user-guide.html は guide-template 準拠（定常タスク登録の言い方も掲載）。dashboard.html はドメインタブ+未運用ドメインの案内+「次の一手」導線まで正しく生成
+- 注: この検証は v0.63.0 実施のため、ダッシュボードは委譲生成（全文執筆）。v0.63.1 以降は**テンプレのファイルコピー+データ行Edit**が正
+
 ### 開発側（貼り戻し受領後）
 
 1. 表を本セクション直下に「実施記録」として追記して commit
