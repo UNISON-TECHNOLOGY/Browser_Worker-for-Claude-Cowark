@@ -12,7 +12,7 @@ Delvework タスク「$ARGUMENTS」（未指定なら `memory/.workflow/active` 
    - `knowledge/logs/` の該当タスクのログ
    - `memory/session-log.md` の該当セクション
    - セッション中に取得したスクリーンショット（あれば）
-2. `knowledge/reports/<task-name>-<date>.html` として自己完結型 HTML を書き出す（CSS/JS インライン、外部リソース参照なし）
+2. `knowledge/reports/<task-name>-<date>.html` として書き出す（templates/report-template.html を骨格に使用・自己完結）
 
 ## レポートに含める内容
 

@@ -27,7 +27,7 @@ argument-hint: <URL...>（スペース区切りで複数可）
      "components": {"button": {...}, "card": {...}}
    }
    ```
-2. **スタイルリサーチ HTML レポート**: `knowledge/reports/style-research-<date>.html`（自己完結・外部依存なし）
+2. **スタイルリサーチ HTML レポート**: `knowledge/reports/style-research-<date>.html`（templates/report-template.html を骨格に使用・自己完結）
    - サイトごとに: スクショ + カラーパレットのスウォッチ表示 + タイポグラフィ見本 + セクション構成図
    - 複数サイト指定時は**横断比較セクション**を先頭に置く（共通パターン / 各サイトの差別化ポイント / LP制作への示唆3点）
 
