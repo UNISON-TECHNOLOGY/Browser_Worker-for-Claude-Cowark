@@ -6,16 +6,21 @@
 <title>{{TITLE}}</title>
 <!-- Delvework Report Template v1 —
   使い方:
-  1. {{...}} プレースホルダを置換する
-  2. <main> 内に section スニペット（下のコメント参照）を積む
-  3. CSS は変更しない。色替えは :root の変数だけ触る
-  禁止: 独自レイアウトCSSの追加 / インラインstyleでの幅指定 / 固定px幅
+  1. まず templates/design-principles.md を読む（配置・比較併記・情報量・グラフ選択・色の原則）
+  2. {{...}} プレースホルダを置換する
+  3. <main> 内に section スニペット（下のコメント参照）を積む。
+     順序は「サマリー（stats）→ 本体 → 詳細表 → 示唆」= 全体から部分へ
+  4. CSS は変更しない。色替えは :root の変数だけ触る
+  禁止: 独自レイアウトCSSの追加 / インラインstyleでの幅指定（.bar-fill の width% を除く）/ 固定px幅
 -->
 <style>
 :root{
   --accent:#0154a9;        /* レポートのアクセント色。フェーズ/対象に合わせ変更可 */
   --accent-soft:#1f9de233; /* アクセントの淡色（badge/線） */
-  --ok:#1a7f37; --warn:#b58900; --bad:#c0392b;
+  --ok:#197A4B; --warn:#b58900; --bad:#CE0000;
+  /* チャート系列色（デジタル庁パレット準拠・この順で使用） */
+  --chart-1:#3460FB; --chart-2:#00A3BF; --chart-3:#259D63;
+  --chart-4:#FB5B01; --chart-5:#767676;
   --bg:#ffffff; --bg-alt:#f6f8fa; --fg:#1c2733; --fg-muted:#5a6b7b;
   --border:#dde4ea; --card:#ffffff; --shadow:0 1px 3px rgba(16,32,48,.08);
 }
@@ -96,6 +101,17 @@ tr:last-child td{border-bottom:none}
 .stat .l{font-size:11px;color:var(--fg-muted)}
 .stat.warn{border-left-color:var(--warn)} .stat.bad{border-left-color:var(--bad)}
 .stat.ok{border-left-color:var(--ok)}
+.stat .d{font-size:11px;font-weight:700;margin-top:2px}
+.delta.up{color:var(--ok)} .delta.down{color:var(--bad)}
+.delta.up::before{content:"▲ "} .delta.down::before{content:"▼ "}
+
+/* CSS横棒（数量比較用。width:% をインラインで指定する唯一の例外） */
+.bars{display:grid;gap:8px}
+.bar-row{display:grid;grid-template-columns:minmax(90px,160px) 1fr 70px;
+   gap:10px;align-items:center;font-size:12px}
+.bar-track{background:var(--bg-alt);border-radius:6px;height:16px;overflow:hidden}
+.bar-fill{height:100%;background:var(--chart-1);border-radius:6px}
+.bar-row .val{text-align:right;font-family:ui-monospace,Consolas,monospace}
 
 /* タイムライン */
 .timeline{list-style:none;border-left:2px solid var(--border);margin-left:8px;padding-left:20px}
@@ -162,8 +178,15 @@ footer{margin-top:60px;border-top:1px solid var(--border);padding-top:16px;
   ■ 表（必ず .tbl で包む。長文セルは td.wrap-ok）
   <div class="tbl"><table>...</table></div>
 
-  ■ 数値ハイライト（閾値超えは .warn / .bad）
-  <div class="stats"><div class="stat"><div class="v">2.1s</div><div class="l">LCP</div></div></div>
+  ■ 数値ハイライト（閾値超えは .warn / .bad。**必ず比較対象を .d に併記**: 前回比/目標/目安）
+  <div class="stats"><div class="stat"><div class="v">2.1s</div><div class="l">LCP（目安2.5s）</div>
+    <div class="d delta up">0.4s 改善（前回比）</div></div></div>
+
+  ■ CSS横棒（数量比較。値の大きい順にソートし、最大値を100%とする）
+  <div class="bars">
+    <div class="bar-row"><span>画像</span><div class="bar-track">
+      <div class="bar-fill" style="width:84%"></div></div><span class="val">1.2MB</span></div>
+  </div>
 
   ■ 操作タイムライン
   <ul class="timeline"><li><span class="t">14:02</span>navigate → …</li></ul>
