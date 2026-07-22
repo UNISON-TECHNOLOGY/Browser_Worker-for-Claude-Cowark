@@ -36,7 +36,7 @@ media:
 ### status（デフォルト）
 1. registry.yaml の全媒体について、ブラウザで管理画面を巡回（read_page、読み取り専用）
    - ログインが必要な媒体は人間にログインを依頼し、不可ならスキップして「未取得」と報告
-2. watch 定義の項目（残数・掲載件数・有効期限等）を取得し、`knowledge/media/status/<date>.json` に記録
+2. watch 定義の項目（残数・掲載件数・有効期限等）を取得し、knowledge/data/delvework.db の media_status に追記（DBが無ければ templates/db-schema.sql で初期化）
 3. チャットに横断サマリー表を表示:
    - 媒体 / 種別 / 主要数値(前回比) / アラート（⚠️ quota.warn_below 割れ・契約更新30日前・前回から急減）
 4. アラートがあれば対応の提案（例: 「チケット残 32、今週の送信予定 40 件 — 追加購入 or 送信調整が必要」）

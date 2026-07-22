@@ -7,7 +7,7 @@ argument-hint: <URL...>（スペース区切りで複数可）
 
 ## 手順（サイトごと）
 
-1. **スナップショット取得**（読み取り専用）: read_page でページの構造化テキストを取得し、以下を抽出して `knowledge/watch/<site-name>/<date>.json` に保存する
+1. **スナップショット取得**（読み取り専用）: read_page でページの構造化テキストを取得し、以下を抽出して `knowledge/watch/<site-name>/<date>.json` に保存し、検知した差分は knowledge/data/delvework.db の watch_changes にも追記する（DBが無ければ templates/db-schema.sql で初期化）
    - 主要コピー（ヒーロー見出し・サブコピー・CTA文言）
    - 料金・プラン・数値実績（金額・%・件数を含む文）
    - セクション構成（見出しの一覧と順序）
