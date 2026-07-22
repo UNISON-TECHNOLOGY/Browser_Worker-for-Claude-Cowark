@@ -18,7 +18,8 @@ argument-hint: [対象読者（省略時は一般ユーザー向け）]
 
 ## 生成ルール
 
-- templates/report-template.html 準拠（deliverable-writer 委譲）。読者は非エンジニア前提、専門用語は言い換える
+- **templates/guide-template.html（和風総本家テーマ）を骨格に使う**。設計意図と禁じ手は templates/guide-design.md（正本）に従う。report-template.html はデータレポート用でありガイドには使わない
+- deliverable-writer 委譲。読者は非エンジニア前提、専門用語は言い換える（「エージェント」→「職人」等の言い換えは guide-design.md の世界観に合わせてよいが、コマンド名・設定名は正確に）
 - 保存: knowledge/reports/user-guide.html（上書き）
 - **アーティファクト発行は固定URL**: 初回 create、以降は同じアーティファクトを update（URL は knowledge/media/guide-artifact.md に記録）。artifacts-index.md に追記
 - コマンド・パック・スキルが変わるたびに再生成すれば常に実態と同期したガイドになる（ダッシュボード更新時に同時更新を推奨）

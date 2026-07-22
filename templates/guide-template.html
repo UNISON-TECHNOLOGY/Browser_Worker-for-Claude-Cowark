@@ -1,0 +1,119 @@
+<!-- Delvework 和風ガイドテンプレート（正本）
+     使い方: {{...}} を差し替える。CSSの改変は禁止（トークン :root の値のみ調整可）。
+     セクションは .sec を複製し、章番号は漢数字（一、二、三…）で振る。 -->
+<style>
+:root{
+  --washi:#F4EDDC; --washi-2:#ECE2CB; --sumi:#26221C; --sumi-2:#5A5245;
+  --ai:#1E3A56; --ai-2:#2E5170; --shu:#B93A32; --kincha:#9C7A3C;
+  --line:#C9BC9E; --card:#FBF7EC;
+  --serif:"Shippori Mincho","Yu Mincho","YuMincho","Hiragino Mincho ProN","Noto Serif JP",serif;
+  --gothic:"Hiragino Kaku Gothic ProN","Yu Gothic","YuGothic","Noto Sans JP",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --washi:#1C1914; --washi-2:#242019; --sumi:#EAE1CC; --sumi-2:#A79A80;
+  --ai:#7FA3C4; --ai-2:#5C82A3; --shu:#D96A5F; --kincha:#C2A264;
+  --line:#453D2F; --card:#26221B;
+}}
+:root[data-theme="dark"]{
+  --washi:#1C1914; --washi-2:#242019; --sumi:#EAE1CC; --sumi-2:#A79A80;
+  --ai:#7FA3C4; --ai-2:#5C82A3; --shu:#D96A5F; --kincha:#C2A264;
+  --line:#453D2F; --card:#26221B;
+}
+:root[data-theme="light"]{
+  --washi:#F4EDDC; --washi-2:#ECE2CB; --sumi:#26221C; --sumi-2:#5A5245;
+  --ai:#1E3A56; --ai-2:#2E5170; --shu:#B93A32; --kincha:#9C7A3C;
+  --line:#C9BC9E; --card:#FBF7EC;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--washi);color:var(--sumi);font-family:var(--gothic);line-height:1.9;font-size:15px}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px 96px}
+/* ---- 表紙 ---- */
+header.cover{position:relative;padding:72px 0 48px;border-bottom:3px double var(--line)}
+.cover .asanoha{position:absolute;inset:0;opacity:.5;pointer-events:none;
+  background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="56" height="97" viewBox="0 0 56 97"><g stroke="%239C7A3C" stroke-opacity="0.16" stroke-width="1" fill="none"><path d="M28 0 L56 16 L56 48 L28 64 L0 48 L0 16 Z"/><path d="M28 0 L28 64 M0 16 L56 48 M56 16 L0 48"/><path d="M28 33 L56 49 L56 81 L28 97 L0 81 L0 49 Z" transform="translate(0,-1)"/></g></svg>');
+  -webkit-mask-image:linear-gradient(180deg,#000 30%,transparent);mask-image:linear-gradient(180deg,#000 30%,transparent)}
+.cover-inner{position:relative;display:flex;gap:28px;align-items:flex-start}
+.tate{writing-mode:vertical-rl;font-family:var(--serif);font-size:13px;letter-spacing:.5em;color:var(--kincha);border-left:1px solid var(--line);padding-left:14px;height:9.5em;flex:none}
+.cover h1{font-family:var(--serif);font-weight:600;font-size:clamp(30px,5vw,44px);letter-spacing:.06em;margin:0 0 10px;color:var(--ai);text-wrap:balance}
+.cover .lede{max-width:36em;margin:0;color:var(--sumi-2)}
+.rakkan{flex:none;margin-left:auto;width:64px;height:64px;background:var(--shu);color:#F4EDDC;border-radius:6px;
+  display:grid;place-items:center;font-family:var(--serif);font-size:20px;line-height:1.3;letter-spacing:.1em;
+  writing-mode:vertical-rl;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+/* ---- 奥付風メタ帯 ---- */
+.okuzuke{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);margin-top:36px;background:var(--card)}
+.okuzuke div{flex:1 1 160px;padding:12px 16px;border-right:1px solid var(--line)}
+.okuzuke div:last-child{border-right:none}
+.okuzuke dt{font-size:11px;letter-spacing:.25em;color:var(--kincha);margin:0 0 2px;font-family:var(--serif)}
+.okuzuke dd{margin:0;font-size:13px}
+/* ---- 章 ---- */
+.sec{margin-top:64px}
+.sec-head{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:22px}
+.kanji-no{font-family:var(--serif);font-size:26px;color:var(--shu);flex:none}
+.sec-head h2{font-family:var(--serif);font-weight:600;font-size:22px;letter-spacing:.08em;margin:0;color:var(--ai)}
+.sec-head .fu{margin-left:auto;font-size:11px;letter-spacing:.3em;color:var(--sumi-2);font-family:var(--serif)}
+.sec p{max-width:42em}
+/* ---- 言い方帳（テーブル） ---- */
+.tblwrap{overflow-x:auto;border:1px solid var(--line);background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th{font-family:var(--serif);font-weight:600;text-align:left;letter-spacing:.15em;color:var(--kincha);
+  border-bottom:2px solid var(--line);padding:10px 14px;font-size:12px;white-space:nowrap}
+td{border-bottom:1px solid var(--line);padding:10px 14px;vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.iikata{font-family:var(--serif);color:var(--ai);white-space:nowrap}
+td.iikata::before{content:"「"}td.iikata::after{content:"」"}
+.off{opacity:.45}
+.badge{display:inline-block;font-size:10px;letter-spacing:.2em;padding:1px 8px;border:1px solid currentColor;border-radius:2px;margin-left:8px;vertical-align:1px}
+.badge.on{color:var(--ai)}.badge.stop{color:var(--shu)}
+/* ---- 心得（カード） ---- */
+.kokoroe{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.kokoroe .kk{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--ai);padding:16px 18px}
+.kokoroe .kk h3{font-family:var(--serif);font-size:15px;margin:0 0 6px;color:var(--ai);letter-spacing:.06em}
+.kokoroe .kk p{margin:0;font-size:13px;color:var(--sumi-2)}
+/* ---- 安全の流れ（工程図） ---- */
+.kotei{display:flex;flex-wrap:wrap;gap:0;counter-reset:step;border:1px solid var(--line);background:var(--card)}
+.kotei .st{flex:1 1 150px;padding:16px 18px;border-right:1px dashed var(--line);position:relative}
+.kotei .st:last-child{border-right:none}
+.kotei .st b{display:block;font-family:var(--serif);color:var(--ai);letter-spacing:.1em;margin-bottom:4px}
+.kotei .st span{font-size:12.5px;color:var(--sumi-2)}
+.kotei .st::before{counter-increment:step;content:counter(step,cjk-ideographic);
+  font-family:var(--serif);color:var(--shu);font-size:13px;display:block;margin-bottom:2px}
+/* ---- 注書き ---- */
+.chu{border-left:3px solid var(--shu);background:var(--washi-2);padding:12px 18px;font-size:13.5px}
+.chu b{font-family:var(--serif);letter-spacing:.1em;color:var(--shu)}
+footer{margin-top:80px;border-top:3px double var(--line);padding-top:18px;display:flex;justify-content:space-between;
+  font-size:11.5px;letter-spacing:.2em;color:var(--sumi-2);font-family:var(--serif)}
+a{color:var(--ai-2)}
+@media (prefers-reduced-motion: no-preference){
+  .sec{animation:uki .5s ease both}
+  @keyframes uki{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+}
+</style>
+
+<div class="wrap">
+  <header class="cover">
+    <div class="asanoha"></div>
+    <div class="cover-inner">
+      <div class="tate">{{縦書きの袖ラベル 例: ブラウザ業務自動化の手引}}</div>
+      <div>
+        <h1>{{TITLE}}</h1>
+        <p class="lede">{{リード文 — 何のための書か・コマンド不要である旨を2行で}}</p>
+      </div>
+      <div class="rakkan">{{印<br>字二文字 例: 删滅}}</div>
+    </div>
+    <dl class="okuzuke">
+      <div><dt>環境</dt><dd>{{ENV}}</dd></div>
+      <div><dt>Pack</dt><dd>{{PACKS}}</dd></div>
+      <div><dt>習得スキル</dt><dd>{{SKILLS}}</dd></div>
+      <div><dt>改訂</dt><dd>{{DATE}} / v{{VER}}</dd></div>
+    </dl>
+  </header>
+
+  <!-- 章の雛形: 複製して使う。章番号は 一、二、三…（漢数字） -->
+  <section class="sec">
+    <div class="sec-head"><span class="kanji-no">{{一}}</span><h2>{{章タイトル}}</h2><span class="fu">{{袖注 例: こころえ}}</span></div>
+    {{本文 — 「心得」は .kokoroe、「言い方の表」は .tblwrap>table（言い方セルは td.iikata、
+       OFF行は tr.off + badge.stop）、「安全の流れ」は .kotei、注意書きは .chu を使う}}
+  </section>
+
+  <footer><span>{{左: 発行者・銘}}</span><span>{{右: Delvework 之印}}</span></footer>
+</div>
