@@ -20,10 +20,15 @@
    `https://github.com/UNISON-TECHNOLOGY/Browser_Worker-for-Claude-Cowark`
 2. `browser-worker` プラグインを有効化
 
-Playwright MCP はプラグインに同梱されているため、個別の接続作業は不要。
+## ブラウザエンジン
 
-**重要**: ブラウザ操作は必ず同梱の Playwright（`mcp__playwright__*` ツール）で行うこと。
-Cowork 標準のブラウザ機能はゲート対象外のため、Delvework のワークフロー保護が効かない。
+**Cowork では Claude in Chrome を前提エンジンとする**（v0.9.0〜）。ユーザーの実ブラウザで
+動くためログイン済みセッションがそのまま使え、追加セットアップ不要。
+ゲートは `mcp__claude-in-chrome__computer` / `form_input` を捕捉する。
+
+ローカル Claude Code で使う場合は Playwright MCP（`mcp__playwright__*`）にも同じゲートが
+効く（マッチャーは両エンジン対応）。同梱の `.mcp.json` は Claude Code 用
+（Cowork はプラグイン同梱 MCP をチャットに供給しない — TESTING.md T1 参照）。
 
 **本運用時**: 「フォルダを追加」で業務フォルダを接続すること。未接続だとクラウド VM の
 一時領域に knowledge/memory が作られ、セッション終了で消える。

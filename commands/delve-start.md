@@ -20,7 +20,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    ```bash
    echo "<phase>" > memory/.workflow/phase && touch memory/.workflow/b4_done
    ```
-5. ブラウザで変更操作を行う前に、必ず browser_snapshot で変更前の状態を記録してから:
+5. ブラウザで変更操作を行う前に、必ず read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録してから:
    ```bash
    touch memory/.workflow/e_done
    ```

@@ -15,7 +15,7 @@ if [ ! -f "$WF_DIR/b4_done" ]; then
 fi
 
 if [ ! -f "$WF_DIR/e_done" ]; then
-  deny "【Delvework Gate】Step E（変更前記録）が未完了です。browser_snapshot で変更前の状態を記録してから変更操作を行ってください。コマンド: touch memory/.workflow/e_done"
+  deny "【Delvework Gate】Step E（変更前記録）が未完了です。read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録してから変更操作を行ってください。コマンド: touch memory/.workflow/e_done"
 fi
 
 exit 0

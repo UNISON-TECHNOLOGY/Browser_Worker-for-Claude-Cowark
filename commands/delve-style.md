@@ -7,8 +7,8 @@ argument-hint: <URL...>（スペース区切りで複数可）
 
 ## 手順（サイトごとに繰り返し）
 
-1. Playwright で対象 URL に遷移し、フルページスクリーンショットを取得
-2. `browser_evaluate` で computed style を計測する:
+1. ブラウザ（Claude in Chrome: navigate / computer、Playwright: browser_navigate 等、利用可能な方）で対象 URL に遷移し、スクリーンショットを取得
+2. JS 実行ツール（Claude in Chrome: `javascript_tool`、Playwright: `browser_evaluate`）で computed style を計測する:
    - **カラー**: 全可視要素の background-color / color / border-color を集計し、使用面積・頻度の上位を抽出（rgba→hex 正規化、透明・白黒系はグループ化）
    - **タイポグラフィ**: body と h1〜h4 の font-family / font-size / font-weight / line-height / letter-spacing
    - **レイアウト**: メインコンテナの max-width、セクションの縦余白（padding/margin の代表値）、グリッド列数

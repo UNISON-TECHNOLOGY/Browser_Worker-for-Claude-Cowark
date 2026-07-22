@@ -13,7 +13,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": ".*(browser|chrome|computer).*(click|type|fill|select|upload|press|key|input|form).*|.*(click|type|fill|select|upload|press).*(browser|chrome|computer).*",
+        "matcher": "mcp__claude-in-chrome__computer|mcp__claude-in-chrome__form_input|mcp__playwright__browser_click|mcp__playwright__browser_type|mcp__playwright__browser_fill_form|mcp__playwright__browser_select_option|mcp__playwright__browser_file_upload|mcp__playwright__browser_press_key",
         "hooks": [
           {
             "type": "command",
@@ -22,7 +22,7 @@
         ]
       },
       {
-        "matcher": ".*(browser|chrome|computer).*(navigate|goto|open_url).*",
+        "matcher": "mcp__claude-in-chrome__navigate|mcp__claude-in-chrome__tabs_create_mcp|mcp__playwright__browser_navigate",
         "hooks": [
           {
             "type": "command",

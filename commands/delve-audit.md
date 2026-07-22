@@ -11,9 +11,9 @@ argument-hint: <サイトURL> [最大ページ数（デフォルト10）]
 - sitemap がなければトップページの内部リンクから収集
 - 最大ページ数（指定なければ10ページ）まで。対象を選ぶ際は主要導線（トップ/サービス/料金/問い合わせ等）を優先
 
-## 2. ページごとの計測（Playwright: navigate + evaluate + network_requests）
+## 2. ページごとの計測（navigate + JS実行 + ネットワーク監視 — Claude in Chrome / Playwright どちらでも可）
 
-**スピード実測** — `browser_evaluate` で Performance API から取得:
+**スピード実測** — JS 実行ツール（`javascript_tool` / `browser_evaluate`）で Performance API から取得:
 ```js
 // Navigation Timing: TTFB, DOMContentLoaded, load
 performance.getEntriesByType('navigation')[0]
@@ -28,7 +28,7 @@ performance.getEntriesByType('navigation')[0]
 - viewport / OGP / canonical の有無
 
 **リンク健全性**:
-- `browser_network_requests` で 4xx/5xx レスポンスとリダイレクトチェーンを検出
+- ネットワーク監視ツール（`read_network_requests` / `browser_network_requests`）で 4xx/5xx レスポンスとリダイレクトチェーンを検出
 
 ## 3. 出力（2つ）
 
