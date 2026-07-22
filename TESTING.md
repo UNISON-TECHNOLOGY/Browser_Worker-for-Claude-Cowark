@@ -8,6 +8,7 @@
 |---|------|------|
 | T0 | プラグイン読み込み（/delve-status 実行） | ✅ 合格（2026-07-22） |
 | T0b | marketplace 更新検知（version フィールド） | ✅ 合格（version 明記で解決） |
+| T1 | プラグイン同梱 MCP（playwright）のチャット供給 | ❌ **不合格**（2026-07-22）: 設定画面のコネクタタブには表示されるが、チャットの「+」メニューに現れずツールとして供給されない。**回避策**: claude_desktop_config.json の mcpServers に playwright を直接登録（適用済み）。チャットでは Claude in Chrome を OFF にして playwright に限定する |
 
 ## Phase 1: 基盤（全ての前提）
 
