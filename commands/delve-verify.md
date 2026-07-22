@@ -33,12 +33,14 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 | V8 | 自然文発火 | このセッションのここまでで、delve コマンドがコマンド名なしの依頼から発火したか振り返り | 事例があれば PASS、なければ「未観測」 |
 | V9 | サブエージェント | deliverable-writer に小さな執筆（3行のテスト文書）を委譲 | 起動し成果が返る。使用モデルも記録 |
 | V10 | design-artisan モデル | design-artisan を最小タスクで起動 | fable で起動できたか、sonnet フォールバックか記録 |
-| V11 | ダッシュボード | /delve-dashboard を実行 | HTML生成+アーティファクト発行（2回目なら同一URL更新） |
+| V11 | ダッシュボード | /delve-dashboard を実行 | dashboard-template（浮世絵ヘッダー+旅人）準拠で生成、タブ=全体+ドメイン、停留点数=タブ数、アラート+場所とタスク一覧が実データ。アーティファクト発行（2回目なら同一URL更新） |
 | V12 | ガイド | /delve-guide を実行 | Pack状態が反映されたガイドが発行される |
 | V13 | Pack制御 | packs.conf に deep=off を書き→挙動確認→元に戻す | 無効通知が次セッションに出る（今セッションでは conf の読み書きのみ確認） |
 | V14 | 日本語コマンド | /状態確認 を実行 | 日本語名で発火する |
 | V15 | スキル化 | ダミー手順（「検証用: example.comを開いて閉じる」）を /delve-skillify | .claude/skills/ に生成され、frontmatter が規約通り |
 | V16 | Slack | Slack ツールの有無を確認、あればテスト通知1件 | 到達 or 「コネクタ未接続」を記録 |
+| V18 | タスク登録 | /delve-task register verify-loop（内容: example.com を開いて見出しを確認するだけの読み取り専用タスク・cadence「手動」）| tasks/verify-loop.yaml と knowledge/config/loops.yaml が task-template.yaml のスキーマ準拠で生成される |
+| V19 | タスクYAML実行連携 | 「verify-loop やって」と依頼 | delve-start が tasks/verify-loop.yaml を Read し、その steps を実行計画に使う（読み取り専用なので承認不要で完走）。終了後 /delve-task remove verify-loop で掃除し、YAML と loops 行が消えることまで確認 |
 
 ### C. 後片付け
 
