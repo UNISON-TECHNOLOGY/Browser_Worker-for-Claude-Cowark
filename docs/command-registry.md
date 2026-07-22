@@ -89,7 +89,7 @@ knowledge/ の物理フォルダは記録の種類別（変更しない。既存
 | ドメイン | 主な保存先 |
 |---|---|
 | 企画リサーチ | knowledge/watch/・audits/・styles/・sites/ |
-| SNS運用 | knowledge/sns/・content-queue/ |
+| SNS運用 | knowledge/sns/（ネタ帳は sns/<platform>/queue.md に一本化） |
 | 求人媒体 | knowledge/media/・approvals/・drafts/ |
 | 広告分析 | knowledge/styles/・mockups/・drafts/・assets/ |
 | 基盤（横断） | knowledge/sites/・logs/・reports/・tacit/・feedback/・data/・config/・artifacts-index.md |
