@@ -36,6 +36,14 @@
 | T5 | snapshot 実行 → e_done 作成 → クリック指示 | 操作が通る（ゲート解除） |
 | T6 | 新しいセッションを開始 | session-start hook が「前回タスク未完了」を通知 |
 
+> ✅ **T3-T5 合格（2026-07-22, v0.9.0）**: /delve-start → フェーズ①自己判定 → read_page で Step E →
+> ゲート解除後にクリック成功（Clicked on element ref_4）→ k_done + セッションログ記録まで
+> ワークフロー一周が Cowork 上で自走完了。
+>
+> ⚠️ **既知の環境癖（In Chrome 方式固有）**: クリック後にユーザーの Chrome の別拡張がタブを
+> 乗っ取ると「Cannot access a chrome-extension:// URL」で以降の操作が失敗する。
+> 実ブラウザを使う方式の宿命。対処: navigate で直接遷移する / 干渉する拡張を無効化する。
+
 ## Phase 3: 実用機能
 
 | # | 手順 | 期待結果 |
