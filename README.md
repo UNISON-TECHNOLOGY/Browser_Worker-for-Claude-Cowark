@@ -14,12 +14,19 @@
 | `commands/delve-status.md` | ワークフロー状態の確認 |
 | `hooks/hooks.json` | Playwright 変更操作のゲート（B-4/E 未完了ならブロック） |
 
-## インストール（Cowork）
+## インストール（Cowork）— 2ステップ
 
 1. Cowork の Customize → プラグインでこのリポジトリの marketplace を追加:
    `https://github.com/UNISON-TECHNOLOGY/Browser_Worker-for-Claude-Cowark`
 2. `browser-worker` プラグインを有効化
-3. Playwright MCP を接続
+
+Playwright MCP はプラグインに同梱されているため、個別の接続作業は不要。
+
+**重要**: ブラウザ操作は必ず同梱の Playwright（`mcp__playwright__*` ツール）で行うこと。
+Cowork 標準のブラウザ機能はゲート対象外のため、Delvework のワークフロー保護が効かない。
+
+**本運用時**: 「フォルダを追加」で業務フォルダを接続すること。未接続だとクラウド VM の
+一時領域に knowledge/memory が作られ、セッション終了で消える。
 
 ## 設計原則
 
