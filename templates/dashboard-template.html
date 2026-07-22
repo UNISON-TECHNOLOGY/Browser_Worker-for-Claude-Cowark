@@ -1,17 +1,18 @@
 <!--
-  ブラウザワーカー ダッシュボード（正本テンプレート v7・浮世絵ヘッダー + 歩く旅人）
+  ブラウザワーカー ダッシュボード（正本テンプレート v8・階層 = 全体/媒体/サイト）
   =====================================================================
-  原則:
-    - タブは「タスク単位」（全体 + 定常タスクごと）。各タブでシステム状態を可視化:
-      状態カード（フェーズ①〜④/現在ステップ/次回実行/状態）+ 工程の飛び石図（A〜K・関所チップ）
-    - ヘッダーは一枚の浮世絵風ランドスケープ（クリーム空・藍の富士・金箔の月・青海波の雲）。
-      旅人（ブラウザワーカー）がタブを進めると尾根道を歩いて移動する。
-      道中の目印: 道標→松林→洞窟→橋→灯籠→温泉+楼閣。右上の峰に攻略済みサイトの社
-    - ラベル・見出しは平易な機能名のみ。タイトル札などの箱は置かない（タイトルは空に直書き）
-    - べた塗り禁止（にじみ・低彩度・和紙粒子）。遊びの装飾は本体の中に
-    - ファーストビューで価値に到達（全体タブ直下にアラート+タスク一覧）
+  情報設計（2026-07-22 ユーザー指摘で確定）:
+    - 実体の階層は「場所（サイト/媒体）→ その中のタスク」。タスクを場所からはがして
+      トップタブに並べない（スカウトは媒体Bの内蔵機能、競合ウォッチはサイト監視の内蔵機能）
+    - トップタブは大分類のみ: 全体 / 媒体（媒体A掲載・媒体Bスカウト・SNS）/ サイト（自社・競合）
+    - フェーズ①〜④は「場所の攻略度」。場所ごとの状態カードに付ける
+  その他の原則（継承）:
+    - 各場所に状態カード（フェーズ/現在ステップ/次回実行/状態）。承認が絡む場所は工程の飛び石図（A〜K・関所）
+    - ラベルは平易な機能名のみ。世界観は視覚だけ（浮世絵ヘッダー・歩く旅人・紋・鮫小紋・判子バッジ）
+    - タブを進めると旅人が尾根道を歩く（停留点はタブ数と同数）
+    - ファーストビューで価値に到達（全体タブ直下にアラート+場所一覧）
   実例=雛形。数値・文言（見本データ）を knowledge/ の実データに差し替えて使う。
-  CSS・構造・演出は変更しない。単一テーマ。外部読込なし。
+  CSS・構造・演出は変更しない（例外: タブ数変更時の stops/.taboji 再生成のみ）。単一テーマ。外部読込なし。
 -->
 <title>ブラウザワーカー ダッシュボード</title>
 <style>
@@ -61,7 +62,6 @@
   .kumo-b{ animation:nagare 36s ease-in-out infinite alternate-reverse }
   @keyframes nagare{ from{transform:translateX(0)} to{transform:translateX(16px)} }
 
-  /* 旅人（歩行はタブ切り替えと連動） */
   #tabibito{ transition:transform 4.2s cubic-bezier(.42,.08,.58,.92) }
   #tabibito .muki{ transform-box:fill-box; transform-origin:center }
   #tabibito .muki.gyaku{ transform:scaleX(-1) }
@@ -84,7 +84,7 @@
     .kumo-a,.kumo-b,.kirameki,.hi-akari{ animation:none }
   }
 
-  /* ============ タブ（タスク札） ============ */
+  /* ============ タブ ============ */
   .fudaretsu{
     position:sticky; top:0; z-index:50; background:var(--washi);
     border-bottom:2px solid var(--kin); box-shadow:0 2px 10px rgba(42,33,26,.08);
@@ -96,8 +96,8 @@
   .fudaretsu .naka::-webkit-scrollbar{ display:none; width:0; height:0 }
   .fuda-tab{
     appearance:none; border:none; cursor:pointer; background:var(--washi-2);
-    font-family:var(--mincho); font-weight:700; font-size:14.5px; letter-spacing:.12em; color:var(--sumi-70);
-    padding:11px 18px 9px; border-radius:6px 6px 0 0; position:relative; white-space:nowrap;
+    font-family:var(--mincho); font-weight:700; font-size:15px; letter-spacing:.14em; color:var(--sumi-70);
+    padding:11px 22px 9px; border-radius:6px 6px 0 0; position:relative; white-space:nowrap;
     border-top:3px solid transparent; transition:background .3s,color .3s;
   }
   .fuda-tab:hover{ color:var(--niwa) }
@@ -142,6 +142,13 @@
     background:var(--kin-3); opacity:.75; transform:rotate(21deg);
     clip-path:polygon(12% 0,100% 22%,84% 100%,0 74%);
   }
+  /* 場所内の小見出し */
+  .naka-dai{
+    display:flex; align-items:baseline; gap:12px; margin:34px 0 14px;
+    font-size:16.5px; font-weight:700; letter-spacing:.16em; color:var(--sumi);
+  }
+  .naka-dai::before{ content:""; width:14px; height:3px; background:var(--kinpaku); align-self:center }
+  .naka-dai .chii{ font-size:12.5px; color:var(--tsuchi); font-weight:600; letter-spacing:.1em }
 
   .te{
     margin-top:18px; font-size:14.5px; letter-spacing:.06em; color:var(--sumi-70); font-weight:600;
@@ -315,7 +322,7 @@
   @media (max-width:640px){
     .stock-gyo{ grid-template-columns:80px 1fr 84px }
     .sec-head .mon{ width:26px; height:26px }
-    .fuda-tab{ padding:10px 12px 8px; font-size:13px; letter-spacing:.06em }
+    .fuda-tab{ padding:10px 14px 8px; font-size:13.5px; letter-spacing:.08em }
     .joho .ko{ border-left:none; padding:6px 12px }
     .koshin-mini{ display:none }
   }
@@ -333,7 +340,6 @@
         <feTurbulence type="fractalNoise" baseFrequency="0.011 0.05" numOctaves="3" seed="4" result="n"/>
         <feDisplacementMap in="SourceGraphic" in2="n" scale="11"/>
       </filter>
-      <!-- 青海波 -->
       <pattern id="sei-aka" width="36" height="16" patternUnits="userSpaceOnUse">
         <g fill="none" stroke="#C96F5E" stroke-width="1.4" opacity=".85">
           <circle cx="18" cy="18" r="15"/><circle cx="18" cy="18" r="10"/><circle cx="18" cy="18" r="5"/>
@@ -405,7 +411,7 @@
       </g>
     </g>
 
-    <!-- 攻略済みサイトの峰（社の数 = 攻略済みサイト数） -->
+    <!-- 攻略済みサイトの峰 -->
     <g filter="url(#fude)">
       <polygon points="1150,262 1250,160 1330,214 1400,178 1440,214 1440,300 1150,300" fill="#3A4254" opacity=".9"/>
     </g>
@@ -416,7 +422,6 @@
       <g transform="translate(1372,186)"><line x1="-6" y1="0" x2="6" y2="0"/><line x1="-4" y1="0" x2="-4" y2="-8"/><line x1="4" y1="0" x2="4" y2="-8"/><path d="M -8,-8 L 0,-14 L 8,-8"/></g>
       <g transform="translate(1408,206)"><line x1="-6" y1="0" x2="6" y2="0"/><line x1="-4" y1="0" x2="-4" y2="-8"/><line x1="4" y1="0" x2="4" y2="-8"/><path d="M -8,-8 L 0,-14 L 8,-8"/></g>
     </g>
-    <!-- 道標「攻略済み」 -->
     <g filter="url(#fude)">
       <line x1="1196" y1="258" x2="1196" y2="216" stroke="#6E5433" stroke-width="5"/>
       <polygon points="1178,214 1246,214 1256,225 1246,236 1178,236" fill="#D9C9A0" stroke="#6E5433" stroke-width="2"/>
@@ -431,7 +436,7 @@
             fill="none" stroke="#F2E9D3" stroke-width="2.4" stroke-dasharray="2 12" opacity=".55"/>
     </g>
 
-    <!-- 道中の目印（左から: 道標 / 松林 / 洞窟 / 橋 / 灯籠 / 温泉+楼閣） -->
+    <!-- 道中の風景（道標 / 松林 / 洞窟 / 橋 / 灯籠 / 温泉+楼閣） -->
     <g filter="url(#fude)">
       <line x1="66" y1="258" x2="66" y2="232" stroke="#6E5433" stroke-width="4"/>
       <rect x="52" y="228" width="28" height="12" fill="#D9C9A0" stroke="#6E5433" stroke-width="1.6"/>
@@ -476,19 +481,17 @@
       </g>
     </g>
 
-    <!-- 旅の停留点 -->
+    <!-- 旅の停留点（タブと同数） -->
     <circle class="taboji sugi" cx="86" cy="276" r="4"/>
-    <circle class="taboji" cx="317" cy="276" r="4"/>
-    <circle class="taboji" cx="547" cy="276" r="4"/>
-    <circle class="taboji" cx="778" cy="276" r="4"/>
-    <circle class="taboji" cx="1008" cy="276" r="4"/>
+    <circle class="taboji" cx="374" cy="276" r="4"/>
+    <circle class="taboji" cx="662" cy="276" r="4"/>
+    <circle class="taboji" cx="950" cy="276" r="4"/>
     <circle class="taboji" cx="1238" cy="276" r="4"/>
 
-    <!-- 旅人（ブラウザワーカー）: タブと連動して歩く -->
+    <!-- 旅人（ブラウザワーカー） -->
     <g id="tabibito" style="transform:translateX(86px)">
       <g class="muki">
         <g class="karada">
-          <!-- 背負い籠 + 茣蓙 + 短冊 -->
           <rect x="-30" y="180" width="22" height="8" rx="4" fill="#D9C9A0" stroke="#8B6B4A" stroke-width="1.4"/>
           <line x1="-25" y1="180" x2="-25" y2="188" stroke="#8B6B4A" stroke-width="1.2"/>
           <line x1="-13" y1="180" x2="-13" y2="188" stroke="#8B6B4A" stroke-width="1.2"/>
@@ -498,7 +501,6 @@
           <line x1="-27" y1="203" x2="-13" y2="203" stroke="#D9BC6E" stroke-width="1.2" opacity=".8"/>
           <line x1="-27" y1="210" x2="-13" y2="210" stroke="#D9BC6E" stroke-width="1.2" opacity=".8"/>
           <line x1="-11" y1="192" x2="-2" y2="198" stroke="#6E5433" stroke-width="2.5"/>
-          <!-- 脚（歩行で交互に振れる） -->
           <g class="ashi ashi-a">
             <line x1="4" y1="222" x2="9" y2="248" stroke="#3A4660" stroke-width="8"/>
             <line x1="7" y1="238" x2="10" y2="250" stroke="#E8DFC8" stroke-width="8"/>
@@ -509,10 +511,8 @@
             <line x1="-5" y1="238" x2="-8" y2="250" stroke="#DCD2B8" stroke-width="8"/>
             <ellipse cx="-8" cy="253" rx="7" ry="3" fill="#2A211A"/>
           </g>
-          <!-- 胴（藍の道中着 + 金の帯） -->
           <path d="M -12,192 Q 0,186 12,192 L 15,224 Q 0,230 -15,224 Z" fill="#3A4660" stroke="#2A2E3C" stroke-width="1.6"/>
           <line x1="-13" y1="214" x2="13" y2="214" stroke="#C9A54A" stroke-width="3"/>
-          <!-- 前腕 + 杖 -->
           <g class="ude">
             <line x1="9" y1="196" x2="19" y2="212" stroke="#3A4660" stroke-width="6" stroke-linecap="round"/>
             <circle cx="20" cy="214" r="3.2" fill="#E8C39A"/>
@@ -529,7 +529,6 @@
           <path d="M -13,162 Q 2,150 17,162" fill="none" stroke="#B0885E" stroke-width="1" opacity=".8"/>
           <path d="M -7,156 Q 2,149 11,156" fill="none" stroke="#B0885E" stroke-width="1" opacity=".7"/>
           <line x1="2" y1="148" x2="2" y2="144" stroke="#8B6B4A" stroke-width="1.8" stroke-linecap="round"/>
-          <!-- 襟元の朱 -->
           <path d="M -3,186 L 2,192 L 7,186" fill="none" stroke="#A63A2B" stroke-width="2.4"/>
         </g>
       </g>
@@ -539,15 +538,14 @@
   <div class="hero-dai"><h1>ブラウザワーカー ダッシュボード</h1></div>
 </header>
 
-<!-- ============ タブ（タスク単位） ============ -->
-<nav class="fudaretsu" aria-label="タスク切り替え">
+<!-- ============ タブ（全体 / 媒体 / サイト） ============ -->
+<nav class="fudaretsu" aria-label="表示切り替え">
   <div class="naka" role="tablist">
     <button class="fuda-tab ima" role="tab" aria-selected="true" data-pane="p-zentai" id="t-zentai">全体<span class="kazu-chip">2</span></button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-scout" id="t-scout">スカウト送信<span class="kazu-chip ki">3</span></button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-watch" id="t-watch">競合ウォッチ</button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-baitai" id="t-baitai">媒体管理<span class="kazu-chip">1</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-kikaku" id="t-kikaku">企画リサーチ</button>
     <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-sns" id="t-sns">SNS運用<span class="kazu-chip">1</span></button>
-    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-site" id="t-site">サイト診断</button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-kyujin" id="t-kyujin">求人媒体<span class="kazu-chip">1</span><span class="kazu-chip ki">3</span></button>
+    <button class="fuda-tab" role="tab" aria-selected="false" data-pane="p-kokoku" id="t-kokoku">広告分析</button>
     <span class="koshin-mini">最終更新 2026-07-22 17:04・見本データ</span>
   </div>
 </nav>
@@ -570,7 +568,7 @@
           <ul class="alert komon">
             <li>
               <span class="omo">急ぎ</span>
-              <span class="naiyo">求人媒体Aの残り掲載枠が <strong>2件</strong>（契約期限 7/31 まで9日）→ 媒体管理タブへ</span>
+              <span class="naiyo">求人媒体Aの残り掲載枠が <strong>2件</strong>（契約期限 7/31 まで9日）→ 求人媒体タブへ</span>
               <span class="iu" data-iu="媒体Aの掲載枠の状況を見せて">媒体Aの掲載枠の状況を見せて</span>
             </li>
             <li>
@@ -586,16 +584,17 @@
         <div class="sho">
           <div class="sec-head">
             <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><ellipse class="sen" cx="11" cy="23" rx="4" ry="2.4"/><ellipse class="sen" cx="18" cy="17.5" rx="3.5" ry="2.1"/><ellipse class="sen" cx="24" cy="12" rx="3" ry="1.8"/></svg>
-            <h2>タスク一覧</h2><span class="sode">定常タスクの現在地（タスク名クリックで詳細）</span>
+            <h2>場所とタスク</h2><span class="sode">フェーズ=その場所の攻略度。場所クリックで詳細</span>
           </div>
           <div class="sec-sita"></div>
           <div class="hyo-maki"><table class="hyo">
-            <tr><th>タスク</th><th>フェーズ</th><th>現在ステップ</th><th>次回実行</th><th>状態</th></tr>
-            <tr><td><span class="tobu-t" data-tobu="t-scout">スカウト送信</span></td><td>④ 最適化</td><td>H 承認</td><td>平日 10:00</td><td><span class="shirushi chu">承認待ち 3通</span></td></tr>
-            <tr><td><span class="tobu-t" data-tobu="t-watch">競合ウォッチ</span></td><td>④ 最適化</td><td>K 完了（今朝9:00）</td><td>明朝 9:00</td><td><span class="shirushi yo">正常</span></td></tr>
-            <tr><td><span class="tobu-t" data-tobu="t-baitai">媒体管理</span></td><td>② 再訪問</td><td>J レポート</td><td>毎朝 8:30</td><td><span class="shirushi dai">要対応</span></td></tr>
-            <tr><td><span class="tobu-t" data-tobu="t-sns">SNS運用</span></td><td>④ 最適化</td><td>K 完了（7:30投稿）</td><td>明朝 7:30</td><td><span class="shirushi chu">ストック不足</span></td></tr>
-            <tr><td><span class="tobu-t" data-tobu="t-site">サイト診断</span></td><td>① 初回</td><td>J レポート</td><td>毎週月曜</td><td><span class="shirushi yo">正常</span></td></tr>
+            <tr><th>ドメイン</th><th>場所</th><th>タスク</th><th>フェーズ</th><th>次回実行</th><th>状態</th></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-kikaku">企画リサーチ</span></td><td>競合サイト 3社</td><td>変更検知の巡回</td><td>④ 最適化</td><td>明朝 9:00</td><td><span class="shirushi yo">正常</span></td></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-kikaku">企画リサーチ</span></td><td>自社サイト</td><td>診断（速度・リンク）</td><td>① 初回</td><td>毎週月曜</td><td><span class="shirushi yo">正常</span></td></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-sns">SNS運用</span></td><td>X・IG・note</td><td>予約投稿・ストック補充</td><td>④ 最適化</td><td>明朝 7:30</td><td><span class="shirushi chu">ストック不足</span></td></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-kyujin">求人媒体</span></td><td>求人媒体A</td><td>掲載枠・応募の確認</td><td>② 再訪問</td><td>毎朝 8:30</td><td><span class="shirushi dai">要対応</span></td></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-kyujin">求人媒体</span></td><td>求人媒体B</td><td>スカウト送信</td><td>④ 最適化</td><td>平日 10:00</td><td><span class="shirushi chu">承認待ち 3通</span></td></tr>
+            <tr><td><span class="tobu-t" data-tobu="t-kokoku">広告分析</span></td><td>競合LP・動画広告</td><td>LP/動画の分析（依頼時）</td><td>① 初回</td><td>依頼時</td><td><span class="shirushi yo">正常</span></td></tr>
           </table></div>
         </div>
       </section>
@@ -616,7 +615,7 @@
             <div class="hi-bou"><div class="bou" data-take="65%"></div><span class="hi">7/21</span></div>
             <div class="hi-bou"><div class="bou" data-take="90%"></div><span class="hi">7/22</span></div>
           </div>
-          <p class="nanoka-chu">バーの高さは実行数。<span class="ten ten-sei"></span>すべて成功<span class="ten ten-hi"></span>失敗あり（7/19 競合ウォッチ1件が取得失敗 → 当日中に再実行で回収済み）</p>
+          <p class="nanoka-chu">バーの高さは実行数。<span class="ten ten-sei"></span>すべて成功<span class="ten ten-hi"></span>失敗あり（7/19 競合巡回1件が取得失敗 → 当日中に再実行で回収済み）</p>
         </div>
       </section>
 
@@ -654,18 +653,40 @@
 
     </div>
 
-    <!-- ======== タブ: スカウト送信 ======== -->
-    <div class="pane" id="p-scout" role="tabpanel" aria-labelledby="t-scout" hidden>
+    <!-- ======== タブ: 求人媒体（媒体A掲載・媒体Bスカウトを内蔵） ======== -->
+    <div class="pane" id="p-kyujin" role="tabpanel" aria-labelledby="t-kyujin" hidden>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="11.5" y="10.5" width="11" height="14" rx="5.5"/><path class="sen" d="M11.5 15 h11 M11.5 20 h11 M14.5 8.5 h5 M14.5 26.5 h5"/></svg>
+            <h2>求人媒体A ── 掲載</h2><span class="sode">攻略度 ②再訪問・毎朝巡回</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="joho">
+            <div class="ko"><p class="t">フェーズ（攻略度）</p><p class="v"><span class="phase p1">② 再訪問</span></p></div>
+            <div class="ko"><p class="t">現在ステップ</p><p class="v">J レポート <span class="chii">今朝分</span></p></div>
+            <div class="ko"><p class="t">次回実行</p><p class="v">明朝 8:30 <span class="chii">自動</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v aka">要対応 <span class="chii">残枠あと2件</span></p></div>
+          </div>
+          <div class="hyo-maki" style="margin-top:22px"><table class="hyo">
+            <tr><th>指標</th><th class="su">今回</th><th class="su">前回比</th><th>備考</th></tr>
+            <tr><td>応募</td><td class="su">12件</td><td class="su">+3</td><td>直近3日で伸び</td></tr>
+            <tr><td>掲載枠</td><td class="su">残り 2件</td><td class="su">−1</td><td class="kei">契約期限 7/31（あと9日）</td></tr>
+          </table></div>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="媒体Aの残枠2件に出す求人を決めよう">媒体Aの残枠2件に出す求人を決めよう</span></p>
+        </div>
+      </section>
 
       <section class="bu">
         <div class="sho">
           <div class="sec-head">
             <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M9.5 12.5 h15 v10 h-15 z M9.5 12.5 L17 19 L24.5 12.5"/></svg>
-            <h2>スカウト送信</h2><span class="sode">7月第4週 実行中</span>
+            <h2>求人媒体B ── スカウト送信</h2><span class="sode">攻略度 ④最適化・7月第4週 実行中</span>
           </div>
           <div class="sec-sita"></div>
           <div class="joho">
-            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase">④ 最適化</span></p></div>
+            <div class="ko"><p class="t">フェーズ（攻略度）</p><p class="v"><span class="phase">④ 最適化</span></p></div>
             <div class="ko"><p class="t">現在ステップ</p><p class="v">H 承認 <span class="chii">（人の承認待ち）</span></p></div>
             <div class="ko"><p class="t">次回実行</p><p class="v">平日 10:00 <span class="chii">自動</span></p></div>
             <div class="ko"><p class="t">状態</p><p class="v aka">承認待ち 3通</p></div>
@@ -683,16 +704,8 @@
             <div class="ishi"><span class="maru">J</span><span class="na">レポート</span></div>
             <div class="ishi"><span class="maru">K</span><span class="na">成果報告</span></div>
           </div>
-        </div>
-      </section>
 
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M11 10.5 h12 v13 l-6 -3.5 l-6 3.5 z"/></svg>
-            <h2>承認待ち</h2><span class="sode">承認されるまで送信しない</span>
-          </div>
-          <div class="sec-sita"></div>
+          <p class="naka-dai">承認待ちの3通 <span class="chii">承認されるまで送信しない</span></p>
           <div class="hyo-maki"><table class="hyo">
             <tr><th>宛先（属性）</th><th>件名（13字以内）</th><th>テンプレ</th></tr>
             <tr><td>営業職・26卒・関東</td><td>週3リモートで営業を</td><td>営業 draft-3</td></tr>
@@ -700,68 +713,98 @@
             <tr><td>マーケ職・27卒・首都圏</td><td>学生発の企画が通る会社</td><td>マーケ draft-4</td></tr>
           </table></div>
           <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="承認待ちの3通を本文つきで見せて">承認待ちの3通を本文つきで見せて</span><span class="iu" data-iu="3通ともOK、送って">3通ともOK、送って</span></p>
-        </div>
-      </section>
 
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 24 L8.5 12.5 M17 24 L13.5 10.5 M17 24 L20.5 10.5 M17 24 L25.5 12.5 M8.5 12.5 Q17 6.5 25.5 12.5"/></svg>
-            <h2>今週の成果</h2><span class="sode">媒体B スカウト</span>
-          </div>
-          <div class="sec-sita"></div>
+          <p class="naka-dai">今週の成果</p>
           <div class="stat">
             <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="24">0</span><span class="tan">通</span></div><div class="mei">送信</div><div class="sa onaji">先週 26通</div></div>
             <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="38">0</span><span class="tan">%</span></div><div class="mei">開封率</div><div class="sa yoi">+5pt</div></div>
             <div class="fuda-t"><div class="kazu"><span class="kazoeru" data-kazu="4">0</span><span class="tan">件</span></div><div class="mei">返信</div><div class="sa yoi">+1</div></div>
           </div>
-          <ul class="maki" style="margin-top:20px">
-            <li><span class="shirushi yo">OK</span><span class="koto">件名13字以内 + 大学名なしの方が開封が高い（このタスクの学習）</span></li>
+          <ul class="maki" style="margin-top:16px">
+            <li><span class="shirushi yo">OK</span><span class="koto">件名13字以内 + 大学名なしの方が開封が高い（この媒体の学習）</span></li>
           </ul>
         </div>
       </section>
 
     </div>
 
-    <!-- ======== タブ: 競合ウォッチ ======== -->
-    <div class="pane" id="p-watch" role="tabpanel" aria-labelledby="t-watch" hidden>
+    <!-- ======== タブ: SNS運用（レポート/投稿を内蔵） ======== -->
+    <div class="pane" id="p-sns" role="tabpanel" aria-labelledby="t-sns" hidden>
 
       <section class="bu">
         <div class="sho">
           <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M8 20 q4 -6.5 8 0 M17 15.5 q4 -6.5 8 0"/></svg>
-            <h2>競合ウォッチ</h2><span class="sode">対象3社・毎朝巡回</span>
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="10" y="12" width="14" height="11"/><path class="sen" d="M10 17.5 h14 M17 12 v11"/></svg>
+            <h2>SNS ── 予約投稿・ストック</h2><span class="sode">攻略度 ④最適化・X / Instagram / note</span>
           </div>
           <div class="sec-sita"></div>
           <div class="joho">
-            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase">④ 最適化</span></p></div>
-            <div class="ko"><p class="t">最終実行</p><p class="v">今朝 9:00 <span class="chii">成功</span></p></div>
-            <div class="ko"><p class="t">次回実行</p><p class="v">明朝 9:00 <span class="chii">自動</span></p></div>
-            <div class="ko"><p class="t">状態</p><p class="v">正常 <span class="chii">本日分 完了</span></p></div>
+            <div class="ko"><p class="t">フェーズ（攻略度）</p><p class="v"><span class="phase">④ 最適化</span></p></div>
+            <div class="ko"><p class="t">最終投稿</p><p class="v">今朝 7:30 <span class="chii">X・成功</span></p></div>
+            <div class="ko"><p class="t">次回投稿</p><p class="v">明朝 7:30 <span class="chii">予約済み</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v aka">Xストック不足</p></div>
           </div>
-          <div class="kotei" style="margin-top:22px">
-            <div class="ishi sumi-i"><span class="maru">A</span><span class="na">指令</span></div>
-            <div class="ishi sumi-i"><span class="maru">B</span><span class="na">外部探索</span></div>
-            <div class="ishi sumi-i"><span class="maru">C</span><span class="na">内部探索</span></div>
-            <div class="ishi sumi-i"><span class="maru">D</span><span class="na">マップ</span></div>
-            <div class="ishi sumi-i"><span class="maru">E</span><span class="na">変更前記録</span><span class="seki zumi">記録済</span></div>
-            <div class="ishi sumi-i"><span class="maru">F</span><span class="na">計画</span></div>
-            <div class="ishi sumi-i"><span class="maru">G</span><span class="na">巡回</span></div>
-            <div class="ishi sumi-i"><span class="maru">H</span><span class="na">承認</span><span class="seki zumi">閲覧のみ</span></div>
-            <div class="ishi sumi-i"><span class="maru">I</span><span class="na">検証</span></div>
-            <div class="ishi sumi-i"><span class="maru">J</span><span class="na">レポート</span></div>
-            <div class="ishi sumi-i"><span class="maru">K</span><span class="na">成果報告</span></div>
+          <div class="hyo-maki" style="margin-top:22px"><table class="hyo">
+            <tr><th>アカウント</th><th class="su">主要数値</th><th class="su">前回比</th><th>備考</th></tr>
+            <tr><td>X</td><td class="su">インプレッション 8,400</td><td class="su">−600</td><td class="kei">ストック切れの影響が出始め</td></tr>
+            <tr><td>Instagram</td><td class="su">フォロワー 1,240</td><td class="su">+18</td><td>保存率が先週比で微増</td></tr>
+            <tr><td>note</td><td class="su">週間ビュー 620</td><td class="su">+40</td><td>採用記事が安定して読まれる</td></tr>
+          </table></div>
+          <p class="naka-dai">ストック充足率 <span class="chii">目標: 7日分を維持</span></p>
+          <div class="stock">
+            <div class="stock-gyo tarinai"><span class="dare">X</span><div class="stock-obi"><div class="mi" data-mi="21%"></div></div><span class="wari">21%（1.5日）</span></div>
+            <div class="stock-gyo"><span class="dare">Instagram</span><div class="stock-obi"><div class="mi" data-mi="80%"></div></div><span class="wari">80%（5.6日）</span></div>
+            <div class="stock-gyo"><span class="dare">note</span><div class="stock-obi"><div class="mi" data-mi="66%"></div></div><span class="wari">66%（2本）</span></div>
           </div>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="Xの投稿ストックを埋めて">Xの投稿ストックを埋めて</span></p>
+          <ul class="maki" style="margin-top:16px">
+            <li><span class="shirushi dai">NG</span><span class="koto">週末夜の自動投稿は反応が沈む。予約は平日朝に寄せる（この媒体の学習）</span></li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ======== タブ: 企画リサーチ（競合ウォッチ・自社診断=構想抽出を内蔵） ======== -->
+    <div class="pane" id="p-kikaku" role="tabpanel" aria-labelledby="t-kikaku" hidden>
+
+      <section class="bu">
+        <div class="sho">
+          <div class="sec-head">
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 25.5 V13 M17 18.5 L11 15.5 M17 18.5 L23 15.5 M17 13 L12.5 9.5 M17 13 L21.5 9.5"/></svg>
+            <h2>自社サイト ── 診断</h2><span class="sode">攻略度 ①初回・週次</span>
+          </div>
+          <div class="sec-sita"></div>
+          <div class="joho">
+            <div class="ko"><p class="t">フェーズ（攻略度）</p><p class="v"><span class="phase p1">① 初回</span></p></div>
+            <div class="ko"><p class="t">最終実行</p><p class="v">7/21（月）<span class="chii">成功</span></p></div>
+            <div class="ko"><p class="t">次回実行</p><p class="v">7/28（月）<span class="chii">自動</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v">正常 <span class="chii">改善2件を確認</span></p></div>
+          </div>
+          <div class="hyo-maki" style="margin-top:22px"><table class="hyo">
+            <tr><th>指標</th><th class="su">今回</th><th class="su">前回</th></tr>
+            <tr><td>LCP（表示の速さ）</td><td class="su">2.1s</td><td class="su">2.1s ±0</td></tr>
+            <tr><td>CLS（画面のガタつき）</td><td class="su">0.02</td><td class="su">0.05 改善</td></tr>
+            <tr><td>リンク切れ</td><td class="su">0件</td><td class="su">2件 改善</td></tr>
+          </table></div>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="LCPを2秒切りたい。改善案を出して">LCPを2秒切りたい。改善案を出して</span></p>
         </div>
       </section>
 
       <section class="bu">
         <div class="sho">
           <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M12 24 L21 11"/><path class="nuri" d="M12 24 L10.5 27.5 L14.5 26 Z"/><path class="sen" d="M19.5 9 l3 2"/></svg>
-            <h2>直近の検知</h2><span class="sode">重要度順</span>
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M8 20 q4 -6.5 8 0 M17 15.5 q4 -6.5 8 0"/></svg>
+            <h2>競合サイト ── 変更検知</h2><span class="sode">攻略度 ④最適化・対象3社・毎朝巡回</span>
           </div>
           <div class="sec-sita"></div>
+          <div class="joho">
+            <div class="ko"><p class="t">フェーズ（攻略度）</p><p class="v"><span class="phase">④ 最適化</span></p></div>
+            <div class="ko"><p class="t">最終実行</p><p class="v">今朝 9:00 <span class="chii">成功</span></p></div>
+            <div class="ko"><p class="t">次回実行</p><p class="v">明朝 9:00 <span class="chii">自動</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v">正常 <span class="chii">本日分 完了・閲覧のみ</span></p></div>
+          </div>
+          <p class="naka-dai">直近の検知 <span class="chii">重要度順</span></p>
           <ul class="maki">
             <li><span class="shirushi dai">重要</span><span class="moto">競合C社</span><span class="koto">求人の給与レンジを上方改定（+2万円）。同職種で当社と逆転</span><span class="itsu">7/21</span></li>
             <li><span class="shirushi chu">変化</span><span class="moto">競合D社</span><span class="koto">採用LPを刷新。社員インタビューを冒頭に移動</span><span class="itsu">7/20</span></li>
@@ -773,118 +816,42 @@
 
     </div>
 
-    <!-- ======== タブ: 媒体管理 ======== -->
-    <div class="pane" id="p-baitai" role="tabpanel" aria-labelledby="t-baitai" hidden>
+    <!-- ======== タブ: 広告分析（LP/動画分析を内蔵） ======== -->
+    <div class="pane" id="p-kokoku" role="tabpanel" aria-labelledby="t-kokoku" hidden>
 
       <section class="bu">
         <div class="sho">
           <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="11.5" y="10.5" width="11" height="14" rx="5.5"/><path class="sen" d="M11.5 15 h11 M11.5 20 h11 M14.5 8.5 h5 M14.5 26.5 h5"/></svg>
-            <h2>媒体管理</h2><span class="sode">登録4媒体・毎朝巡回</span>
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="10.5" y="10.5" width="13" height="16"/><path class="sen" d="M10.5 15.5 h13 M13 19 h8 M13 22.5 h5"/></svg>
+            <h2>競合LP ── 分析</h2><span class="sode">攻略度 ①初回・依頼時に実行</span>
           </div>
           <div class="sec-sita"></div>
           <div class="joho">
-            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase p1">② 再訪問</span></p></div>
-            <div class="ko"><p class="t">最終実行</p><p class="v">今朝 8:30 <span class="chii">成功</span></p></div>
-            <div class="ko"><p class="t">次回実行</p><p class="v">明朝 8:30 <span class="chii">自動</span></p></div>
-            <div class="ko"><p class="t">状態</p><p class="v aka">要対応 <span class="chii">残枠あと2件</span></p></div>
+            <div class="ko"><p class="t">フェーズ（攻略度）</p><p class="v"><span class="phase p1">① 初回</span></p></div>
+            <div class="ko"><p class="t">最終分析</p><p class="v">7/18 <span class="chii">競合C社LP</span></p></div>
+            <div class="ko"><p class="t">次回実行</p><p class="v">依頼時 <span class="chii">定常化も可</span></p></div>
+            <div class="ko"><p class="t">状態</p><p class="v">正常 <span class="chii">閲覧のみ</span></p></div>
           </div>
-        </div>
-      </section>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 24 L8.5 12.5 M17 24 L13.5 10.5 M17 24 L20.5 10.5 M17 24 L25.5 12.5 M8.5 12.5 Q17 6.5 25.5 12.5"/></svg>
-            <h2>媒体サマリー</h2><span class="sode">主要数値と前回比</span>
-          </div>
-          <div class="sec-sita"></div>
-          <div class="hyo-maki"><table class="hyo">
-            <tr><th>媒体</th><th class="su">主要数値</th><th class="su">前回比</th><th>備考</th></tr>
-            <tr><td>求人媒体A</td><td class="su">応募 12件</td><td class="su">+3</td><td class="kei">残枠2件・期限7/31（あと9日）</td></tr>
-            <tr><td>求人媒体B</td><td class="su">スカウト開封 38%</td><td class="su">+5pt</td><td>テンプレ改稿が効いている</td></tr>
-            <tr><td>Instagram</td><td class="su">フォロワー 1,240</td><td class="su">+18</td><td>保存率が先週比で微増</td></tr>
-            <tr><td>X</td><td class="su">インプレッション 8,400</td><td class="su">−600</td><td>ストック切れの影響が出始め</td></tr>
-          </table></div>
-          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="媒体Aの残枠2件に出す求人を決めよう">媒体Aの残枠2件に出す求人を決めよう</span></p>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- ======== タブ: SNS運用 ======== -->
-    <div class="pane" id="p-sns" role="tabpanel" aria-labelledby="t-sns" hidden>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="10" y="12" width="14" height="11"/><path class="sen" d="M10 17.5 h14 M17 12 v11"/></svg>
-            <h2>SNS運用</h2><span class="sode">3アカウント・予約投稿</span>
-          </div>
-          <div class="sec-sita"></div>
-          <div class="joho">
-            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase">④ 最適化</span></p></div>
-            <div class="ko"><p class="t">最終投稿</p><p class="v">今朝 7:30 <span class="chii">X・成功</span></p></div>
-            <div class="ko"><p class="t">次回投稿</p><p class="v">明朝 7:30 <span class="chii">予約済み</span></p></div>
-            <div class="ko"><p class="t">状態</p><p class="v aka">Xストック不足</p></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M11 24.5 L23 21.5 M11 21.5 L23 24.5 M17 20 C13.5 16.5 15.5 12 17 9.5 C18.5 12 20.5 16.5 17 20 Z"/></svg>
-            <h2>ストック充足率</h2><span class="sode">目標: 7日分を維持</span>
-          </div>
-          <div class="sec-sita"></div>
-          <div class="stock">
-            <div class="stock-gyo tarinai"><span class="dare">X</span><div class="stock-obi"><div class="mi" data-mi="21%"></div></div><span class="wari">21%（1.5日）</span></div>
-            <div class="stock-gyo"><span class="dare">Instagram</span><div class="stock-obi"><div class="mi" data-mi="80%"></div></div><span class="wari">80%（5.6日）</span></div>
-            <div class="stock-gyo"><span class="dare">note</span><div class="stock-obi"><div class="mi" data-mi="66%"></div></div><span class="wari">66%（2本）</span></div>
-          </div>
-          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="Xの投稿ストックを埋めて">Xの投稿ストックを埋めて</span></p>
-          <ul class="maki" style="margin-top:20px">
-            <li><span class="shirushi dai">NG</span><span class="koto">週末夜の自動投稿は反応が沈む。予約は平日朝に寄せる（このタスクの学習）</span></li>
+          <p class="naka-dai">直近の分析</p>
+          <ul class="maki">
+            <li><span class="shirushi dai">重要</span><span class="moto">競合C社 LP</span><span class="koto">ファーストビューの訴求が「価格」→「スピード」に変更。CTAを画面上部へ移動</span><span class="itsu">7/18</span></li>
+            <li><span class="shirushi chu">参考</span><span class="moto">競合D社 LP</span><span class="koto">社員インタビュー動画を冒頭に配置。滞在時間狙いの構成</span><span class="itsu">7/15</span></li>
           </ul>
-        </div>
-      </section>
-
-    </div>
-
-    <!-- ======== タブ: サイト診断 ======== -->
-    <div class="pane" id="p-site" role="tabpanel" aria-labelledby="t-site" hidden>
-
-      <section class="bu">
-        <div class="sho">
-          <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 25.5 V13 M17 18.5 L11 15.5 M17 18.5 L23 15.5 M17 13 L12.5 9.5 M17 13 L21.5 9.5"/></svg>
-            <h2>サイト診断</h2><span class="sode">自社採用サイト・週次</span>
-          </div>
-          <div class="sec-sita"></div>
-          <div class="joho">
-            <div class="ko"><p class="t">フェーズ</p><p class="v"><span class="phase p1">① 初回</span></p></div>
-            <div class="ko"><p class="t">最終実行</p><p class="v">7/21（月）<span class="chii">成功</span></p></div>
-            <div class="ko"><p class="t">次回実行</p><p class="v">7/28（月）<span class="chii">自動</span></p></div>
-            <div class="ko"><p class="t">状態</p><p class="v">正常 <span class="chii">改善2件を確認</span></p></div>
-          </div>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="このLPを分析して改善案を出して">このLPを分析して改善案を出して</span></p>
         </div>
       </section>
 
       <section class="bu">
         <div class="sho">
           <div class="sec-head">
-            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><path class="sen" d="M17 24 L8.5 12.5 M17 24 L13.5 10.5 M17 24 L20.5 10.5 M17 24 L25.5 12.5 M8.5 12.5 Q17 6.5 25.5 12.5"/></svg>
-            <h2>計測値</h2><span class="sode">前回比つき</span>
+            <svg class="mon" viewBox="0 0 34 34" aria-hidden="true"><circle class="waku" cx="17" cy="17" r="15.5"/><rect class="sen" x="9.5" y="12" width="15" height="11" rx="1.5"/><path class="nuri" d="M15 15 L20.5 17.5 L15 20 Z"/></svg>
+            <h2>動画広告 ── 構成案</h2><span class="sode">台本・字コンテの下書き</span>
           </div>
           <div class="sec-sita"></div>
-          <div class="hyo-maki"><table class="hyo">
-            <tr><th>指標</th><th class="su">今回</th><th class="su">前回</th></tr>
-            <tr><td>LCP（表示の速さ）</td><td class="su">2.1s</td><td class="su">2.1s ±0</td></tr>
-            <tr><td>CLS（画面のガタつき）</td><td class="su">0.02</td><td class="su">0.05 改善</td></tr>
-            <tr><td>リンク切れ</td><td class="su">0件</td><td class="su">2件 改善</td></tr>
-          </table></div>
-          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="LCPを2秒切りたい。改善案を出して">LCPを2秒切りたい。改善案を出して</span></p>
+          <ul class="maki">
+            <li><span class="shirushi yo">下書き</span><span class="moto">採用動画 15秒</span><span class="koto">構成案 v1（フック: 「休日に仕事を思い出さない」）── knowledge/drafts/ に保存済み</span><span class="itsu">7/15</span></li>
+          </ul>
+          <p class="te"><span class="te-mei">次の一手</span><span class="iu" data-iu="15秒の採用動画の構成案を仕上げて">15秒の採用動画の構成案を仕上げて</span></p>
         </div>
       </section>
 
@@ -913,7 +880,7 @@
   var tabi = document.getElementById('tabibito');
   var muki = tabi.querySelector('.muki');
   var teishi = Array.prototype.slice.call(document.querySelectorAll('.taboji'));
-  var stops = [86, 317, 547, 778, 1008, 1238];
+  var stops = [86, 374, 662, 950, 1238];
   var genzai = 0, aruT = null;
 
   function erabu(tab){
