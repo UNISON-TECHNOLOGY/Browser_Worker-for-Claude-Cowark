@@ -5,8 +5,8 @@
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
 WF_DIR="${DELVEWORK_WF_DIR:-$PROJECT_DIR/memory/.workflow}"
 
-# Consume stdin to prevent blocking
-cat > /dev/null &
+# Capture stdin (hook payload JSON) for input inspection
+STDIN_JSON="$(cat 2>/dev/null || true)"
 
 deny() {
   local msg="$1"

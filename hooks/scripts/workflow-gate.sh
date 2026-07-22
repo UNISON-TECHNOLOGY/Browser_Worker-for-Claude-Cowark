@@ -6,6 +6,11 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
+# Credential Guard: パスワード/認証情報フィールドへの入力は常時ブロック（フラグの有無に関係なく）
+if printf '%s' "$STDIN_JSON" | grep -qiE '"[^"]*(password|passwd|パスワード|暗証|otp|verification.?code|認証コード|secret|credential)[^"]*"'; then
+  deny "【Credential Guard】パスワード・認証情報フィールドへの入力はAIには許可されていません。ログイン・認証入力は人間が行ってください（ブラウザのパスワードマネージャ推奨）。完了したら操作を再開します。"
+fi
+
 if [ ! -f "$WF_DIR/active" ]; then
   deny "【Delvework Gate】ワークフロー未初期化。/delve-start でタスクを開始し、B-4（フェーズ判定）を完了してください。"
 fi
