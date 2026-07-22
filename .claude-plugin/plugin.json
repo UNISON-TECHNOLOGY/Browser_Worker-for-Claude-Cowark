@@ -1,6 +1,6 @@
 {
   "name": "browser-worker",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Delvework — ブラウザ定常業務を探索→マッピング→最適化→実行の方法論で自動化する Cowork プラグイン（スモークテスト版）",
   "author": {
     "name": "UNISON TECHNOLOGY"
