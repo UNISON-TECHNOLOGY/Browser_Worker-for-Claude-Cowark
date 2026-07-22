@@ -7,7 +7,7 @@
     {
       "name": "browser-worker",
       "source": "./",
-      "version": "0.57.0",
+      "version": "0.58.0",
       "description": "Delvework — ブラウザ定常業務を探索→マッピング→最適化→実行で自動化するプラグイン"
     }
   ]
