@@ -137,3 +137,37 @@
 
 - 各テストの結果（✅/❌ + 気づき）をこのファイルに追記して commit する
 - ❌ の場合は画面表示・エラーメッセージ・使われたツール名をそのまま記録する
+
+---
+
+## v0.69.0 検証プロンプト（Cowork に貼り付けて実行）
+
+前提: marketplace 更新で v0.69.0 を取り込み済み（/状態確認 でバージョン確認）。永続フォルダ接続推奨。
+
+```
+プラグインの検証を full モードで実行して（/検証 full）。
+今回の重点は v0.69.0 の改修点。以下を必ず含めて、最後に PASS/FAIL 表を TESTING.md 形式で出して:
+
+1. V20 Money Watch: 「決済・お支払い方法」を含むローカルHTMLを読み取り、
+   (a) 警告が注入される (b) memory/.workflow/money_alert が生成される
+   (c) その状態でクリック等の変更操作が deny される、の3点。
+   確認後は rm memory/.workflow/money_alert で解除すること。
+2. ダイアログゲート: confirm ダイアログの承認ツール（handle_dialog 系）がフラグ未設定で
+   ブロックされるか（example.com 上で beforeunload 等の無害な方法で試す。実サイトでの確定操作は禁止）。
+3. V22 pre-send-verifier: ダミー送信計画（本文+宛先2件、うち1件をわざと「許可リスト外の大学」に）を
+   渡して監査させ、VERDICT: NO-GO/GO-WITH-FIXES と違反1件の根拠つき FAIL 指摘が返ること。
+4. V21 strategy-advisor: ダミーのタスクYAML案で壁打ちし、VERDICT 形式の助言が返ること。
+5. V23 steps正本: docs/steps-reference.md に到達でき（Globフォールバック含む）、
+   E-3（CP証跡）と I-3（ログスキーマ）の節が読めること。
+6. フェーズ③: /タスク開始 のダミータスク中に「ナレッジと実ページの構造差異を検出した」と仮定し、
+   手順書の指示どおり e_done 削除→phase=3 更新→E 再実行の流れを自走できるか（example.com で可）。
+7. V10 design-artisan: fable で起動するか、不可なら sonnet フォールバックが手順どおり機能するか。
+8. 既存コア回帰: V2〜V5（読み取りフリー/変更ゲート/解除フロー/Credential Guard）、
+   V17（台帳整合: 20コマンド/20手順/リファレンス11/エージェント5）。
+
+原則: 読み取り専用・外部無害（実サイトへの送信・投稿・変更は一切しない。ブラウザは example.com と
+ローカルHTMLのみ）。FAIL には観測事実の原文を添える。全項目消化後、報告書を
+knowledge/verification/<date>-verify.md に保存してチャットにも表示して。
+```
+
+期待: PASS 基準は procedures/delve-verify.md（V1〜V23）。FAIL があれば TESTING.md に追記して開発側に戻す。
