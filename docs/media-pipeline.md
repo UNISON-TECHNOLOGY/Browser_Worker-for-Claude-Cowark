@@ -43,7 +43,7 @@ ffmpeg -framerate 24 -i f%04d.png -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 
 |---|---|
 | PNG / JPG / WebP | 本プラグインで加工（Pillow テンプレ3本） |
 | mp4 / GIF / WebM / アルファWebM | 本プラグインで変換（ffmpeg レシピ） |
-| PPTX / DOCX / XLSX / PDF | **Cowork 本体の文書生成スキルに委ねる（プラグインで複製しない）**。プラグインの役割は橋渡しのみ — 例: banner-compose の PNG を python-pptx でスライドへ流し込む / HTML レポートを PDF 化。橋渡しの実機検証は未了（TESTING.md の検証プロンプト参照） |
+| PPTX / DOCX / XLSX / PDF | **Cowork 本体の文書生成スキルに委ねる（プラグインで複製しない）**。プラグインの役割は橋渡しのみ — **2026-07-23 実機検証済み**: (a) PNG→PPTX は python-pptx（サンドボックスにプリインストール、内蔵 pptx スキルと同系）で 16:9 スライドに配置 (b) HTML→PDF は headless Chromium: `chromium --headless --disable-gpu --no-sandbox --print-to-pdf=out.pdf --no-pdf-header-footer file:///path/to/report.html` |
 | SVG | **既知の穴（ベクター生成ライン不在）**。テキスト形式なので DesignSync に直接流せる唯一の画像形式であり、将来の優先候補。当面ロゴ・アイコンは /素材探し か Canva/Claude Design 側で |
 | PSD / AI | 対象外（開けるツールなし）。Canva / Claude Design に寄せる |
 
@@ -53,7 +53,7 @@ ffmpeg -framerate 24 -i f%04d.png -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 
 
 - 置き場: `knowledge/assets/packs/<パック名>/` に素材一式 + **DESIGN.md（マニフェスト・必須）**
 - DESIGN.md の中身: 各素材の用途 / 寸法 / カラーコード（GB の緑等）/ 埋め込みスニペット（アルファWebM なら `<video autoplay loop muted playsinline>`）/ 出典・ライセンス（sources.md から転記）。Design 側の AI がこれを読めば使い方を誤らない（CLAUDE.md 相当。名前は衝突事故防止のため **DESIGN.md 固定**）
-- 同期: DESIGN.md を最初に write_files し、素材はテキスト表現できるもの（SVG・小画像の data URI・CSS トークン）を優先。**バイナリが write_files を通るかは未検証** — 通らなければ「スニペット+パック参照のみ同期」にフォールバック
+- 同期: DESIGN.md を最初に write_files し、続けて素材本体。**PNG バイナリ・data URI とも write_files を通る（2026-07-23 実機検証: written:1、get_file で contentType:image/png / isBase64:true の全量読み戻し一致）** — フォールバック不要。注意: get_file の読み戻しは 256KiB 上限の兆候あり（巨大バイナリの読み戻し・書き込み上限は未検証）。パック構造は `packs/<名>/{DESIGN.md, 素材…}` が list_files にそのまま出る
 - ZIP は DesignSync には使わない（受け口がない）。**ZIP は人間・他ツール（Canva 等）向けの配布形態**としてのみ作る
 
 ## 共通ルール
