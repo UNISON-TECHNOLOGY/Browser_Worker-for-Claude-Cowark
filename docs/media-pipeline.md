@@ -7,6 +7,7 @@
 | 部品 | 実体 | 用途 |
 |---|---|---|
 | 画像生成 | /画像生成（delve-imagegen） | Gemini/ChatGPT の UI 操作で生成。グリーンバック指定可 |
+| 動画生成 | /画像生成（delve-imagegen §2b） | **Gemini 経由で実機検証済み（2026-07-23）**。生成AI動画→取り込みは画像と同じルート（専用DLフォルダ / blob fetch） |
 | 素材調達 | /素材探し（delve-assets） | ストックサイトからライセンス証跡つき取り込み |
 | 切り抜き | `templates/chromakey.py` | GB生成画像 → 透過PNG（緑優勢度→連続アルファ+スピル抑制） |
 | バナー合成 | `templates/banner-compose.py` | 16:9整形+グラデ+コピー焼き込み（copywriting→ad-compliance 済み文言） |
