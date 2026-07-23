@@ -65,6 +65,8 @@
 
 ## 執筆リファレンス台帳（references/ — スキル一覧には登録しない内部教科書）
 
+> 登録方針: references/ は**全て Read 専用**（skills/ 規約に置かず自動発火させない）。ワークスペース側で同名スキルが Skill 登録されている場合も正本はプラグインの references/ とし、更新はこちらに行う（二重管理の乖離防止）。
+
 | リファレンス | ドメイン | 用途（共用先） |
 |---|---|---|
 | logical-writing | 企画リサーチ | 分析レポート・戦略提案（全ドメインのレポートで共用） |
@@ -113,8 +115,8 @@ knowledge/ の物理フォルダは記録の種類別（変更しない。既存
 
 ## 追加時のチェックリスト
 
-- [ ] `commands/delve-<name>.md`（本体、description に Use when + 言い方）
-- [ ] `commands/<日本語名>.md`（エイリアス、Glob フォールバック付き）
+- [ ] `commands/<日本語名>.md`（本体。description に Use when + 言い方、本文は procedures/delve-<name>.md への Glob フォールバック付き参照。**commands/delve-*.md は作らない** — 命名ルール参照）
+- [ ] `procedures/delve-<name>.md`（手順の正本）
 - [ ] この台帳に1行追加（**ドメインを決める** + Pack）
 - [ ] 定常実行するものはループ台帳にも追加
 - [ ] `delve-guide` は台帳駆動なので追加作業なし（次回生成で反映）

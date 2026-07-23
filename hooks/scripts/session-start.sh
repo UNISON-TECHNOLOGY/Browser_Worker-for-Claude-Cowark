@@ -29,7 +29,7 @@ fi
 # 運用ルール本文は session-rules.txt が正本（bash文字列への直書き禁止 — 編集性とエスケープ事故防止）
 RULES_FILE="$SCRIPT_DIR/session-rules.txt"
 if [ -f "$RULES_FILE" ]; then
-  RULES="$(tr '\n' ' ' < "$RULES_FILE" | sed 's/\\/\\\\/g; s/"/\\"/g')"
+  RULES="$(tr '\n' ' ' < "$RULES_FILE")"  # エスケープは warn_session（json_escape）に一元化
   warn_session "${PREFIX}${RULES}"
 fi
 

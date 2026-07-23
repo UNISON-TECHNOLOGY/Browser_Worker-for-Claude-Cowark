@@ -64,8 +64,9 @@
 | 手順書 20 | `procedures/delve-*.md` — 各コマンドの手順の正本（メニューには登録されない。コマンドが Read して実行） |
 | フック 5 | 変更操作ゲート / URLガード（広告出稿・課金ページ遮断） / ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 |
 | 執筆リファレンス 11 | `references/` 配下の内部教科書（スキル一覧には登録されない）。汎用5: web-design / video-ad / sns-jp / ad-compliance-jp / content-design、業種6: recruit / copy / sales / logical / business / storytelling（**人材業界パック**）。エージェントとコマンドが執筆時に Read して適用 |
-| エージェント 4 | deliverable-writer（レポート執筆・sonnet/medium）/ design-artisan（モックアップ生成・sonnet/high）/ design-critic（デザイン審査・opus/medium）/ strategy-advisor（設計壁打ち・エスカレーション相談・opus/medium） |
+| エージェント 5 | deliverable-writer（レポート執筆・sonnet/medium）/ design-artisan（モックアップ生成・fable/high、不可なら sonnet）/ design-critic（デザイン審査・opus/medium）/ strategy-advisor（設計壁打ち・エスカレーション相談・opus/medium）/ pre-send-verifier（送信前の敵対的最終監査・opus/medium） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 |
+| ステップ正本 | `docs/steps-reference.md` — A〜K 手順・CP証跡・ログスキーマ・ナレッジ構造の正本（/タスク開始 が最初に Read） |
 
 ## 業種カスタマイズ
 
@@ -78,4 +79,10 @@
 - 認証情報は扱いません。ログインは人間が行います。**Credential Guard**: パスワード・認証コード欄へのAI入力は hook が常時ブロック（ワークフロー承認済みでも）
 - 変更操作はワークフローゲート（フェーズ判定・変更前記録）を通過しないと実行されません
 - 無人運用（PC起動→自動定常タスク）の構成は [docs/unattended-ops.md](docs/unattended-ops.md) を参照（パスワード無保管のまま自動化する3層設計）
+- 送信・投稿など不可逆な送出の前は pre-send-verifier（敵対的監査）+ 人間承認の二段ゲート。金銭・契約系画面は **Money Watch** が検知して変更操作を強制停止します
+- **既知の限界（設計上の割り切り）**:
+  - ゲートは MCP ブラウザツールが対象。**Bash 経由の直接送信（node/curl 等）はゲート対象外** — Node スクリプト等での送信運用はワークスペース側の hook か権限設定で別途ゲートすること
+  - 同一ワークスペースの**並行セッションはフラグ（memory/.workflow/）を共有**するため相互干渉しうる。同時実行は1タスクずつを推奨
+  - Credential Guard / JS mutation 判定はキーワード検知の best-effort（難読化で回避可能）。硬い防御は Money Watch・URL Guard・人間承認が担う
+  - URL denylist は部分一致のため、金銭に無関係な /subscribe 等を誤ブロックすることがある → `knowledge/config/url-allowlist.txt` で開放
 - 検証状況・既知の制約は [TESTING.md](TESTING.md) を参照

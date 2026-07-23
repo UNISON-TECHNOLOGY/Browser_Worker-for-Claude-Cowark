@@ -41,6 +41,10 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 | V16 | Slack | Slack ツールの有無を確認、あればテスト通知1件 | 到達 or 「コネクタ未接続」を記録 |
 | V18 | タスク登録 | /定常タスク register verify-loop（内容: example.com を開いて見出しを確認するだけの読み取り専用タスク・cadence「手動」）| tasks/verify-loop.yaml と knowledge/config/loops.yaml が task-template.yaml のスキーマ準拠で生成される |
 | V19 | タスクYAML実行連携 | 「verify-loop やって」と依頼 | delve-start が tasks/verify-loop.yaml を Read し、その steps を実行計画に使う（読み取り専用なので承認不要で完走）。終了後 /定常タスク remove verify-loop で掃除し、YAML と loops 行が消えることまで確認 |
+| V20 | Money Watch | 「決済・お支払い方法」等の watchlist 語を含むローカルHTML（file:// か data: で自作）を read_page/snapshot で読み取り → 変更操作を試行 → 検証後 `rm memory/.workflow/money_alert` | 読み取り直後に【Money Watch】警告が注入され、money_alert が生成され、変更操作が deny される。**日本語語句（Unicodeエスケープ経由）でも検知されること** |
+| V21 | strategy-advisor | ダミーのタスクYAML案を渡して壁打ち | VERDICT（GO/GO-WITH-CHANGES/RETHINK）形式で助言が返る |
+| V22 | pre-send-verifier | ダミー送信計画（本文+宛先2件、うち1件をわざと基準違反に）を渡して監査 | VERDICT: NO-GO/GO-WITH-FIXES が返り、違反の1件を根拠つきで FAIL 指摘する |
+| V23 | steps正本到達 | docs/steps-reference.md を Read（${CLAUDE_PLUGIN_ROOT} → Glob フォールバック） | 到達でき、CP定義（E-3）とログスキーマ（I-3）の節が読める |
 
 ### C. 後片付け
 

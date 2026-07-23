@@ -14,7 +14,7 @@ SUPPRESS="$PROJECT_DIR/knowledge/config/money-suppress.txt"
 if [ -f "$SUPPRESS" ]; then
   while IFS= read -r pat; do
     case "$pat" in ''|'#'*) continue ;; esac
-    if printf '%s' "$STDIN_JSON" | grep -qiE "$pat" 2>/dev/null; then
+    if printf '%s' "$STDIN_TEXT" | grep -qiE "$pat" 2>/dev/null; then
       exit 0
     fi
   done < "$SUPPRESS"
@@ -25,7 +25,8 @@ for LIST in "$SCRIPT_DIR/money-watchlist.txt" "$PROJECT_DIR/knowledge/config/mon
   [ -f "$LIST" ] || continue
   while IFS= read -r pat; do
     case "$pat" in ''|'#'*) continue ;; esac
-    if printf '%s' "$STDIN_JSON" | grep -qiE "$pat" 2>/dev/null; then
+    # 照合は STDIN_TEXT（\uXXXX デコード済み）に対して行う — 生JSONだと日本語パターンが不発になる
+    if printf '%s' "$STDIN_TEXT" | grep -qiE "$pat" 2>/dev/null; then
       matched="$pat"
       break 2
     fi

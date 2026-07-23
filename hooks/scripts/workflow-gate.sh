@@ -16,14 +16,17 @@ elif printf '%s' "$STDIN_JSON" | grep -q 'claude-in-chrome__computer' && \
      printf '%s' "$STDIN_JSON" | grep -qE '"action"[[:space:]]*:[[:space:]]*"(type|key)"'; then
   IS_INPUT_OP=1
 fi
-if [ "$IS_INPUT_OP" = "1" ] && printf '%s' "$STDIN_JSON" | grep -qiE '(password|passwd|パスワード|暗証|otp|verification.?code|認証コード|secret|credential)'; then
+if [ "$IS_INPUT_OP" = "1" ] && printf '%s' "$STDIN_TEXT" | grep -qiE '(password|passwd|パスワード|暗証|otp|verification.?code|認証コード|secret|credential)'; then
   deny "【Credential Guard】パスワード・認証情報フィールドへの入力はAIには許可されていません。ログイン・認証入力は人間が行ってください（ブラウザのパスワードマネージャ推奨）。完了したら操作を再開します。"
 fi
 
 # Read-only pass-through: In Chrome の computer ツールは読み取り操作（screenshot/scroll等）も
 # 同じツール名で来るため、action を見て変更を伴わない操作は素通しする
+# 素通し条件: 読み取り action が含まれる「かつ」変更系 action が一切含まれないこと。
+# batch/複合ペイロードで screenshot と click が同梱された場合の誤素通しを防ぐ。
 if printf '%s' "$STDIN_JSON" | grep -q 'claude-in-chrome__computer'; then
-  if printf '%s' "$STDIN_JSON" | grep -qE '"action"[[:space:]]*:[[:space:]]*"(screenshot|scroll|zoom|cursor_position|wait|hover|mouse_move)"'; then
+  if printf '%s' "$STDIN_JSON" | grep -qE '"action"[[:space:]]*:[[:space:]]*"(screenshot|scroll|zoom|cursor_position|wait|hover|mouse_move)"' && \
+     ! printf '%s' "$STDIN_JSON" | grep -qE '"action"[[:space:]]*:[[:space:]]*"(left_click|right_click|middle_click|double_click|triple_click|click|type|key|hold_key|left_click_drag|drag|left_mouse_down|left_mouse_up)"'; then
     exit 0
   fi
 fi

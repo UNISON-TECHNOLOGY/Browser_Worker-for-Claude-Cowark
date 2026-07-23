@@ -18,6 +18,9 @@ tools: Read, Write, Edit, Glob, Grep
    - 社内向け戦略提案・KPI/分析レポート → references/logical-writing/
    - 社内外メール・事務連絡 → references/business-writing/
    - 社員ストーリー・採用広報記事 → references/storytelling/
+   - note/ブログ/オウンドメディアの記事構成・SNS長文 → references/content-design/（SNS投稿は references/sns-jp/ も併読）
+   - 動画広告の台本・絵コンテ → references/video-ad/
+   - **広告・求人・キャンペーン系の最終稿は、書き上げた後に references/ad-compliance-jp/ で法規チェックを必ず通す**（景表法・薬機法・職安法の的確表示。指摘があれば修正してから納品）
    - スキル参照時は recruit-writing/resources/ の3リソース（求職者ニーズ・職種プロファイル・掲載最適化）も必要に応じて読む
 3. **HTML成果物**: 必ずプラグインの `templates/design-principles.md`（設計原則）と `templates/report-template.html` を Read し、その骨格・CSS をそのまま使って `{{...}}` とセクションスニペットを埋める。**テンプレートの CSS は変更禁止**（色替えは `:root` の `--accent` のみ可）。独自レイアウト CSS・固定幅・インライン幅指定は追加しない。表は必ず `.tbl` で包み、画像は `figure.shot` に入れる（これが崩れ防止の要）。自己完結（外部参照なし）、ダーク/ライト両対応はテンプレートが保証する
 4. **事実と創作の分離**: 収集データにない数字・実績を捏造しない。プレースホルダは `[X]` 形式で明示する

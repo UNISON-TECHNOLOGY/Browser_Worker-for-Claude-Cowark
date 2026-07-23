@@ -12,32 +12,37 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
 # ペイロードから URL を抽出（claude-in-chrome navigate / playwright browser_navigate とも "url" キー）
-URL="$(printf '%s' "$STDIN_JSON" | grep -oE '"url"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed -E 's/.*:[[:space:]]*"([^"]*)".*/\1/')"
-[ -z "$URL" ] && exit 0
+# 複数URL（batch/タブ複数生成）に備えて全マッチを照合する（1件でも deny 該当なら遷移全体を止める）
+URLS="$(printf '%s' "$STDIN_JSON" | grep -oE '"url"[[:space:]]*:[[:space:]]*"[^"]*"' | sed -E 's/.*:[[:space:]]*"([^"]*)".*/\1/')"
+[ -z "$URLS" ] && exit 0
 
 match_list() {
-  # $1: リストファイル。コメント・空行を除いた各パターンで URL を照合
-  local file="$1" pat
+  # $1: リストファイル, $2: URL。コメント・空行を除いた各パターンで照合
+  local file="$1" url="$2" pat
   [ -f "$file" ] || return 1
   while IFS= read -r pat; do
     case "$pat" in ''|'#'*) continue ;; esac
-    if printf '%s' "$URL" | grep -qiE "$pat" 2>/dev/null; then
+    if printf '%s' "$url" | grep -qiE "$pat" 2>/dev/null; then
       return 0
     fi
   done < "$file"
   return 1
 }
 
-# 1. 許可リスト（ユーザーの明示開放）が最優先
-if match_list "$PROJECT_DIR/knowledge/config/url-allowlist.txt"; then
-  exit 0
-fi
-
-# 2-3. 拒否リスト照合
-for LIST in "$PROJECT_DIR/knowledge/config/url-denylist.txt" "$SCRIPT_DIR/url-denylist.txt"; do
-  if match_list "$LIST"; then
-    deny "【URL Guard】このページ（$URL）は金銭発生・広告出稿・課金設定に該当するため遷移をブロックしました。広告出稿や課金操作はAIには許可されていません。業務上必要な場合は、ユーザー本人が knowledge/config/url-allowlist.txt に該当パターンを追記して明示的に開放してください（AIが代行して追記することは禁止）。"
+while IFS= read -r URL; do
+  [ -z "$URL" ] && continue
+  # 1. 許可リスト（ユーザーの明示開放）が最優先
+  if match_list "$PROJECT_DIR/knowledge/config/url-allowlist.txt" "$URL"; then
+    continue
   fi
-done
+  # 2-3. 拒否リスト照合
+  for LIST in "$PROJECT_DIR/knowledge/config/url-denylist.txt" "$SCRIPT_DIR/url-denylist.txt"; do
+    if match_list "$LIST" "$URL"; then
+      deny "【URL Guard】このページ（$URL）は金銭発生・広告出稿・課金設定に該当するため遷移をブロックしました。広告出稿や課金操作はAIには許可されていません。業務上必要な場合は、ユーザー本人が knowledge/config/url-allowlist.txt に該当パターンを追記して明示的に開放してください（AIが代行して追記することは禁止）。"
+    fi
+  done
+done <<EOF
+$URLS
+EOF
 
 exit 0

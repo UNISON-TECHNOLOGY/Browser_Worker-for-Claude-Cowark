@@ -1,6 +1,6 @@
 ---
 name: video-ad
-description: 動画広告クリエイティブ — 15/30秒の広告動画の台本・絵コンテ・フック設計をプラットフォーム別（TikTok/Reels/YouTube/Meta）の型で作成。Use when 動画広告の台本/絵コンテ/構成案、ショート動画のフック案、既存LPや商材からの動画広告展開、動画クリエイティブの改善案を求められたとき。Not for 静止画バナー（→copywriting+web-design）、SNSオーガニック投稿（→marketing系）、動画ファイルそのものの生成（対象外）。
+description: 動画広告クリエイティブ — 15/30秒の広告動画の台本・絵コンテ・フック設計をプラットフォーム別（TikTok/Reels/YouTube/Meta）の型で作成。Use when 動画広告の台本/絵コンテ/構成案、ショート動画のフック案、既存LPや商材からの動画広告展開、動画クリエイティブの改善案を求められたとき。Not for 静止画バナー（→copywriting+web-design）、SNSオーガニック投稿（→sns-jp / content-design）、動画ファイルそのものの生成（対象外）。
 ---
 
 # 動画広告クリエイティブスキル
@@ -58,7 +58,7 @@ description: 動画広告クリエイティブ — 15/30秒の広告動画の台
 
 ## 日本市場プリセット（デフォルト適用）
 
-編集定数は skills/web-design/resources/jp-taste.md §5 に従う（カット1-3秒・白字黒縁テロップ・中央帯セーフゾーン・ループ構成・軽いオチ）。
+編集定数は references/web-design/resources/jp-taste.md（見つからなければ Glob `**/jp-taste.md`）§5 に従う（カット1-3秒・白字黒縁テロップ・中央帯セーフゾーン・ループ構成・軽いオチ）。
 
 日本向け出稿では以下を標準とする（米国流との差分）:
 

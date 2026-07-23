@@ -1,6 +1,6 @@
-# テスト計画 — v0.8.0 スモークテスト
+# テスト計画 — 累積テストログ（初版 v0.8.0 スモークテスト）
 
-対象環境: Claude Cowork（デスクトップ）/ プラグイン v0.8.0 / フォルダ未接続のクラウド作業領域で可
+対象環境: Claude Cowork（デスクトップ）/ フォルダ未接続のクラウド作業領域で可。現行バージョンは .claude-plugin/plugin.json を正とする
 
 ## 判定済み
 
@@ -48,8 +48,8 @@
 
 | # | 手順 | 期待結果 |
 |---|------|---------|
-| T7 | `/delve-style <参考サイトURL>` | 巡回→トークンJSON生成→**deliverable-writer（Opus）に委譲**→比較HTMLレポート生成 |
-| T8 | T7 の実行ログで委譲を確認 | Agent ツールで deliverable-writer が起動し、モデルが opus になっている |
+| T7 | `/delve-style <参考サイトURL>` | 巡回→トークンJSON生成→**deliverable-writer（sonnet）に委譲**→比較HTMLレポート生成 |
+| T8 | T7 の実行ログで委譲を確認 | Agent ツールで deliverable-writer が起動し、モデルが sonnet になっている（agents/deliverable-writer.md の frontmatter が正） |
 | T9 | `/delve-audit <自社サイトURL> 5` | 速度実測+品質チェック+診断HTMLレポート |
 | T10 | `/delve-report` | タスク成果のHTMLレポート生成 |
 
@@ -110,7 +110,7 @@
 | 項目 | 見るところ |
 |---|---|
 | V11 | ダッシュボードが dashboard-template 準拠（浮世絵ヘッダー・旅人・タブ=全体+ドメイン・停留点数=タブ数）で、見本データでなく実データ |
-| V17 | 台帳20コマンド/20エイリアス + スキル台帳12件が実体と一致、全行にドメイン |
+| V17 | 台帳20コマンド/20手順 + スキル台帳11件が実体と一致、全行にドメイン |
 | V18 | /delve-task register で YAML + loops.yaml が生成される（積み込み口の成立） |
 | V19 | delve-start が tasks/*.yaml を実行計画として読む（エンジンと荷物の接続） |
 | V14 | 日本語エイリアス（/定常タスク を含む）が発火する |
