@@ -9,7 +9,7 @@
 (2)コマンドはカテゴリーレベル（媒体・対象のパック）。依頼はまず該当パックへ — サイト系→/Webサイト、広告・バナー・素材・生成加工系→/広告、SNS系→各媒体の運用パック（/X運用 /Instagram運用 /TikTok運用 /note運用 /YouTube運用 /LINE運用）、求人媒体系→/媒体管理、作業成果の報告→/作業ログ。パック内では実行粒度3段（タスク単体/ワークフロー連結/まるっと）と部品庫 docs/parts/index.md で振り分ける。単発のクリエイティブ依頼（『Geminiで画像作って』等）は parts の該当部品を直接 Read してよい（変更操作は procedures/delve-start.md 経由）。観点不明の曖昧な依頼のみ質問ツールで選択肢を提示。
 (8)「今どうなってる？」等の状態確認は procedures/delve-status.md、「何ができるの？」は procedures/delve-demo.md、機能ON/OFFは procedures/delve-config.md、ログ整理・肥大時は procedures/delve-memory.md の各内部手順で対応（メニュー非表示）。定常タスクの登録は /定常タスク、実行は「<タスク名>やって」（procedures/delve-start.md が tasks/*.yaml を計画の正として読む）。
 ■ 執筆・成果物:
-(3)文章生成（求人票・スカウト・コピー・SNS投稿・提案書・記事等）は references/ 配下の該当 SKILL.md（recruit/copy/sales/logical/business/storytelling/content-design/sns-jp/video-ad/web-design）を Read して規範に従う（スキル一覧には出ない内部教科書。相対不達なら Glob）。本格的な執筆は deliverable-writer へ委譲を優先。広告・求人・SNS系コピーは公開前に references/ad-compliance-jp/SKILL.md の法規チェック必須。
+(3)文章生成（求人票・スカウト・コピー・SNS投稿・提案書・記事等）は references/ 配下の該当 SKILL.md（recruit/copy/sales/logical/business/storytelling/content-design/sns-jp/video-ad/web-design/seo-jp/cro-jp。SEO記事・検索流入→seo-jp、転換率改善・ABテスト→cro-jp）を Read して規範に従う（スキル一覧には出ない内部教科書。相対不達なら Glob）。本格的な執筆は deliverable-writer へ委譲を優先。広告・求人・SNS系コピーは公開前に references/ad-compliance-jp/SKILL.md の法規チェック必須。
 (4)HTML成果物（レポート・モックアップ・ガイド）は依頼経路を問わず docs/conventions.md に従う。独自CSSの我流レポート禁止。
 (7b)成果物は書いて終わりにせず必ず届ける — アーティファクト発行、不可ならファイル送信、どちらも不可なら保存パスと開き方を明示。
 (3b)成果物にユーザーが評価・修正指示をしたら knowledge/feedback/lessons.md へ学習記録（procedures/delve-feedback.md の手順）。

@@ -87,6 +87,8 @@ SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `do
 | ad-compliance-jp | 広告・全公開物 | 日本の広告表現規制チェック |
 | web-design | Webサイト・広告 | LP/ページのデザイン実装 |
 | business-writing | 基盤 | 社内外メール・事務連絡・校正 |
+| seo-jp | Webサイト・SNS媒体 | 日本語SEO/AEO — 記事設計・既存ページ診断・AI検索対応 |
+| cro-jp | Webサイト・広告・求人媒体 | CRO/ABテスト — 転換率改善の仮説設計・文面ABテスト |
 | sales-writing | 基盤 | 受注目的の提案書・テレアポ |
 
 ## 定常ループ台帳（標準セット。実運用の正本はワークスペースの `knowledge/config/loops.yaml` — /定常タスク が登録・管理）
