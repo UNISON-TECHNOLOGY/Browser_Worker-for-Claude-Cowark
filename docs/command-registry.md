@@ -38,19 +38,24 @@
 | delve-media | 媒体管理 | 求人媒体 | media | 「全媒体の状況見せて」「スカウト送って」 |
 | delve-website | Webサイト | 自社・広告 | research | 「表示速度を測って」「このLP改善して」 |
 | delve-ads | 広告 | 自社・広告 | creative | 「バナー作って」「競合広告を洗い出して」 |
-| delve-start | タスク開始 | 基盤 | core | 「◯◯を更新して」(変更操作の前段) |
 | delve-task | 定常タスク | 基盤 | core | 「毎朝◯◯するタスクを追加して」 |
-| delve-status | 状態確認 | 基盤 | core | 「今どうなってる？」 |
 | delve-dashboard | ダッシュボード | 基盤 | core | 「ダッシュボード見せて」（説明書=ガイド統合） |
-| delve-demo | デモ | 基盤 | core | 「何ができるの？」 |
-| delve-config | 機能設定 | 基盤 | core | 「SNS機能を切って」 |
 | delve-report | 作業ログ | 記録 | core | 「今日の作業まとめて」 |
-| delve-skillify | スキル化 | 記録 | core | 「これ覚えて」（ルール/方法/判断基準を聞いて分類） |
-| delve-feedback | メモリ保存 | 記録 | core | 「ここはNG、次からこうして」 |
-| delve-memory | メモリ圧縮 | 記録 | core | 「ログを整理して」（構造化データ化） |
 | delve-verify | 検証 | 記録 | core | 「プラグインを検証して」※開発用 — 配布時には削除する |
 
-**計: 日本語コマンド 20（登録） / 手順書 20（procedures/）**（1対1で完全対応）
+**計: 登録コマンド 13 / 内部手順 7 / 手順書 20（procedures/）**
+
+## 内部手順台帳（メニュー非表示 — 自然文・ルール発火で動く。手順書は procedures/ に残す）
+
+| 手順書 | 旧コマンド名 | 発火のさせ方 |
+|---|---|---|
+| delve-start | （内部）タスク開始 | 変更操作の前段として各パックが内部で通す関所（session-rules (1)） |
+| delve-status | （内部）状態確認 | 「今どうなってる？」等の自然文（session-rules (8)） |
+| delve-demo | （内部）デモ | 「何ができるの？」→ ダッシュボードの説明書へ誘導 |
+| delve-config | （内部）機能設定 | 「SNS機能を切って」等の自然文 |
+| delve-skillify | （内部）スキル化 | 手順を教わった・同一パターン2回目の自動検知（session-rules (3c)） |
+| delve-feedback | （内部）メモリ保存 | 成果物への評価・修正指示の自動検知（session-rules (3b)） |
+| delve-memory | （内部）メモリ圧縮 | 「ログを整理して」/ session-log 肥大時に提案 |
 
 ## 部品台帳（docs/parts/ — タスク5型。詳細は docs/parts/index.md が正本）
 

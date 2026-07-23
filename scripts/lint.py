@@ -69,10 +69,13 @@ for c in commands:
         referenced_procs.add(r)
         if not (ROOT / "procedures" / r).is_file():
             err(f"commands/{c.name}: 参照先 procedures/{r} が不在")
+_extra_ref_sources = [ROOT / "hooks/scripts/session-rules.txt", ROOT / "README.md",
+                      ROOT / "docs/command-registry.md"] + list(ROOT.glob("docs/**/*.md"))
+_extra_text = "".join(read(f) for f in _extra_ref_sources if f.is_file())
 for p in procedures:
     if p.name not in referenced_procs:
-        # 手順書間の委譲参照も許容
-        used = any(p.name in read(q) for q in procedures if q != p)
+        # 手順書間の委譲参照・session-rules/docs からの参照（内部手順）も許容
+        used = any(p.name in read(q) for q in procedures if q != p) or (p.name in _extra_text)
         if not used:
             err(f"procedures/{p.name}: どのコマンド・手順からも参照されない孤児")
 
@@ -111,7 +114,7 @@ for s in (ROOT / "references").glob("*/SKILL.md"):
 # 台帳の行形式: | delve-<name> | <日本語コマンド名> | ドメイン | Pack | 言い方 |
 reg = read(ROOT / "docs/command-registry.md")
 reg_rows = re.findall(r"^\| (delve-[a-z-]+) \| ([^|]+?) \|", reg, re.M)
-reg_jp = {jp.strip() for _, jp in reg_rows}
+reg_jp = {jp.strip() for _, jp in reg_rows if not jp.strip().startswith("（内部")}
 reg_en = {en for en, _ in reg_rows}
 fs_cmds = {c.stem for c in commands}
 fs_procs = {p.stem for p in procedures}
