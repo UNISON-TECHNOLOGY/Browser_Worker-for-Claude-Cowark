@@ -37,6 +37,25 @@ ffmpeg -framerate 24 -i f%04d.png -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 
 2. **LPの動く人物/オブジェクト**（2026-07-23 動画生成起点でもフルライン実証済み: Gemini動画→背景除去→WebM）: GB指定生成 → chromakey → 浮遊フレーム → アルファWebM → `<video autoplay loop muted playsinline>` で任意背景の上に重ねる（GIFより滑らかで軽い。delve-improve / delve-adlp の演出部品）。**HTML への組み込みは DesignSync で claude.ai/design のプロジェクトへ流す**（増分同期・承認フローは delve-improve の DesignSync 節に従う）。ローカル HTML 直書きはプレビュー用途のみ
 3. **操作教材**: gif_creator で実録画 → 専用DLフォルダ回収 → guide-anim / ffmpeg で注釈焼き込み → ガイド/レポートに添付
 
+## ファイル形式カバレッジ（線引きの正本）
+
+| 形式 | 扱い |
+|---|---|
+| PNG / JPG / WebP | 本プラグインで加工（Pillow テンプレ3本） |
+| mp4 / GIF / WebM / アルファWebM | 本プラグインで変換（ffmpeg レシピ） |
+| PPTX / DOCX / XLSX / PDF | **Cowork 本体の文書生成スキルに委ねる（プラグインで複製しない）**。プラグインの役割は橋渡しのみ — 例: banner-compose の PNG を python-pptx でスライドへ流し込む / HTML レポートを PDF 化。橋渡しの実機検証は未了（TESTING.md の検証プロンプト参照） |
+| SVG | **既知の穴（ベクター生成ライン不在）**。テキスト形式なので DesignSync に直接流せる唯一の画像形式であり、将来の優先候補。当面ロゴ・アイコンは /素材探し か Canva/Claude Design 側で |
+| PSD / AI | 対象外（開けるツールなし）。Canva / Claude Design に寄せる |
+
+## 素材パック規約（Claude Design へ渡すときの型）
+
+素材を DesignSync で claude.ai/design に流すときは、素材単品でなく**パック**にする:
+
+- 置き場: `knowledge/assets/packs/<パック名>/` に素材一式 + **DESIGN.md（マニフェスト・必須）**
+- DESIGN.md の中身: 各素材の用途 / 寸法 / カラーコード（GB の緑等）/ 埋め込みスニペット（アルファWebM なら `<video autoplay loop muted playsinline>`）/ 出典・ライセンス（sources.md から転記）。Design 側の AI がこれを読めば使い方を誤らない（CLAUDE.md 相当。名前は衝突事故防止のため **DESIGN.md 固定**）
+- 同期: DESIGN.md を最初に write_files し、素材はテキスト表現できるもの（SVG・小画像の data URI・CSS トークン）を優先。**バイナリが write_files を通るかは未検証** — 通らなければ「スニペット+パック参照のみ同期」にフォールバック
+- ZIP は DesignSync には使わない（受け口がない）。**ZIP は人間・他ツール（Canva 等）向けの配布形態**としてのみ作る
+
 ## 共通ルール
 
 - 公開向けコピーは ad-compliance-jp を通す / 人物素材はモデルリリース（/素材探し）または生成でも実在人物風は禁止
