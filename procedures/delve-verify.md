@@ -51,6 +51,15 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 - 検証で作ったフラグ・ダミースキル・テストデータを削除（delvework.db は残してよい）
 - session-log に検証実施を1行記録
 
+### D. 機械チェック（quick/full 共通・環境に bash/python があれば）
+
+| # | 項目 | 手順 | PASS基準 |
+|---|---|---|---|
+| V24 | lint | `python3 scripts/lint.py`（プラグインルートで。python3 不在なら python） | `lint: OK`（参照整合・frontmatter・台帳・バージョン一致） |
+| V25 | hooks回帰 | `bash scripts/test-hooks.sh` | `test-hooks: ALL PASS`（防御系15項目） |
+
+実行不可の環境（bash/python なし）では SKIP(理由) とし、CI（GitHub Actions）の最新結果に言及する。
+
 ## 報告書（必ず2形式）
 
 1. **チャット内サマリー**: PASS/FAIL/SKIP の集計 + FAIL の詳細
@@ -68,3 +77,5 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 ```
 
 アーティファクト発行が可能なら報告書も発行して URL を添える。
+
+**full モードではさらに**: docs/conventions.md 準拠の HTMLレポート（report-template 骨格。集計サマリー・カテゴリ別 PASS/FAIL 表・FAIL詳細・環境メモ）を `knowledge/reports/verify-<date>.html` に生成し、成果物として必ず届ける（アーティファクト発行→不可ならファイル送信→不可なら保存パス明示）。
