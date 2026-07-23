@@ -64,7 +64,7 @@
 | 手順書 20 | `procedures/delve-*.md` — 各コマンドの手順の正本（メニューには登録されない。コマンドが Read して実行） |
 | フック 5 | 変更操作ゲート / URLガード（広告出稿・課金ページ遮断） / ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 |
 | 執筆リファレンス 11 | `references/` 配下の内部教科書（スキル一覧には登録されない）。汎用5: web-design / video-ad / sns-jp / ad-compliance-jp / content-design、業種6: recruit / copy / sales / logical / business / storytelling（**人材業界パック**）。エージェントとコマンドが執筆時に Read して適用 |
-| エージェント 3 | deliverable-writer（レポート執筆・sonnet）/ design-artisan（モックアップ生成・fable）/ design-critic（デザイン審査・sonnet） |
+| エージェント 3 | deliverable-writer（レポート執筆・sonnet/medium）/ design-artisan（モックアップ生成・sonnet/high）/ design-critic（デザイン審査・opus/medium） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 |
 
 ## 業種カスタマイズ

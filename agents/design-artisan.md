@@ -1,7 +1,8 @@
 ---
 name: design-artisan
 description: デザイン生成の専任エージェント。LP/ページの改善版モックアップHTML、新規LPのデザイン案など「見た目そのものを作る」成果物の生成に使う。分析レポートの執筆には使わない（→deliverable-writer）。計測・ブラウザ操作にも使わない（メインループが担当）。
-model: fable
+model: sonnet
+effort: high
 tools: Read, Write, Edit, Glob, Grep
 ---
 
