@@ -96,6 +96,7 @@ SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `do
 | psych-nudge-jp | 全パック（コピー・CTA設計） | 行動経済・ナッジの日本実証 — 訴求フレーム選択（損失/利得/規範/利他）とEASTチェック |
 | psych-ux-jp | Webサイト・広告 | UI/UX・社会心理の日本実務 — 視線/密度/配色/フォーム/実績表示の判断基準 |
 | psych-target-jp | 求人媒体・SNS媒体（文面の書き分け） | 読み手の心理プロファイル×CBT健全応用 — 3軸判定（不安の核/意思決定スタイル/関係段階） |
+| design-evidence-jp | Webサイト・広告・全HTML成果物 | 実証デザイン数値基準 — タイポ/配色/LPレイアウト/グラフ選択の具体値（DADS・JIS・WACUL・NN/g・Cleveland-McGill） |
 | sales-writing | 基盤 | 受注目的の提案書・テレアポ |
 
 ## 定常ループ台帳（標準セット。実運用の正本はワークスペースの `knowledge/config/loops.yaml` — /カスタマイズ のタスク登録が管理）
