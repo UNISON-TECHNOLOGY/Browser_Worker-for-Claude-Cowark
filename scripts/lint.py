@@ -137,6 +137,17 @@ for f in list(ROOT.glob("commands/*.md")) + list(ROOT.glob("procedures/*.md")) +
             continue  # delve-sns.md は現行ルーター
         err(f"{f.relative_to(ROOT)}: 廃止済みの旧手順名 '{m}' が残存（docs/parts/ の部品名に置換すること）")
 
+# --- 9. ファイル内の異常重複（同一の長い行が3回以上 = 一括置換バグの兆候） ---
+import collections as _coll
+for f in list(ROOT.glob("commands/*.md")) + list(ROOT.glob("procedures/*.md")) +          list(ROOT.glob("docs/**/*.md")) + list(ROOT.glob("agents/*.md")) +          list(ROOT.glob("references/**/*.md")):
+    cnt = _coll.Counter(
+        l.strip() for l in read(f).splitlines()
+        if len(l.strip()) > 60 and not l.strip().startswith(("|---", "```", "#", ">", "-"))
+    )
+    for line, n in cnt.items():
+        if n >= 3:
+            err(f"{f.relative_to(ROOT)}: 同一行が{n}回重複（一括置換バグの疑い）: {line[:40]}…")
+
 # --- 結果 ---
 print(f"lint: commands={len(commands)} procedures={len(procedures)} "
       f"agents={len(list((ROOT/'agents').glob('*.md')))} skills={len(list((ROOT/'references').glob('*/SKILL.md')))} "

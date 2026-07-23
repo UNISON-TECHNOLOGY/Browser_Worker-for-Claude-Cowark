@@ -72,19 +72,4 @@ status の履歴（knowledge/media/status/）から横断ダッシュボード H
 
 ## 動的コマンド生成（正本は /ワーク追加 = procedures/delve-add-work.md — 登録+初期マッピング+コマンド生成を一括で行う）
 
-以下は register 単体で呼ばれた場合の後方互換。新規媒体は /ワーク追加 を案内すること。
-
-`register <媒体名>` で台帳に登録したら、**ワークスペースの `.claude/commands/<媒体名>.md` を自動生成**する（プラグイン本体は変更しない。/スキル化 と同じワークスペース生成方式）:
-
-```markdown
----
-description: <媒体名> — この媒体専用パック。Use when ユーザーが「<媒体名>で◯◯して」と依頼したとき（求人更新/スカウト/状況確認）。
-argument-hint: <要望>
----
-knowledge/media/registry.yaml の該当媒体と knowledge/sites/<id>/ のナレッジを Read し、
-プラグインの procedures/delve-media.md（タスク分解表）に従って実行してください。引数: $ARGUMENTS
-```
-
-- 生成したら1行報告（「/<媒体名> が使えるようになりました。次セッションから有効」）
-- SNS アカウントを複数運用する場合も同方式で `/<アカウント名>` を生成してよい
-- 媒体を台帳から削除したら対応コマンドも削除する
+register 単体で呼ばれた場合も、登録後の動的コマンド生成・初期マッピングは procedures/delve-add-work.md の手順（§3〜§5）に従う（テンプレはそちらが正本。ここに複製しない）。
