@@ -2,6 +2,16 @@
 
 要望を受けて実行粒度（docs/parts/index.md の3段）を判定し、タスク5型に振り分ける。各タスクは docs/parts/ の部品を Read して従う。
 
+## 0. 対象の確認（曖昧なら最初に聞く）
+
+「広告を見て」「広告作って」だけでは対象が定まらない。以下が要望から読み取れないときは、質問ツール（選択式）で先に確認する（読み取れるなら聞かずに進む）:
+
+1. **誰の広告か**: 自社 / 競合（社名・アカウント）
+2. **どの媒体の広告か**: Google検索 / Meta（Instagram・Facebook）/ TikTok / X / YouTube / LINE広告 / 求人広告（Indeed・媒体内広告）/ ディスプレイ・バナー全般
+3. **目的**: 調査したい（何が伸びてるか）/ 作りたい（バナー・LP・台本）/ 改善したい（今の広告の直し）
+
+確認結果は knowledge/styles/ か knowledge/sns/<媒体>/research/ の調査記録に前提として書き残す（次回は聞かない）。
+
 | 要望の型 | タスク | 部品 |
 |---|---|---|
 | 「競合広告/訴求を洗い出して」 | リサーチ | docs/parts/deep-research.md / docs/parts/sns-research.md（TikTok Creative Center 含む） |
