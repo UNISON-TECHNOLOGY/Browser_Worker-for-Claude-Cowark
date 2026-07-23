@@ -28,17 +28,21 @@ if printf '%s' "$STDIN_JSON" | grep -q 'claude-in-chrome__computer'; then
   fi
 fi
 
-# JS実行系（javascript_tool / browser_evaluate / browser_run_code）は読み取り計測にも使うため、
-# 変更を伴うAPI呼び出しを含むコードのみゲート対象にする（読み取りJSは素通し）
-if printf '%s' "$STDIN_JSON" | grep -qE '(javascript_tool|browser_evaluate|browser_run_code)'; then
-  if ! printf '%s' "$STDIN_JSON" | grep -qE '\.click\(|\.submit\(|dispatchEvent|\.value[[:space:]]*=|innerHTML[[:space:]]*=|location(\.href)?[[:space:]]*=|window\.open|fetch\(|XMLHttpRequest|sendBeacon|localStorage\.(set|remove|clear)|document\.cookie[[:space:]]*=|\.focus\(\).*type|execCommand'; then
-    exit 0
-  fi
-fi
-
-# Money Watch 停止フラグ: 金銭・契約系画面の検知後は、ユーザー承認による解除まで変更操作を全て deny
+# Money Watch 停止フラグ: 金銭・契約系画面の検知後は、ユーザー承認による解除まで変更操作を全て deny。
+# JS実行系より前に置く（コード実行は mutation 可能なため、金銭停止中は無条件で止める＝フェイルクローズ）。
 if [ -f "$WF_DIR/money_alert" ]; then
   deny "【Money Watch】金銭・契約・不可逆登録系の画面を検知したため変更操作を停止中です（検知: $(cat "$WF_DIR/money_alert" 2>/dev/null | head -c 80)）。strategy-advisor の助言を得てユーザーに操作内容を提示し、明示的な承認を得てから rm memory/.workflow/money_alert で解除してください。ユーザー承認なしの解除は禁止です。"
+fi
+
+# JS実行系（javascript_tool / browser_evaluate / browser_run_code）は読み取り計測にも使うため、
+# 明らかに読み取り専用のコードだけ workflow-init ゲート（active/b4/e）を免除して素通しする。
+# 注意: 任意 JS の mutation 判定を denylist で完全網羅はできない（eval/Function/難読化で回避可能）。
+# よって denylist は best-effort に過ぎず、硬い防御は上の Money Watch と Credential Guard・URL Guard が担う。
+# denylist に当たる or 判定不能なコードは素通しせず、下の workflow ゲートを必ず通す（フェイルクローズ寄り）。
+if printf '%s' "$STDIN_JSON" | grep -qE '(javascript_tool|browser_evaluate|browser_run_code)'; then
+  if ! printf '%s' "$STDIN_JSON" | grep -qE '\.click\(|\.submit\(|requestSubmit|dispatchEvent|\.value[[:space:]]*=|innerHTML[[:space:]]*=|insertAdjacentHTML|location(\.href)?[[:space:]]*=|location\.(assign|replace)|\.href[[:space:]]*=|window\.open|fetch\(|XMLHttpRequest|sendBeacon|navigator\.send|localStorage\.(set|remove|clear)|sessionStorage\.(set|remove|clear)|document\.cookie[[:space:]]*=|\.focus\(\).*type|execCommand|\beval\b|new[[:space:]]+Function|Function\(|setTimeout|setInterval|\bimport\b|Reflect\.(apply|set)|\[[[:space:]]*["'"'"']|\[[a-zA-Z_$][^]]*\][[:space:]]*\('; then
+    exit 0
+  fi
 fi
 
 if [ ! -f "$WF_DIR/active" ]; then
