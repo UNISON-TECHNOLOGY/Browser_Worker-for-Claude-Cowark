@@ -31,6 +31,16 @@
 | 〃 | (b) blob/URL を JS fetch → base64 保存 | UI に URL が露出していれば最速。`knowledge/assets/generated/<name>.<ext>` へ |
 | 量産・定常 | (c) 正規 API（Gemini API / gpt-image-1） | UI 自動操作から切替をユーザーに提案 |
 
+### 3b. バナー合成（任意 — 2026-07-23 実機検証済みの型）
+
+取り込んだ画像にコピーを焼き込んでバナー化する場合は `templates/banner-compose.py` を使う（16:9センタートリミング→1280×720→下部グラデーション→キャッチ+サブ+バッジ焼き込み、Noto Sans CJK）:
+
+1. コピー文言は copywriting スキルで作成し、公開向けは **ad-compliance-jp チェックを通してから**焼き込む
+2. `python3 templates/banner-compose.py <入力> <出力.png> --headline "…" --sub "…" --badge "…"`
+3. コピー案リスト×画像でループすれば量産可（/定常タスク に載せられる）
+
+**背景除去（rembg）の既知制約**: サンドボックスのネットワーク許可リストが AIモデル本体（u2net.onnx 約170MB、GitHub/HuggingFace 配布）のDLをブロックする。頻用するなら (a) ユーザーのPCで一度DLして接続フォルダ経由で搬入（以後使い回せる）、たまになら (b) Canva / Claude Design 側の背景除去に寄せる。
+
 ### 4. 台帳記録（/素材探し と同じ正本: knowledge/assets/sources.md）
 
 `| 日付 | ファイル | 生成元（Gemini/ChatGPT）| プロンプト要約 | 利用条件メモ | 証跡 |` を1行追記。
