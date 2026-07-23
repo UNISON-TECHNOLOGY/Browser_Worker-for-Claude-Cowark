@@ -34,7 +34,7 @@ ffmpeg -framerate 24 -i f%04d.png -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 
 ## 定番ライン
 
 1. **バナー量産**: 生成（GB不要）→ banner-compose（コピー案リスト×画像ループ）→ /定常タスク 化
-2. **LPの動く人物/オブジェクト**: GB指定生成 → chromakey → 浮遊フレーム → アルファWebM → モックアップに `<video autoplay loop muted playsinline>` で任意背景の上に重ねる（GIFより滑らかで軽い。delve-improve / delve-adlp の演出部品）
+2. **LPの動く人物/オブジェクト**（2026-07-23 動画生成起点でもフルライン実証済み: Gemini動画→背景除去→WebM）: GB指定生成 → chromakey → 浮遊フレーム → アルファWebM → モックアップに `<video autoplay loop muted playsinline>` で任意背景の上に重ねる（GIFより滑らかで軽い。delve-improve / delve-adlp の演出部品）
 3. **操作教材**: gif_creator で実録画 → 専用DLフォルダ回収 → guide-anim / ffmpeg で注釈焼き込み → ガイド/レポートに添付
 
 ## 共通ルール
@@ -42,3 +42,4 @@ ffmpeg -framerate 24 -i f%04d.png -c:v libvpx-vp9 -pix_fmt yuva420p -b:v 0 -crf 
 - 公開向けコピーは ad-compliance-jp を通す / 人物素材はモデルリリース（/素材探し）または生成でも実在人物風は禁止
 - 取り込み・生成物はすべて `knowledge/assets/` + 出典台帳（sources.md）に記録
 - Downloads 本体は接続しない（専用DLフォルダ原則）
+- **前提: フル解像度素材の加工には専用DLフォルダ接続が必須**（README「メディア制作を使う場合」の3手順）。未接続で加工依頼が来たら、Downloads→手動アップロードで代替せず（**レンダリング失敗の実測あり 2026-07-23**）、先にセットアップを依頼して止まる。blob fetch が使える場面（URL露出）のみ例外
