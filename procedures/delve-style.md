@@ -31,6 +31,10 @@ argument-hint: <URL...>（スペース区切りで複数可）
    - サイトごとに: スクショ + カラーパレットのスウォッチ表示 + タイポグラフィ見本 + セクション構成図
    - 複数サイト指定時は**横断比較セクション**を先頭に置く（共通パターン / 各サイトの差別化ポイント / LP制作への示唆3点）
 
+### Claude Design 同期（任意・DesignSync ツールがある環境）
+
+ユーザーが「Design に同期して」「デザインシステムに登録して」と求めたら、抽出トークン JSON（と生成済みコンポーネントがあればそれ）を DesignSync で claude.ai/design のプロジェクトに push する。list_projects で対象確認（なければ create_project）→ 計画提示とユーザー承認（finalize_plan）→ write_files。承認範囲外の書き込み・一括置き換えは禁止（増分同期）。同期先を knowledge/artifacts-index.md に記録。
+
 ## モデル最適化
 
 巡回・計測（navigate / evaluate / screenshot）とトークン JSON の書き出しはメインループで行い、**比較 HTML レポートの執筆は `deliverable-writer` エージェント（Agent ツール）に委譲する**こと。委譲時はトークン JSON・スクショの絶対パスと出力先パスをプロンプトに明記する。
