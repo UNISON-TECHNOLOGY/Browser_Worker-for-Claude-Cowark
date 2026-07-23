@@ -1,6 +1,6 @@
 ---
 description: プラグイン自己検証 — 検証項目を自動実行し、PASS/FAIL/SKIP の検証報告書を生成する（開発者へのフィードバック用）。Use when ユーザーが「検証して」「セルフテストして」「動作確認して」「プラグインのテストを回して」と求めたとき、またはプラグイン更新後の動作確認時。
-argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時は quick）
+argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect（全項目+evals+E2E+網羅率マトリクス）]（省略時は quick）
 ---
 
 プラグインの自己検証を実行してください。モード: $ARGUMENTS
@@ -61,6 +61,20 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 
 実行不可の環境（bash/python なし）では SKIP(理由) とし、CI（GitHub Actions）の最新結果に言及する。
 
+### F. パーフェクト検証（perfect のみ — full の全項目に加えて実行）
+
+| # | 項目 | 手順 | PASS基準 |
+|---|---|---|---|
+| V28 | 質問駆動ルーティング | 媒体名なしで「投稿ストック作って」→ /SNS運用 の媒体質問（setup.yaml 選択媒体のみ提示）/ 「広告見て」→ /広告 の3点確認（誰の/媒体/目的）が出るか | 曖昧時のみ選択肢が出て、明示時（「Xのストック」）は質問なしで直行する |
+| V29 | psv送出ゲートE2E | ダミータスクで bulk_send を宣言 → psv_done なしで click 試行 → pre-send-verifier 監査後に psv_done → 再試行 | deny→監査→通過の順で動く（迂回不能） |
+| V30 | 動的コマンド生成 | /ワーク追加 をダミー媒体（example.com 管理画面想定）でドライラン（マッピングは1ページのみ・登録後に削除） | .claude/commands/<媒体>.md が規約どおり生成され、削除フローで消える |
+| V31 | セットアップ再質問なし | setup.yaml 回答済みの項目（生成AIアカウント等）を含む依頼を実行 | accounts.md/setup.yaml を読み、同じ質問を繰り返さない |
+| V32 | 全エージェント起動 | 6体それぞれに最小タスク（3行以内の入力）を委譲 | 全員が定義どおりの形式（VERDICT / VERIFIED / 批評形式等）で応答。使用モデルを記録 |
+| V33 | evals 全ラン | docs/evals.md の G1〜G9 を全件実行 | 全件 PASS（FAIL は本体修正 → TESTING.md 記録 → 再ラン） |
+| V34 | 部品全到達 | docs/parts/ の全部品 + references/ 全17本を Read | 全ファイル到達・frontmatter/規約準拠（欠損ゼロ） |
+
+**perfect の報告書には「網羅率マトリクス」を必ず含める**: 行=プラグインの全構成要素（コマンド10 / 内部手順16 / 部品 / スキル17 / エージェント6 / hooks 6 / テンプレ / ループ）、列=検証方法（実機E2E / 委譲テスト / Read到達 / 機械チェック / 未カバー）。**未カバーの要素は「未カバー」と明示する**（黙って省略しない — 網羅したフリが最大の検証事故）。
+
 ### E. 評価ハーネス（full のみ）
 
 | # | 項目 | 手順 | PASS基準 |
@@ -85,4 +99,4 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 
 アーティファクト発行が可能なら報告書も発行して URL を添える。
 
-**full モードではさらに**: docs/conventions.md 準拠の HTMLレポート（report-template 骨格。集計サマリー・カテゴリ別 PASS/FAIL 表・FAIL詳細・環境メモ）を `knowledge/reports/verify-<date>.html` に生成し、成果物として必ず届ける（アーティファクト発行→不可ならファイル送信→不可なら保存パス明示）。
+**full / perfect モードではさらに**: docs/conventions.md 準拠の HTMLレポート（report-template 骨格。集計サマリー・カテゴリ別 PASS/FAIL 表・FAIL詳細・環境メモ）を `knowledge/reports/verify-<date>.html` に生成し、成果物として必ず届ける（アーティファクト発行→不可ならファイル送信→不可なら保存パス明示）。
