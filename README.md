@@ -86,3 +86,4 @@
   - Credential Guard / JS mutation 判定はキーワード検知の best-effort（難読化で回避可能）。硬い防御は Money Watch・URL Guard・人間承認が担う
   - URL denylist は部分一致のため、金銭に無関係な /subscribe 等を誤ブロックすることがある → `knowledge/config/url-allowlist.txt` で開放
 - 検証状況・既知の制約は [TESTING.md](TESTING.md) を参照
+- CI（GitHub Actions）が push ごとに参照整合 lint（scripts/lint.py）と hooks スモークテスト（scripts/test-hooks.sh）を実行。ローカルでも同コマンドで実行可
