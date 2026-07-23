@@ -17,3 +17,16 @@
 | 掃き出し | design-sync.md（Claude Design 同期・既定ルート） / canva-export.md（Canva 書き出し） / 各媒体の投稿・配信・入稿（必ず /タスク開始 経由 + 不可逆なら pre-send-verifier） |
 
 メディア系の技術地図（ffmpegレシピ・形式カバレッジ・素材パック規約）は docs/media-pipeline.md が正本。
+
+## ルーティング一覧（タスク5型 × スキル・サブエージェント）
+
+| タスク型 | 読む執筆リファレンス（references/） | 呼ぶサブエージェント |
+|---|---|---|
+| リサーチ | logical-writing（レポート化するとき） | 大規模並列調査のみ調査系サブエージェントに分割 |
+| 収集 | —（ライセンスCPが規範） | — |
+| クリエイティブ（文章） | recruit / copy / sales / logical / business / storytelling / sns-jp / content-design / video-ad を依頼内容で選択 | 本格執筆は **deliverable-writer** へ委譲 |
+| クリエイティブ（画像・動画・ページ） | web-design + 公開物は ad-compliance-jp 必須 | モックアップは **design-artisan**（生成）→ **design-critic**（審査）のループ |
+| 分析 | logical-writing | — |
+| 掃き出し | —（不可逆送出の規律が規範） | 不可逆な一括送出は **pre-send-verifier**（敵対的監査）必須 → ユーザー承認 |
+| （横断）設計判断 | — | 長く効く判断・確信のない分岐は **strategy-advisor** に壁打ち（session-rules (11)(12)） |
+
