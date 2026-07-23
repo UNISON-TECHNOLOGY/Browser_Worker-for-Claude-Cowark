@@ -25,6 +25,10 @@ Delvework タスク「$ARGUMENTS」（未指定なら `memory/.workflow/active` 
 | 地図の成長 | 今回のタスクで knowledge/sites/ に追加・更新されたナレッジの一覧 |
 | 引き継ぎ | 未完了事項・次の探索者への知見（session-log から抽出） |
 
+### 動画による補足（任意）
+
+操作手順の説明が要るレポートでは、`templates/guide-anim.py`（スクショ+注釈アニメ→mp4/GIF）で短い操作ガイド動画を添付できる（詳細は delve-guide の「動画マニュアル」節）。
+
 ## デザイン指針
 
 - ダーク/ライト両対応（`prefers-color-scheme`）
