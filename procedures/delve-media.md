@@ -68,6 +68,7 @@ status の履歴（knowledge/media/status/）から横断ダッシュボード H
 | 「スカウト文面を作って」 | クリエイティブ | docs/parts/scoutmail-writing.md |
 | 「応募状況・チケット残数は？」 | 分析 | 台帳 + watch 巡回（本手順） |
 | 「スカウト送って」「求人を更新して」 | 掃き出し | /タスク開始（A〜K）+ pre-send-verifier 監査 + ユーザー承認 |
+| 「送信計画・スケジュールを立てて」 | 計画 | docs/parts/content-calendar.md（チケット残数・期限から逆算） |
 
 ## 動的コマンド生成（正本は /ワーク追加 = procedures/delve-add-work.md — 登録+初期マッピング+コマンド生成を一括で行う）
 

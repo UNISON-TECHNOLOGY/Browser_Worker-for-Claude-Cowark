@@ -67,6 +67,7 @@
 
 | タスク型 | 部品 |
 |---|---|
+| 計画 | content-calendar（カレンダー・送信/配信計画 → queue・定常タスクへ接続） |
 | リサーチ | style-research / deep-research / sns-research |
 | 収集 | asset-collect / video-asset-collect |
 | クリエイティブ | jobpost-writing / scoutmail-writing / imagegen / videogen / image-edit / video-edit / page-improve / ad-to-lp / video-ad-script |
