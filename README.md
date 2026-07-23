@@ -60,8 +60,8 @@
 
 | 種類 | 内容 |
 |---|---|
-| コマンド 20（日本語） | /タスク開始 /状態確認 /定常タスク /サイト診断 /スタイル調査 /作業レポート /ページ改善 /デモ /競合ウォッチ /広告からLP /動画広告 /SNS運用 /媒体管理 /ダッシュボード /徹底モード /スキル化 /機能設定 /ガイド /検証 /フィードバック（自然文から自動発火。台帳: docs/command-registry.md） |
-| 手順書 20 | `procedures/delve-*.md` — 各コマンドの手順の正本（メニューには登録されない。コマンドが Read して実行） |
+| コマンド 22（日本語） | /タスク開始 /状態確認 /定常タスク /サイト診断 /スタイル調査 /作業レポート /ページ改善 /デモ /競合ウォッチ /広告からLP /動画広告 /SNS運用 /媒体管理 /素材探し /キャンバ /ダッシュボード /徹底モード /スキル化 /機能設定 /ガイド /検証 /フィードバック（自然文から自動発火。台帳: docs/command-registry.md） |
+| 手順書 22 | `procedures/delve-*.md` — 各コマンドの手順の正本（メニューには登録されない。コマンドが Read して実行） |
 | フック 5 | 変更操作ゲート / URLガード（広告出稿・課金ページ遮断） / ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 |
 | 執筆リファレンス 11 | `references/` 配下の内部教科書（スキル一覧には登録されない）。汎用5: web-design / video-ad / sns-jp / ad-compliance-jp / content-design、業種6: recruit / copy / sales / logical / business / storytelling（**人材業界パック**）。エージェントとコマンドが執筆時に Read して適用 |
 | エージェント 5 | deliverable-writer（レポート執筆・sonnet/medium）/ design-artisan（モックアップ生成・fable/high、不可なら sonnet）/ design-critic（デザイン審査・opus/medium）/ strategy-advisor（設計壁打ち・エスカレーション相談・opus/medium）/ pre-send-verifier（送信前の敵対的最終監査・opus/medium） |
