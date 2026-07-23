@@ -10,7 +10,7 @@
 | **コマンド** | カテゴリーレベル（媒体・対象のタスクパック）。要望は引数に自由に書かせる | `commands/`（20本・日本語名）+ `procedures/delve-*.md`（1対1） |
 | **ワークフロー** | 進め方 = タスクの連なり。A〜K 実行チェーン + タスク5型の連結 | `docs/steps-reference.md` + hooks のゲート + フェーズ①〜④ |
 | **タスク** | 単一の仕事。動詞レベル: **リサーチ / 収集 / クリエイティブ / 分析 / 掃き出し** | `tasks/*.yaml`（/定常タスク が登録）+ `docs/parts/`（部品） |
-| **サブエージェント** | 専門作業の職人。タスクから呼ばれる | `agents/`（5体: writer / artisan / critic / advisor / verifier） |
+| **サブエージェント** | 専門作業の職人。タスクから呼ばれる | `agents/`（6体: writer / artisan / critic / advisor / pre-send-verifier / outcome-verifier） |
 
 **実行粒度の3段**（全パック共通）: ①タスク単体で完結 ②ワークフローで解決（タスク連結） ③まるっと（パックの定常ループ一式）。振り分け原則は `docs/parts/index.md`。
 

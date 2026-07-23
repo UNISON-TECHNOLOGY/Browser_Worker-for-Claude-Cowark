@@ -61,6 +61,12 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 
 実行不可の環境（bash/python なし）では SKIP(理由) とし、CI（GitHub Actions）の最新結果に言及する。
 
+### E. 評価ハーネス（full のみ）
+
+| # | 項目 | 手順 | PASS基準 |
+|---|---|---|---|
+| V27 | golden タスク | docs/evals.md の G1〜G7 を実行 | 各タスクの PASS 基準（機械判定）を満たす。FAIL は evals.md の運用に従い本体を修正して記録 |
+
 ## 報告書（必ず2形式）
 
 1. **チャット内サマリー**: PASS/FAIL/SKIP の集計 + FAIL の詳細
