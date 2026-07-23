@@ -8,7 +8,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
 手順の正本は `${CLAUDE_PLUGIN_ROOT}/docs/steps-reference.md`（見つからなければ Glob `**/docs/steps-reference.md`）。
 **最初に必ず Read すること** — CP証跡定義（E-3）・レギュレーション検証（F-4）・ログ記録スキーマ（I-3）・ナレッジ構造（D-2）はそちらに従う。以下はフラグ操作の最短経路のみ。
 
-0. `tasks/$ARGUMENTS.yaml`（登録済み定常タスク。/定常タスク が生成）があれば Read し、その steps を実行計画の正とする（destructive: true/auto のステップは Step H で人の承認を必ず取る）。なければ依頼文から計画を組む
+0. `tasks/$ARGUMENTS.yaml`（登録済み定常タスク。/カスタマイズ のタスク登録が生成）があれば Read し、その steps を実行計画の正とする（destructive: true/auto のステップは Step H で人の承認を必ず取る）。なければ依頼文から計画を組む
 1. ワークスペースに `memory/.workflow/` と `knowledge/sites/` がなければ作成する
 2. フラグを初期化する:
    ```bash
