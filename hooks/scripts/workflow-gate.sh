@@ -37,15 +37,15 @@ if printf '%s' "$STDIN_JSON" | grep -qE '(javascript_tool|browser_evaluate|brows
 fi
 
 if [ ! -f "$WF_DIR/active" ]; then
-  deny "【Delvework Gate】ワークフロー未初期化。/delve-start でタスクを開始し、B-4（フェーズ判定）を完了してください。"
+  deny "【Delvework Gate】ワークフロー未初期化。/タスク開始 でタスクを開始し、B-4（フェーズ判定）を完了してください。"
 fi
 
 if [ ! -f "$WF_DIR/b4_done" ]; then
-  deny "【Delvework Gate】B-4（フェーズ判定）が未完了です。/delve-start の手順に戻り、B-4（フェーズ判定）まで完了してから変更操作を行ってください。フラグを直接 touch して迂回することは禁止です。"
+  deny "【Delvework Gate】B-4（フェーズ判定）が未完了です。/タスク開始 の手順に戻り、B-4（フェーズ判定）まで完了してから変更操作を行ってください。フラグを直接 touch して迂回することは禁止です。"
 fi
 
 if [ ! -f "$WF_DIR/e_done" ]; then
-  deny "【Delvework Gate】Step E（変更前記録）が未完了です。/delve-start の手順どおり、read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録・保存してから進んでください。記録せずフラグだけ立てる迂回は禁止です。"
+  deny "【Delvework Gate】Step E（変更前記録）が未完了です。/タスク開始 の手順どおり、read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録・保存してから進んでください。記録せずフラグだけ立てる迂回は禁止です。"
 fi
 
 exit 0

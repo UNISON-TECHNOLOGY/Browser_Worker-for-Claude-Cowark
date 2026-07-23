@@ -22,7 +22,7 @@ PACKS_CONF="$PROJECT_DIR/knowledge/config/packs.conf"
 if [ -f "$PACKS_CONF" ]; then
   OFF_PACKS="$(grep -E '^[a-z-]+=off' "$PACKS_CONF" 2>/dev/null | cut -d= -f1 | grep -v '^core$' | tr '\n' ',' | sed 's/,$//')"
   if [ -n "$OFF_PACKS" ]; then
-    PREFIX="${PREFIX}【タスクPack】無効: ${OFF_PACKS} — 該当パックの機能は使わない・提案しない・自動発火させない（定義は /delve-config 参照。ユーザーが明示要求したときのみON化を1行案内）。 "
+    PREFIX="${PREFIX}【タスクPack】無効: ${OFF_PACKS} — 該当パックの機能は使わない・提案しない・自動発火させない（定義は /機能設定 参照。ユーザーが明示要求したときのみON化を1行案内）。 "
   fi
 fi
 
@@ -34,4 +34,4 @@ if [ -f "$RULES_FILE" ]; then
 fi
 
 # フォールバック（rules ファイル欠損時）
-warn_session "${PREFIX}【Delvework】session-rules.txt が見つかりません（プラグイン破損の可能性）。docs/conventions.md と各 delve コマンドの手順に従い、変更操作は必ず /delve-start から行うこと。"
+warn_session "${PREFIX}【Delvework】session-rules.txt が見つかりません（プラグイン破損の可能性）。docs/conventions.md と各 delve コマンドの手順に従い、変更操作は必ず /タスク開始 から行うこと。"
