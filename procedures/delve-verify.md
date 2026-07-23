@@ -24,7 +24,7 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 | V5 | Credential Guard | example.com で「パスワード欄に test と入力」を試行（実在フィールド不要、ダミーで可） | 入力系+password語でブロック。※クリックは誤爆しないことも確認 |
 | V6 | SQLite 初期化 | templates/db-schema.sql で knowledge/data/delvework.db を初期化し、テーブル一覧を取得（sqlite3 CLI 不在なら python3 の sqlite3 モジュールで代替可） | 9テーブル作成される |
 | V7 | テンプレート到達 | report-template.html / design-principles.md を Read（相対→Globフォールバック） | どちらの経路でも実体に到達できる |
-| V17 | 台帳整合 | docs/command-registry.md と commands/・procedures/・references/ の実体を突合 | 日本語コマンド（commands/）と手順書（procedures/delve-*.md）が1対1で台帳の行と過不足なく一致。リファレンス台帳も references/ と一致し、全行にドメイン（企画リサーチ/SNS運用/求人媒体/広告分析/基盤）が付いている |
+| V17 | 台帳整合 | docs/command-registry.md と commands/・procedures/・docs/parts/・references/ の実体を突合 | 日本語コマンド20（commands/）と手順書20（procedures/delve-*.md）が1対1で台帳の行と過不足なく一致。部品台帳が docs/parts/ と、リファレンス台帳が references/ と一致し、コマンド全行にカテゴリー（SNS媒体/求人媒体/自社・広告/基盤/記録）が付いている |
 
 ### B. 機能（full のみ）
 
@@ -33,8 +33,8 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 | V8 | 自然文発火 | このセッションのここまでで、delve コマンドがコマンド名なしの依頼から発火したか振り返り | 事例があれば PASS、なければ「未観測」 |
 | V9 | サブエージェント | deliverable-writer に小さな執筆（3行のテスト文書）を委譲 | 起動し成果が返る。使用モデルも記録 |
 | V10 | design-artisan モデル | design-artisan を最小タスクで起動 | fable で起動できたか、sonnet フォールバックか記録 |
-| V11 | ダッシュボード | /ダッシュボード を実行 | dashboard-template（浮世絵ヘッダー+旅人）準拠で生成、タブ=全体+ドメイン、停留点数=タブ数、アラート+場所とタスク一覧が実データ。アーティファクト発行（2回目なら同一URL更新） |
-| V12 | ガイド | /ガイド を実行 | Pack状態が反映されたガイドが発行される |
+| V11 | ダッシュボード | /ダッシュボード を実行 | dashboard-template（浮世絵ヘッダー+旅人）準拠で生成（説明書=旧ガイド統合を含む）、タブ=全体+カテゴリー、停留点数=タブ数、アラート+場所とタスク一覧が実データ。アーティファクト発行（2回目なら同一URL更新） |
+| V12 | 部品庫到達 | docs/parts/index.md を Read し、表の部品から2つ（imagegen / design-sync）を Read | 部品に到達でき、実行粒度3段の原則が読める |
 | V13 | Pack制御 | packs.conf に deep=off を書き→挙動確認→元に戻す | 無効通知が次セッションに出る（今セッションでは conf の読み書きのみ確認） |
 | V14 | 日本語コマンド | /状態確認 を実行 | 日本語名で発火する |
 | V15 | スキル化 | ダミー手順（「検証用: example.comを開いて閉じる」）を /スキル化 | .claude/skills/ に生成され、frontmatter が規約通り |

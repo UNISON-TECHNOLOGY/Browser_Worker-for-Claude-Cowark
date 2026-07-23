@@ -18,7 +18,7 @@ argument-hint: [なし]
 | 定常タスク実績 | knowledge/logs/ 直近 | 直近7日の実行履歴（成功/失敗/スキップ） |
 | 学習記録 | knowledge/feedback/lessons.md | 直近に追加された OK/NG（3件まで） |
 | **OSの成長** | .claude/skills/ + knowledge/tacit/ + knowledge/sites/ + lessons.md | 育ちの可視化（下記） |
-| **できることガイド** | プラグインの commands/ 一覧 | インフォメーションガイド（下記） |
+| **できることガイド（説明書。旧ガイド機能を統合）** | プラグインの commands/ 一覧 + templates/guide-design.md | インフォメーションガイド（下記） |
 | **生成物ライブラリ** | knowledge/artifacts-index.md | 発行済みアーティファクトへのリンク集（下記） |
 
 ## 生成ルール
