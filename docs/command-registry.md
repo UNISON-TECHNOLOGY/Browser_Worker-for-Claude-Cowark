@@ -130,6 +130,7 @@ SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `do
 
 - [ ] 新しい媒体 → 原則 **/ワーク追加**（ワークスペース側に動的生成。プラグインは変更しない）。プラグイン標準パックに昇格させる場合のみ `commands/<日本語名>.md` + `procedures/delve-<name>.md` を追加
 - [ ] 新しい能力 → `docs/parts/<name>.md`（部品）+ parts/index.md に行追加。**コマンドは増やさない**
+- [ ] 新しい執筆リファレンス（references/）→ session-rules(3) と **該当サブエージェント（deliverable-writer / design-artisan / design-critic / pre-send-verifier）の参照表にも配線**（エージェントは自分でルールを読まないため、定義ファイルに書かないと届かない）
 - [ ] この台帳に1行追加（カテゴリー + Pack）
 - [ ] 定常実行するものはループ台帳にも追加
 - [ ] README のコマンド数を更新
