@@ -39,7 +39,9 @@
 2. `python3 templates/banner-compose.py <入力> <出力.png> --headline "…" --sub "…" --badge "…"`
 3. コピー案リスト×画像でループすれば量産可（/定常タスク に載せられる）
 
-**背景除去（rembg）の既知制約**: サンドボックスのネットワーク許可リストが AIモデル本体（u2net.onnx 約170MB、GitHub/HuggingFace 配布）のDLをブロックする。頻用するなら (a) ユーザーのPCで一度DLして接続フォルダ経由で搬入（以後使い回せる）、たまになら (b) Canva / Claude Design 側の背景除去に寄せる。
+**背景除去 = グリーンバック生成 + クロマキーが第一手（2026-07-23 実機検証済み）**: 切り抜き素材が欲しいときは、生成プロンプトに **「背景は #00FF00 のグリーンバック一色」を含めて生成**し、`templates/chromakey.py` で透過PNG化する（緑の優勢度→連続アルファ+スピル抑制。MLモデル不要・決定論的・数秒）。Gemini はグリーンバック指定に忠実で再現性が高い。
+`python3 templates/chromakey.py <入力> <出力.png> --bg "#f5f2ea"`（--bg で合成確認画像も出力）
+※ rembg（MLモデル方式）はモデル本体のDLがサンドボックスでブロックされるため使わない。普通の背景で生成済みの画像を後から抜きたい場合のみ、Canva / Claude Design 側の背景除去に寄せる。
 
 ### 4. 台帳記録（/素材探し と同じ正本: knowledge/assets/sources.md）
 
