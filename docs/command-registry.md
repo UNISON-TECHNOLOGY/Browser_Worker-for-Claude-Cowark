@@ -51,6 +51,7 @@
 | delve-adscript | 動画広告 | 広告分析 | creative | 「TikTok広告の台本作って」 |
 | delve-assets | 素材探し | 広告分析 | creative | 「バナー用の素材探して」 |
 | delve-canva | キャンバ | 広告分析 | creative | 「Canvaで作って書き出して」 |
+| delve-imagegen | 画像生成 | 広告分析 | creative | 「Geminiで画像作って」 |
 | delve-start | タスク開始 | 基盤 | core | 「◯◯を更新して」(変更操作の前段) |
 | delve-task | 定常タスク | 基盤 | core | 「毎朝◯◯するタスクを追加して」 |
 | delve-status | 状態確認 | 基盤 | core | 「今どうなってる？」 |
@@ -63,7 +64,7 @@
 | delve-feedback | フィードバック | 基盤 | core | 「ここはNG、次からこうして」 |
 | delve-verify | 検証 | 基盤 | core | 「プラグインを検証して」 |
 
-**計: 日本語コマンド 22（登録） / 手順書 22（procedures/）**（1対1で完全対応）
+**計: 日本語コマンド 23（登録） / 手順書 23（procedures/）**（1対1で完全対応）
 
 ## 執筆リファレンス台帳（references/ — スキル一覧には登録しない内部教科書）
 
