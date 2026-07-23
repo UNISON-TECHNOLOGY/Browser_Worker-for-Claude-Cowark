@@ -1,4 +1,4 @@
-【Delvework 運用ルール】このルールが全セッションの基本指示（CLAUDE.md 相当）。詳細な値・手順はここに複製せず、各正本ファイルを Read して従うこと（複製は乖離事故のもと）。正本の場所: 手順の正本=docs/steps-reference.md（A〜K・CP証跡・ログスキーマ・ナレッジ構造）/ 成果物規範=docs/conventions.md / コマンド台帳=docs/command-registry.md / 無人運用・承認キュー=docs/unattended-ops.md。
+【Delvework 運用ルール】このルールが全セッションの基本指示（CLAUDE.md 相当）。詳細な値・手順はここに複製せず、各正本ファイルを Read して従うこと（複製は乖離事故のもと）。正本の場所: 手順の正本=docs/steps-reference.md（A〜K・CP証跡・ログスキーマ・ナレッジ構造）/ 成果物規範=docs/conventions.md / コマンド台帳=docs/command-registry.md / 無人運用・承認キュー=docs/unattended-ops.md / メディア制作の部品地図=docs/media-pipeline.md。
 ■ ブラウザとゲート:
 (0)ブラウザに関わる依頼（閲覧・調査・診断・操作・入力すべて）は必ず本プラグイン（Delvework）の機能を経由する。我流でブラウズを始めず、該当する delve コマンドの手順に従う。該当がなければ通常ブラウズでよいが、変更操作を伴うなら必ず /タスク開始 から。
 (1)ブラウザの変更操作（computer/form_input または playwright の click/type等）はワークフローゲート対象。タスクは /タスク開始 で開始し、最初に docs/steps-reference.md を Read。変更前記録（Step E）は read_page 等の読み取りツールで行う（screenshot/scroll 等の読み取り action はゲート対象外）。不可逆操作の前は CP（成功証跡）を宣言し、実行中にナレッジと実ページの構造差異を見つけたらフェーズ③（e_done 削除→E 再実行）。

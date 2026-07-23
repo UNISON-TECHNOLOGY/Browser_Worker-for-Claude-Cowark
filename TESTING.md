@@ -170,7 +170,7 @@
 knowledge/verification/<date>-verify.md に保存してチャットにも表示して。
 ```
 
-期待: PASS 基準は procedures/delve-verify.md（V1〜V23）。FAIL があれば TESTING.md に追記して開発側に戻す。
+期待: PASS 基準は procedures/delve-verify.md（V1〜V26）。FAIL があれば TESTING.md に追記して開発側に戻す。
 
 ---
 

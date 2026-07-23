@@ -57,7 +57,7 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 |---|---|---|---|
 | V24 | lint | `python3 scripts/lint.py`（プラグインルートで。python3 不在なら python） | `lint: OK`（参照整合・frontmatter・台帳・バージョン一致） |
 | V25 | hooks回帰 | `bash scripts/test-hooks.sh` | `test-hooks: ALL PASS`（防御系） |
-| V26 | 画像テンプレ | ダミー画像を作り `templates/banner-compose.py`（--headline 指定）と `templates/chromakey.py`（緑背景画像→透過PNG）を実行 | 両方ともエラーなく出力生成（chromakey は四隅 alpha=0・被写体 alpha=255） |
+| V26 | 画像/動画テンプレ | ダミー画像で `templates/banner-compose.py`（--headline 指定）・`templates/chromakey.py`（緑背景→透過PNG）・`templates/guide-anim.py`（スクショ+steps.json→フレーム生成、ffmpeg あれば mp4/GIF まで）を実行 | 3本ともエラーなく出力生成（chromakey は四隅 alpha=0・被写体 alpha=255） |
 
 実行不可の環境（bash/python なし）では SKIP(理由) とし、CI（GitHub Actions）の最新結果に言及する。
 
