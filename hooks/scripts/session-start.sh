@@ -11,6 +11,12 @@ if [ -f "$WF_DIR/active" ] && [ ! -f "$WF_DIR/k_done" ]; then
   PREFIX="【Delvework】前回のタスク「$task」が未完了です（k_done なし）。memory/session-log.md を確認して引き継ぐこと。 "
 fi
 
+# 永続化チェック: ワークスペースに蓄積の痕跡（knowledge/ or .git）が無い場合、
+# クラウドセッションの一時領域で動いている可能性が高い（セッション終了で蓄積消失）
+if [ ! -d "$PROJECT_DIR/knowledge" ] && [ ! -d "$PROJECT_DIR/.git" ]; then
+  PREFIX="${PREFIX}【永続化警告】このワークスペースに蓄積（knowledge/）がありません。永続フォルダ未接続の可能性があり、その場合 memory/ と knowledge/ の蓄積はセッション終了で消えます。ユーザーに永続フォルダの接続を1行で推奨し、未接続のまま進める場合は蓄積系機能（skillify/feedback/watchスナップショット）の成果を必ず成果物としてユーザーに渡すこと。 "
+fi
+
 # タスクPack設定（knowledge/config/packs.conf）: off のパックを通知に含める
 PACKS_CONF="$PROJECT_DIR/knowledge/config/packs.conf"
 if [ -f "$PACKS_CONF" ]; then

@@ -20,6 +20,12 @@ warn_pretool() {
   exit 0
 }
 
+warn_posttool() {
+  local msg="$1"
+  printf '{"hookSpecificOutput":{"hookEventName":"PostToolUse","additionalContext":"%s"}}' "$msg"
+  exit 0
+}
+
 warn_session() {
   local msg="$1"
   printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}' "$msg"

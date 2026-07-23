@@ -28,16 +28,24 @@ if printf '%s' "$STDIN_JSON" | grep -q 'claude-in-chrome__computer'; then
   fi
 fi
 
+# JS実行系（javascript_tool / browser_evaluate / browser_run_code）は読み取り計測にも使うため、
+# 変更を伴うAPI呼び出しを含むコードのみゲート対象にする（読み取りJSは素通し）
+if printf '%s' "$STDIN_JSON" | grep -qE '(javascript_tool|browser_evaluate|browser_run_code)'; then
+  if ! printf '%s' "$STDIN_JSON" | grep -qE '\.click\(|\.submit\(|dispatchEvent|\.value[[:space:]]*=|innerHTML[[:space:]]*=|location(\.href)?[[:space:]]*=|window\.open|fetch\(|XMLHttpRequest|sendBeacon|localStorage\.(set|remove|clear)|document\.cookie[[:space:]]*=|\.focus\(\).*type|execCommand'; then
+    exit 0
+  fi
+fi
+
 if [ ! -f "$WF_DIR/active" ]; then
   deny "【Delvework Gate】ワークフロー未初期化。/delve-start でタスクを開始し、B-4（フェーズ判定）を完了してください。"
 fi
 
 if [ ! -f "$WF_DIR/b4_done" ]; then
-  deny "【Delvework Gate】B-4（フェーズ判定）が未完了です。フェーズを判定してから変更操作を行ってください。コマンド: echo <phase> > memory/.workflow/phase && touch memory/.workflow/b4_done"
+  deny "【Delvework Gate】B-4（フェーズ判定）が未完了です。/delve-start の手順に戻り、B-4（フェーズ判定）まで完了してから変更操作を行ってください。フラグを直接 touch して迂回することは禁止です。"
 fi
 
 if [ ! -f "$WF_DIR/e_done" ]; then
-  deny "【Delvework Gate】Step E（変更前記録）が未完了です。read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録してから変更操作を行ってください。コマンド: touch memory/.workflow/e_done"
+  deny "【Delvework Gate】Step E（変更前記録）が未完了です。/delve-start の手順どおり、read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録・保存してから進んでください。記録せずフラグだけ立てる迂回は禁止です。"
 fi
 
 exit 0
