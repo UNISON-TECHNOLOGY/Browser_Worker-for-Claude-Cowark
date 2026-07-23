@@ -63,16 +63,14 @@
 | コマンド 20 | delve-start / task / status / style / audit / report / improve / demo / watch / adlp / adscript / sns / media / dashboard / deep / skillify / config / guide / verify / feedback（自然文から自動発火） |
 | 日本語コマンド 20 | 全コマンドと1対1対応（/定常タスク /サイト診断 /タスク開始 等。正本: docs/command-registry.md の台帳） |
 | フック 5 | 変更操作ゲート / URLガード（広告出稿・課金ページ遮断） / ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 |
-| 汎用スキル 5 | web-design（LP/UI設計・CRO・モーション。リソース6本） / video-ad（動画広告・日本プリセット） / sns-jp（日本市場SNS運用） / ad-compliance-jp（広告法規チェック） / content-design（記事のC×P×T設計・ネタ帳運用） |
-| 業種スキル 6 | recruit / copy / sales / logical / business / storytelling（**人材業界パック** — 業種に合わせて差し替え可能な例） |
+| 執筆リファレンス 11 | `references/` 配下の内部教科書（スキル一覧には登録されない）。汎用5: web-design / video-ad / sns-jp / ad-compliance-jp / content-design、業種6: recruit / copy / sales / logical / business / storytelling（**人材業界パック**）。エージェントとコマンドが執筆時に Read して適用 |
 | エージェント 3 | deliverable-writer（レポート執筆・sonnet）/ design-artisan（モックアップ生成・fable）/ design-critic（デザイン審査・sonnet） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 |
 
 ## 業種カスタマイズ
 
-ライティング6スキルは人材業界向けの実装例です。他業種で使う場合は `skills/` 配下の
-該当スキルを自業種のトーン・テンプレート・NG表現に書き換えてください（frontmatter の
-`description` の「Use when」を業務の言い方に合わせるのがポイント）。web-design /
+ライティング6リファレンスは人材業界向けの実装例です。他業種で使う場合は `references/` 配下の
+該当ファイルを自業種のトーン・テンプレート・NG表現に書き換えてください。web-design /
 コマンド / フック / テンプレートは業種非依存でそのまま使えます。
 
 ## 安全設計

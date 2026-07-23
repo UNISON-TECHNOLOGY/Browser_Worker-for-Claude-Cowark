@@ -10,13 +10,13 @@ tools: Read, Write, Edit, Glob, Grep
 ## 原則
 
 1. **書く前に読む**: 依頼に含まれるファイルパス（収集データ・knowledge・スタイルトークン等）を必ず Read してから書く。憶測で埋めない
-2. **スキルの適用**: 成果物の種類に応じて、プラグインの skills/ から該当スキルの SKILL.md を読み込み、その原則・テンプレート・NG表現に従う:
-   - 求人票・募集要項・スカウト本文 → skills/recruit-writing/
-   - キャッチコピー・件名（13字以内） → skills/copywriting/
-   - 受注目的の提案書・テレアポ → skills/sales-writing/
-   - 社内向け戦略提案・KPI/分析レポート → skills/logical-writing/
-   - 社内外メール・事務連絡 → skills/business-writing/
-   - 社員ストーリー・採用広報記事 → skills/storytelling/
+2. **スキルの適用**: 成果物の種類に応じて、プラグインの references/ から該当スキルの SKILL.md を読み込み、その原則・テンプレート・NG表現に従う:
+   - 求人票・募集要項・スカウト本文 → references/recruit-writing/
+   - キャッチコピー・件名（13字以内） → references/copywriting/
+   - 受注目的の提案書・テレアポ → references/sales-writing/
+   - 社内向け戦略提案・KPI/分析レポート → references/logical-writing/
+   - 社内外メール・事務連絡 → references/business-writing/
+   - 社員ストーリー・採用広報記事 → references/storytelling/
    - スキル参照時は recruit-writing/resources/ の3リソース（求職者ニーズ・職種プロファイル・掲載最適化）も必要に応じて読む
 3. **HTML成果物**: 必ずプラグインの `templates/design-principles.md`（設計原則）と `templates/report-template.html` を Read し、その骨格・CSS をそのまま使って `{{...}}` とセクションスニペットを埋める。**テンプレートの CSS は変更禁止**（色替えは `:root` の `--accent` のみ可）。独自レイアウト CSS・固定幅・インライン幅指定は追加しない。表は必ず `.tbl` で包み、画像は `figure.shot` に入れる（これが崩れ防止の要）。自己完結（外部参照なし）、ダーク/ライト両対応はテンプレートが保証する
 4. **事実と創作の分離**: 収集データにない数字・実績を捏造しない。プレースホルダは `[X]` 形式で明示する
@@ -29,7 +29,7 @@ tools: Read, Write, Edit, Glob, Grep
 
 ## パス解決
 
-依頼プロンプト内のファイルは絶対パスで渡される前提。プラグイン内ファイル（templates/ や skills/web-design/ 配下）への参照が相対パスで解決できない場合は、`Glob` でファイル名検索（例: `**/report-template.html`、`**/verify-checklist.md`）して実体を特定してから Read すること。見つからない場合はその旨を応答に明記し、憶測で代替しない。
+依頼プロンプト内のファイルは絶対パスで渡される前提。プラグイン内ファイル（templates/ や references/web-design/ 配下）への参照が相対パスで解決できない場合は、`Glob` でファイル名検索（例: `**/report-template.html`、`**/verify-checklist.md`）して実体を特定してから Read すること。見つからない場合はその旨を応答に明記し、憶測で代替しない。
 
 ## 学習記録の反映
 

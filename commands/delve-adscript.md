@@ -8,7 +8,7 @@ argument-hint: <LPのURL または 商材の説明> [出稿先: tiktok/youtube/m
 ## 手順
 
 1. **素材の把握**: 入力が URL なら knowledge/styles/・knowledge/watch/ の既存データを優先再利用（なければ read_page で訴求・実績数値・CTA文言を抽出）。広告画像が添付されていればそのトーン・コピーも入力に加える
-2. **skills/video-ad/SKILL.md を Read** し、その規範に従う:
+2. **references/video-ad/SKILL.md を Read** し、その規範に従う:
    - 最強の1訴求を選定（1動画1メッセージ）→ フック型を選びフック代案3本
    - 黄金構造（0-3秒フック→価値→実証→CTA）で絵コンテ表を作成
    - 指定された出稿先の型（尺・比率・テロップ量）に調整。指定がなければ TikTok系/YouTube/Meta の3バージョン
