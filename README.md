@@ -76,8 +76,8 @@
 | コマンド 10（日本語・カテゴリーレベル） | /SNS運用 /リサーチ /媒体管理 /Webサイト /広告 + /セットアップ /ワーク追加 /カスタマイズ /レポート + /検証※開発用・配布時削除。台帳: docs/command-registry.md |
 | 内部手順 16（メニュー非表示） | タスク開始（変更操作の関所）/ 状態確認 / デモ / 機能設定 / スキル化 / メモリ保存 / メモリ圧縮 / 定常タスク登録 / ダッシュボード / 作業ログ + SNS媒体別手順6 — 各入口コマンドとルールが振り分け |
 | 手順書 26 | `procedures/delve-*.md` — 登録10+内部16 の手順の正本（メニューには登録されない。コマンド/ルールが Read して実行） |
-| 共有部品庫 18 | `docs/parts/` — タスク5型（リサーチ/収集/クリエイティブ/分析/掃き出し）の部品。パックのタスクが Read して使う（index.md が地図） |
-| フック 5 | 変更操作ゲート / URLガード（広告出稿・課金ページ遮断） / ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 |
+| 共有部品庫 17+index | `docs/parts/` — タスク5型（リサーチ/収集/クリエイティブ/分析/掃き出し）の部品。パックのタスクが Read して使う（index.md が地図） |
+| フック 6 | 変更操作ゲート（送出監査 psv ゲート含む）/ Money Watch（金銭・契約画面の検知停止）/ URLガード(広告出稿・課金ページ遮断）/ ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 |
 | 執筆リファレンス 13 | `references/` 配下の内部教科書（スキル一覧には登録されない）。web-design / video-ad / sns-jp / ad-compliance-jp / content-design / seo-jp / cro-jp / recruit（求人・スカウト）/ copy / sales / logical / business / storytelling。業界を問わず使える執筆規範で、エージェントとコマンドが執筆時に Read して適用 |
 | エージェント 6 | deliverable-writer（レポート執筆）/ design-artisan（モックアップ生成）/ design-critic（デザイン審査）/ strategy-advisor（設計壁打ち・エスカレーション）/ pre-send-verifier（送信前の敵対的監査 — 較正ログ付き）/ outcome-verifier（送信後の証跡検証・効果測定） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 + 画像/動画（banner-compose / chromakey / guide-anim。地図: docs/media-pipeline.md） |

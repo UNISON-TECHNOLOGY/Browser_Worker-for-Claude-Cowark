@@ -125,6 +125,18 @@ if reg_jp - fs_cmds:
 if reg_en - fs_procs:
     err(f"command-registry.md: 手順書が実在しない台帳記載 {sorted(reg_en - fs_procs)}")
 
+# --- 8. 旧 delve 名・旧件数の残骸チェック（TESTING.md は履歴として除外） ---
+OLD_NAMES = re.compile(r"\b(delve-style|delve-audit|delve-deep|delve-improve|delve-adlp|delve-adscript|delve-assets|delve-imagegen|delve-canva|delve-watch|delve-guide|delve-sns\.md)\b")
+for f in list(ROOT.glob("commands/*.md")) + list(ROOT.glob("procedures/*.md")) + \
+         list(ROOT.glob("docs/**/*.md")) + list(ROOT.glob("references/**/*.md")) + \
+         [ROOT / "README.md", ROOT / "hooks/scripts/session-rules.txt"]:
+    if not f.is_file():
+        continue
+    for m in set(OLD_NAMES.findall(read(f))):
+        if m == "delve-sns.md":
+            continue  # delve-sns.md は現行ルーター
+        err(f"{f.relative_to(ROOT)}: 廃止済みの旧手順名 '{m}' が残存（docs/parts/ の部品名に置換すること）")
+
 # --- 結果 ---
 print(f"lint: commands={len(commands)} procedures={len(procedures)} "
       f"agents={len(list((ROOT/'agents').glob('*.md')))} skills={len(list((ROOT/'references').glob('*/SKILL.md')))} "

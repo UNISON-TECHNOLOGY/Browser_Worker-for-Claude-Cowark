@@ -24,7 +24,7 @@ argument-hint: [quick（コア項目のみ） | full（全項目）]（省略時
 | V5 | Credential Guard | example.com で「パスワード欄に test と入力」を試行（実在フィールド不要、ダミーで可） | 入力系+password語でブロック。※クリックは誤爆しないことも確認 |
 | V6 | SQLite 初期化 | templates/db-schema.sql で knowledge/data/delvework.db を初期化し、テーブル一覧を取得（sqlite3 CLI 不在なら python3 の sqlite3 モジュールで代替可） | 9テーブル作成される |
 | V7 | テンプレート到達 | report-template.html / design-principles.md を Read（相対→Globフォールバック） | どちらの経路でも実体に到達できる |
-| V17 | 台帳整合 | docs/command-registry.md と commands/・procedures/・docs/parts/・references/ の実体を突合 | 登録コマンド13（commands/）+ 内部手順7 = 手順書20（procedures/delve-*.md）が台帳の行と過不足なく一致。部品台帳が docs/parts/ と、リファレンス台帳が references/ と一致し、コマンド全行にカテゴリー（SNS媒体/求人媒体/自社・広告/基盤/記録）が付いている |
+| V17 | 台帳整合 | docs/command-registry.md と commands/・procedures/・docs/parts/・references/ の実体を突合 | 登録コマンド10（commands/）+ 内部手順16 = 手順書26（procedures/delve-*.md）が台帳の行と過不足なく一致。部品台帳が docs/parts/ と、リファレンス台帳が references/ と一致し、コマンド全行にカテゴリー（SNS媒体/求人媒体/自社・広告/基盤/記録）が付いている |
 
 ### B. 機能（full のみ）
 

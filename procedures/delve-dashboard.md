@@ -17,7 +17,7 @@ argument-hint: [なし]
 | サイト健康 | knowledge/audits/ 最新 | 自社サイトの LCP/CLS 等の最新値と前回比 |
 | 定常タスク実績 | knowledge/logs/ 直近 | 直近7日の実行履歴（成功/失敗/スキップ） |
 | 学習記録 | knowledge/feedback/lessons.md | 直近に追加された OK/NG（3件まで） |
-| **OSの成長** | .claude/skills/ + knowledge/tacit/ + knowledge/sites/ + lessons.md | 育ちの可視化（下記） |
+| **OSの成長** | .claude/skills/ + knowledge/tacit/ + knowledge/sites/ + knowledge/feedback/lessons.md | 育ちの可視化（下記） |
 | **できることガイド（説明書。旧ガイド機能を統合）** | プラグインの commands/ 一覧 + templates/guide-design.md | インフォメーションガイド（下記） |
 | **生成物ライブラリ** | knowledge/artifacts-index.md | 発行済みアーティファクトへのリンク集（下記） |
 
@@ -33,7 +33,7 @@ argument-hint: [なし]
 
 ### OSの成長（「自分専用OSに育っている」の可視化）
 
-- カウントを stat タイルで: 習得スキル数（ワークスペース .claude/skills/）/ 暗黙知トピック数（knowledge/tacit/）/ 攻略済みサイト数とフェーズ内訳（knowledge/sites/ — ①初回〜④最適化）/ 学習済み OK/NG 数（lessons.md）
+- カウントを stat タイルで: 習得スキル数（ワークスペース .claude/skills/）/ 暗黙知トピック数（knowledge/tacit/）/ 攻略済みサイト数とフェーズ内訳（knowledge/sites/ — ①初回〜④最適化）/ 学習済み OK/NG 数（knowledge/feedback/lessons.md）
 - 増分を delta 表示（前回ダッシュボード生成時との差。「今週 +2 スキル」）
 - 直近に習得したスキル・暗黙知を3件、名前+「言い方」つきでリスト（「使ってみる」導線）
 

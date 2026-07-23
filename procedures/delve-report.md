@@ -27,7 +27,7 @@ Delvework タスク「$ARGUMENTS」（未指定なら `memory/.workflow/active` 
 
 ### 動画による補足（任意）
 
-操作手順の説明が要るレポートでは、`templates/guide-anim.py`（スクショ+注釈アニメ→mp4/GIF）で短い操作ガイド動画を添付できる（詳細は delve-guide の「動画マニュアル」節）。
+操作手順の説明が要るレポートでは、`templates/guide-anim.py`（スクショ+注釈アニメ→mp4/GIF）で短い操作ガイド動画を添付できる（詳細は guide-anim（docs/parts/video-edit.md） の「動画マニュアル」節）。
 
 ## デザイン指針
 

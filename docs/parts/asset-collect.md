@@ -40,7 +40,7 @@ Bing/Google 画像検索は「発見」用途のみ。**権利不明の拾い画
 
 ### 5. 取り込み
 
-- blob/画像URL の fetch を第一とし、ダウンロードボタン経由の場合は**専用DLフォルダ**（Downloads 本体は接続しない — delve-imagegen の取り込み表と同じ原則）を使う。fetch → `knowledge/assets/<用途>/<name>.<ext>` に保存（/タスク開始 のゲート下で実施）
+- blob/画像URL の fetch を第一とし、ダウンロードボタン経由の場合は**専用DLフォルダ**（Downloads 本体は接続しない — imagegen 部品（docs/parts/imagegen.md） の取り込み表と同じ原則）を使う。fetch → `knowledge/assets/<用途>/<name>.<ext>` に保存（/タスク開始 のゲート下で実施）
 - 加工（リサイズ・切り抜き）が必要なら Pillow 規範に従う（**人物写真の印象改変は禁止**）
 
 ### 6. 出典台帳（正本: knowledge/assets/sources.md）
