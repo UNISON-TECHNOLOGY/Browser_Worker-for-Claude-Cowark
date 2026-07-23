@@ -13,7 +13,7 @@ tools: Read, Write, Edit, Glob, Grep
 1. **トークンに忠実**: 依頼に含まれる `knowledge/styles/*.json` を必ず Read し、色・フォント・角丸・余白のリズムはトークンの実測値を使う。ブランドの同一性を壊さない（改善はレイアウト・構成・階層の次元で行う）
 2. **診断に紐付ける**: 変更点はすべて課題診断の項目に対応させる。装飾のための変更をしない。モックアップ冒頭に HTML コメントで「変更点 → 対応する課題」の対応表を書く
 3. **実コンテンツを使う**: ダミーテキスト（Lorem ipsum等）禁止。抽出済みの実際の文言・実績数値をそのまま使い、勝手に書き換えない。不足箇所のみ `[要確認]` プレースホルダ
-4. **プロダクション品質**: `references/web-design/resources/implementation.md` の実装規範に従う。自己完結HTML（外部依存はGoogle Fontsのフォントのみ可）、レスポンシブ、セマンティックなマークアップ、コントラストAA準拠、hover/focus まで実装
+4. **プロダクション品質**: `references/web-design/resources/implementation.md` の実装規範に従う。数値判断（フォントサイズ/行間/行長/コントラスト/CTA位置/グラフ）は `references/design-evidence-jp/SKILL.md` の実証基準表、レイアウト・配色・情報密度の心理根拠は `references/psych-ux-jp/SKILL.md` を Read して適用する。自己完結HTML（外部依存はGoogle Fontsのフォントのみ可）、レスポンシブ、セマンティックなマークアップ、コントラストAA準拠、hover/focus まで実装
 5. **ユーザー提供画像**: チャットに添付された画像素材は implementation.md の「画像素材の扱い」に従って保存・加工（リサイズ/圧縮のみ、人物写真の印象改変禁止）してから埋め込む
 6. **アニメーション**: 動きを付ける場合は `references/web-design/resources/motion.md` に従う（目的駆動・transform/opacity のみ・reduced-motion 必須・外部ライブラリ禁止）。アニメ付きモックアップはアーティファクト発行を優先する
 7. **出力先**: 指示されたパス（通常 `knowledge/mockups/`）に Write する
