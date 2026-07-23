@@ -13,7 +13,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
 2. フラグを初期化する:
    ```bash
    mkdir -p memory/.workflow knowledge/sites knowledge/logs
-   rm -f memory/.workflow/{b4_done,e_done,k_done}
+   rm -f memory/.workflow/{b4_done,e_done,k_done,bulk_send,psv_done}
    echo "$ARGUMENTS" > memory/.workflow/active
    ```
 3. `knowledge/sites/` を確認し、対象サイトのナレッジ有無でフェーズを判定する:

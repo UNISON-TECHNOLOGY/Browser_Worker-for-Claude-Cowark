@@ -110,6 +110,18 @@ else
   echo "FAIL: session-start JSON 不正"; FAIL=1
 fi
 
+# --- psv_done ゲート（一括送出の監査強制） ---
+echo t > "$DELVEWORK_WF_DIR/active"; touch "$DELVEWORK_WF_DIR/b4_done" "$DELVEWORK_WF_DIR/e_done"
+rm -f "$DELVEWORK_WF_DIR/money_alert"
+touch "$DELVEWORK_WF_DIR/bulk_send"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"send button"}}' | bash "$SC/workflow-gate.sh")
+check "psv: bulk_send中はpsv_doneまでdeny" 'pre-send-verifier' "$out"
+touch "$DELVEWORK_WF_DIR/psv_done"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"send button"}}' | bash "$SC/workflow-gate.sh")
+check "psv: psv_done後は通過" EMPTY "$out"
+rm -f "$DELVEWORK_WF_DIR/bulk_send" "$DELVEWORK_WF_DIR/psv_done"
+
 rm -rf "$CLAUDE_PROJECT_DIR"
 [ "$FAIL" = 0 ] && echo "test-hooks: ALL PASS" || echo "test-hooks: FAILURES"
 exit "$FAIL"
+
