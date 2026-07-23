@@ -38,4 +38,4 @@ done
 mkdir -p "$WF_DIR" 2>/dev/null
 printf '%s' "$matched" > "$WF_DIR/money_alert"
 
-warn_posttool "【Money Watch】いま読み取った画面に金銭・契約・不可逆登録系の要素を検知しました（パターン: $matched）。変更操作は一時停止されます（ゲートが deny）。次の手順で進めること: (1) strategy-advisor サブエージェントにこの画面の状況と実行しようとしていた操作を渡し、続行可否の助言（STOP/RESPOND/MONITOR）を得る。(2) 助言と操作内容をユーザーに提示し、明示的な承認を得る。(3) 承認を得た場合のみ rm memory/.workflow/money_alert で解除し、承認の事実を session-log に1行記録して再開する。ユーザー承認なしにフラグを解除することは禁止。"
+warn_posttool "【Money Watch】いま読み取った画面に金銭・契約・不可逆登録系の要素を検知しました（パターン: $matched）。変更操作は一時停止されます（ゲートが deny）。docs/steps-reference.md 末尾『Money Watch 停止からの復帰』の手順に従うこと: (1) strategy-advisor サブエージェントにこの画面の状況と実行しようとしていた操作を渡し、続行可否の助言（STOP/RESPOND/MONITOR）を得る。(2) 助言と操作内容をユーザーに提示し、明示的な承認を得る。(3) 承認を得た場合のみ手順書記載の方法で解除し、承認の事実を session-log に1行記録して再開する。ユーザー承認なしの解除は禁止。"

@@ -49,6 +49,28 @@ out=$(printf '{"tool_name":"mcp__claude-in-chrome__computer","tool_input":[{"act
 check "computer: batch(screenshot+click) は deny" '"permissionDecision":"deny"' "$out"
 echo t > "$DELVEWORK_WF_DIR/active"
 
+# 4b. browser_batch: 読み取り専用は未初期化でも素通し / 変更系同梱は deny / money_alert 中は deny
+rm -f "$DELVEWORK_WF_DIR/active"
+out=$(printf '{"tool_name":"mcp__claude-in-chrome__browser_batch","tool_input":{"invocations":[{"name":"read_page"},{"name":"get_page_text"}]}}' | bash "$SC/workflow-gate.sh")
+check "batch: 読み取り専用は素通し" EMPTY "$out"
+out=$(printf '{"tool_name":"mcp__claude-in-chrome__browser_batch","tool_input":{"invocations":[{"name":"read_page"},{"name":"mcp__claude-in-chrome__computer","input":{"action":"left_click"}}]}}' | bash "$SC/workflow-gate.sh")
+check "batch: 変更系同梱は deny" '"permissionDecision":"deny"' "$out"
+printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
+out=$(printf '{"tool_name":"mcp__claude-in-chrome__browser_batch","tool_input":{"invocations":[{"name":"read_page"}]}}' | bash "$SC/workflow-gate.sh")
+check "batch: money_alert 中は読み取り専用でも deny（Money Watch が先）" 'Money Watch' "$out"
+rm -f "$DELVEWORK_WF_DIR/money_alert"
+echo t > "$DELVEWORK_WF_DIR/active"
+
+# 5b. deny 文言に解除コマンドが含まれない（レビュー指摘a: 突破誘導の除去）
+printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+if printf '%s' "$out" | grep -q 'rm memory'; then
+  echo "FAIL: money deny 文言に rm コマンドが残存"; FAIL=1
+else
+  echo "PASS: money deny 文言に解除コマンドなし"
+fi
+rm -f "$DELVEWORK_WF_DIR/money_alert"
+
 # 5. Money Watch: \uXXXX エスケープ済み日本語で検知 → フラグ生成 → ゲート deny
 rm -f "$DELVEWORK_WF_DIR/money_alert"
 out=$(printf '{"tool_response":"\\u6c7a\\u6e08\\u753b\\u9762"}' | bash "$SC/money-watch.sh")

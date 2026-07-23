@@ -34,7 +34,7 @@ fi
 # Money Watch 停止フラグ: 金銭・契約系画面の検知後は、ユーザー承認による解除まで変更操作を全て deny。
 # JS実行系より前に置く（コード実行は mutation 可能なため、金銭停止中は無条件で止める＝フェイルクローズ）。
 if [ -f "$WF_DIR/money_alert" ]; then
-  deny "【Money Watch】金銭・契約・不可逆登録系の画面を検知したため変更操作を停止中です（検知: $(cat "$WF_DIR/money_alert" 2>/dev/null | head -c 80)）。strategy-advisor の助言を得てユーザーに操作内容を提示し、明示的な承認を得てから rm memory/.workflow/money_alert で解除してください。ユーザー承認なしの解除は禁止です。"
+  deny "【Money Watch】金銭・契約・不可逆登録系の画面を検知したため変更操作を停止中です（検知: $(cat "$WF_DIR/money_alert" 2>/dev/null | head -c 80)）。docs/steps-reference.md 末尾『Money Watch 停止からの復帰』の手順（strategy-advisor の助言 → ユーザーへの操作内容提示 → 明示的な承認）に従ってください。ユーザーの明示承認なしに停止を解除することは禁止です。"
 fi
 
 # JS実行系（javascript_tool / browser_evaluate / browser_run_code）は読み取り計測にも使うため、
@@ -48,8 +48,17 @@ if printf '%s' "$STDIN_JSON" | grep -qE '(javascript_tool|browser_evaluate|brows
   fi
 fi
 
+# browser_batch: 同梱 invocation が全て読み取り系なら素通しする（閲覧タスクを止めない）。
+# 変更系ツール名（computer/form_input/JS実行/navigate）・変更系 action が1つでも含まれる、
+# または判定不能な場合はゲートを通す（フェイルクローズ）。Money/Credential 判定は上で実施済み。
+if printf '%s' "$STDIN_JSON" | grep -q 'browser_batch'; then
+  if ! printf '%s' "$STDIN_JSON" | grep -qE '(__computer|form_input|javascript_tool|shortcuts_execute|navigate|"action"[[:space:]]*:[[:space:]]*"(left_click|right_click|middle_click|double_click|triple_click|click|type|key|hold_key|left_click_drag|drag)")'; then
+    exit 0
+  fi
+fi
+
 if [ ! -f "$WF_DIR/active" ]; then
-  deny "【Delvework Gate】ワークフロー未初期化。/タスク開始 でタスクを開始し、B-4（フェーズ判定）を完了してください。"
+  deny "【Delvework Gate】ワークフロー未初期化。/タスク開始 でタスクを開始し、B-4（フェーズ判定）を完了してください（browser_batch は変更系を1つでも含むと一括でゲート対象になります）。"
 fi
 
 if [ ! -f "$WF_DIR/b4_done" ]; then
