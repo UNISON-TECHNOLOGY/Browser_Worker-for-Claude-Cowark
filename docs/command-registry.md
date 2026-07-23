@@ -29,12 +29,8 @@
 
 | 手順書（procedures/） | コマンド名（登録） | カテゴリー | Pack | 代表的な言い方 |
 |---|---|---|---|---|
-| delve-sns-x | X運用 | SNS媒体 | sns | 「Xの投稿ストック作って」 |
-| delve-sns-instagram | Instagram運用 | SNS媒体 | sns | 「インスタの投稿作って」 |
-| delve-sns-tiktok | TikTok運用 | SNS媒体 | sns | 「TikTokの企画して」 |
-| delve-sns-note | note運用 | SNS媒体 | sns | 「noteを書いて」 |
-| delve-sns-youtube | YouTube運用 | SNS媒体 | sns | 「YouTubeの台本作って」 |
-| delve-sns-line | LINE運用 | SNS媒体 | sns | 「LINEの配信を作って」 |
+| delve-sns | SNS運用 | SNS媒体 | sns | 「Xの投稿作って」「noteを書いて」（媒体不明なら「どの媒体？」を選択式で。setup.yaml の選択媒体のみ提示） |
+| delve-research | リサーチ | 横断 | research | 「競合を分析して」「トレンド調べて」（対象不明なら「どの媒体・対象？」を選択式で） |
 | delve-media | 媒体管理 | 求人媒体 | media | 「全媒体の状況見せて」「スカウト送って」 |
 | delve-add-work | ワーク追加 | 基盤 | core | 「dodaを追加して」（登録+初期マッピング+専用コマンド生成） |
 | delve-setup | セットアップ | 基盤 | core | 「初期設定」「使う機能を選びたい」（回答保存・済んだ質問は聞かない・未選択パックは発火停止） |
@@ -45,13 +41,19 @@
 | delve-report | 作業ログ | 記録 | core | 「今日の作業まとめて」 |
 | delve-verify | 検証 | 記録 | core | 「プラグインを検証して」※開発用 — 配布時には削除する |
 
-**計: 登録コマンド 15 / 内部手順 7 / 手順書 22（procedures/）**
+**計: 登録コマンド 11 / 内部手順 13 / 手順書 24（procedures/）**
 
 ## 内部手順台帳（メニュー非表示 — 自然文・ルール発火で動く。手順書は procedures/ に残す）
 
 | 手順書 | 旧コマンド名 | 発火のさせ方 |
 |---|---|---|
 | delve-start | （内部）タスク開始 | 変更操作の前段として各パックが内部で通す関所（session-rules (1)） |
+| delve-sns-x | （内部）X媒体手順 | /SNS運用 が媒体判定後に振り分け |
+| delve-sns-instagram | （内部）Instagram媒体手順 | 同上 |
+| delve-sns-tiktok | （内部）TikTok媒体手順 | 同上 |
+| delve-sns-note | （内部）note媒体手順 | 同上 |
+| delve-sns-youtube | （内部）YouTube媒体手順 | 同上 |
+| delve-sns-line | （内部）LINE媒体手順 | 同上 |
 | delve-status | （内部）状態確認 | 「今どうなってる？」等の自然文（session-rules (8)） |
 | delve-demo | （内部）デモ | 「何ができるの？」→ ダッシュボードの説明書へ誘導 |
 | delve-config | （内部）機能設定 | 「SNS機能を切って」等の自然文 |
