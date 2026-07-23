@@ -36,6 +36,11 @@ if printf '%s' "$STDIN_JSON" | grep -qE '(javascript_tool|browser_evaluate|brows
   fi
 fi
 
+# Money Watch 停止フラグ: 金銭・契約系画面の検知後は、ユーザー承認による解除まで変更操作を全て deny
+if [ -f "$WF_DIR/money_alert" ]; then
+  deny "【Money Watch】金銭・契約・不可逆登録系の画面を検知したため変更操作を停止中です（検知: $(cat "$WF_DIR/money_alert" 2>/dev/null | head -c 80)）。strategy-advisor の助言を得てユーザーに操作内容を提示し、明示的な承認を得てから rm memory/.workflow/money_alert で解除してください。ユーザー承認なしの解除は禁止です。"
+fi
+
 if [ ! -f "$WF_DIR/active" ]; then
   deny "【Delvework Gate】ワークフロー未初期化。/タスク開始 でタスクを開始し、B-4（フェーズ判定）を完了してください。"
 fi
