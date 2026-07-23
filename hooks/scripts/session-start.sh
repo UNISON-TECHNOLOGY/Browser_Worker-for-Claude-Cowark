@@ -17,6 +17,14 @@ if [ ! -d "$PROJECT_DIR/knowledge" ] && [ ! -d "$PROJECT_DIR/.git" ]; then
   PREFIX="${PREFIX}【永続化警告】このワークスペースに蓄積（knowledge/）がありません。永続フォルダ未接続の可能性があり、その場合 memory/ と knowledge/ の蓄積はセッション終了で消えます。ユーザーに永続フォルダの接続を1行で推奨し、未接続のまま進める場合は蓄積系機能（skillify/feedback/watchスナップショット）の成果を必ず成果物としてユーザーに渡すこと。 "
 fi
 
+# 初期セットアップ: 未回答のときだけ1行案内（回答済みなら何も注入しない = コンテキスト消費ゼロ）
+SETUP_FILE="$PROJECT_DIR/knowledge/config/setup.yaml"
+if [ -d "$PROJECT_DIR/knowledge" ] && [ ! -f "$SETUP_FILE" ]; then
+  PREFIX="${PREFIX}【セットアップ】初期ヒアリング未回答。最初の依頼の前に /セットアップ（procedures/delve-setup.md）を1行で案内すること（強制はしない）。 "
+elif [ -f "$SETUP_FILE" ] && grep -q "completed: pending" "$SETUP_FILE" 2>/dev/null; then
+  PREFIX="${PREFIX}【セットアップ】未回答の項目が残っている（setup.yaml: pending）。区切りの良いタイミングで /セットアップ の続きを1行で案内。 "
+fi
+
 # タスクPack設定（knowledge/config/packs.conf）: off のパックを通知に含める
 PACKS_CONF="$PROJECT_DIR/knowledge/config/packs.conf"
 if [ -f "$PACKS_CONF" ]; then
