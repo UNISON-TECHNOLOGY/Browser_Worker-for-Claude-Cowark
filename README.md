@@ -76,16 +76,16 @@
 | 手順書 22 | `procedures/delve-*.md` — 登録15+内部7 の手順の正本（メニューには登録されない。コマンド/ルールが Read して実行） |
 | 共有部品庫 18 | `docs/parts/` — タスク5型（リサーチ/収集/クリエイティブ/分析/掃き出し）の部品。パックのタスクが Read して使う（index.md が地図） |
 | フック 5 | 変更操作ゲート / URLガード（広告出稿・課金ページ遮断） / ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 |
-| 執筆リファレンス 13 | `references/` 配下の内部教科書（スキル一覧には登録されない）。汎用7: web-design / video-ad / sns-jp / ad-compliance-jp / content-design / **seo-jp** / **cro-jp**、業種6: recruit / copy / sales / logical / business / storytelling（**人材業界パック**）。エージェントとコマンドが執筆時に Read して適用 |
+| 執筆リファレンス 13 | `references/` 配下の内部教科書（スキル一覧には登録されない）。web-design / video-ad / sns-jp / ad-compliance-jp / content-design / seo-jp / cro-jp / recruit（求人・スカウト）/ copy / sales / logical / business / storytelling。業界を問わず使える執筆規範で、エージェントとコマンドが執筆時に Read して適用 |
 | エージェント 6 | deliverable-writer（レポート執筆）/ design-artisan（モックアップ生成）/ design-critic（デザイン審査）/ strategy-advisor（設計壁打ち・エスカレーション）/ pre-send-verifier（送信前の敵対的監査 — 較正ログ付き）/ outcome-verifier（送信後の証跡検証・効果測定） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 + 画像/動画（banner-compose / chromakey / guide-anim。地図: docs/media-pipeline.md） |
 | ステップ正本 | `docs/steps-reference.md` — A〜K 手順・CP証跡・ログスキーマ・ナレッジ構造の正本（/タスク開始 が最初に Read） |
 
-## 業種カスタマイズ
+## 自社カスタマイズ
 
-ライティング6リファレンスは人材業界向けの実装例です。他業種で使う場合は `references/` 配下の
-該当ファイルを自業種のトーン・テンプレート・NG表現に書き換えてください。web-design /
-コマンド / フック / テンプレートは業種非依存でそのまま使えます。
+執筆リファレンスは業界を問わず使えます。自社のトーン・NG表現・定型フォーマットに合わせたい場合は
+`references/` 配下の該当ファイルを編集してください（例文の差し替えだけでも効果があります）。
+コマンド / フック / テンプレートはそのまま使えます。
 
 ## 安全設計
 
