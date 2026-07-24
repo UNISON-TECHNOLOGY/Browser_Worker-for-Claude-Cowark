@@ -407,6 +407,13 @@ v0.94.0 の実弾検証（27項目 + 実運用E2E + 追試2ラウンド、修正
 - **v0.97.0**: **F15 無人運用前チェック**（ログイン○✗巡回→ローカル登録前必須）/ **docs/escalations.md 新設**（上申台帳 E1〜E3: ref検査・ローカルスケジュールAPI・ワークスペース同期）
 - **v0.97.1**: 配線総点検 — registry に Threads行+本数27修正+escalations正本リンク+SNS媒体追加の4点配線チェックリスト / evals G1〜G9 整合 / guide-anim 入力バリデーション（F12）/ task-template に browser-select 標準ステップ / session-rules に critic ゲート+専用コマンド優先ルーティング / imagegen 引き渡し前審査
 
+## 二重最終監査と配布可判定 2026-07-24（v0.98.0〜）
+
+- 同一監査プロンプト（5軸）を Claude code-reviewer と Codex CLI に並列投入。両者合意の Critical（フラグ偽造によるゲート迂回）は hook 構造の限界として README 既知の限界に開示、その他の妥当所見（Log Gate 表記の実態化 / Step J 配線 / E-3 テキスト読取必須 / 承認優先順位の一元定義 / pending.md 正本化 / 永続化判定 / 件数・旧名残骸）を v0.98.0 で修正
+- **配布方針の確定（ユーザー決定）**: /検証 は削除せず**品質保証機能として同梱**。Cowork 配布＝リポジトリの marketplace 同期であり、配布可否は registry の「配布時チェックリスト」（lint / test-hooks / CI / 実機 /検証 full / version / escalations 開示）の全緑で判定する
+- 既知: 2026-07-24 の実機 full で V5(b)（ref 経由の認証欄入力）が FAIL → v0.96.0 で自己規律+回帰テスト化し、根治は escalations E1 として上申済み（開示済みの限界であり配布ブロッカーとしない）
+- 次回 Cowork 実機ラン: v0.98.x 反映後に下の検証プロンプトを実行し、結果をこの節に追記すること
+
 ### 検証プロンプト（Cowork 最新版 — これを貼る）
 
 ```

@@ -45,7 +45,7 @@
 | delve-ads | 広告 | 自社・広告 | creative | 「バナー作って」「競合広告を洗い出して」 |
 | delve-customize | カスタマイズ | 基盤 | core | 「毎朝これやって」「これ覚えて」（タスク登録/スキル化/好み記憶/機能ON-OFF を選択式で） |
 | delve-reporting | レポート | 記録 | core | 「今どうなってる？」「今日の作業まとめて」（トップ=ダッシュボード + 作業ログ/運用レポートを選択） |
-| delve-verify | 検証 | 記録 | core | 「プラグインを検証して」※開発用 — 配布時には削除する |
+| delve-verify | 検証 | 記録 | core | 「プラグインを検証して」※セルフテスト。品質保証機能として同梱（導入直後は quick、更新後・不調時は full） |
 
 **計: 登録コマンド 10 / 内部手順 17 / 手順書 27（procedures/）**
 
@@ -148,15 +148,13 @@ SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `do
 - [ ] README のコマンド数を更新
 - [ ] 両 version ファイルを bump
 
-## 配布時チェックリスト（リリースマニフェスト）
+## 配布時チェックリスト（Cowork 配布の実態に合わせた品質ゲート）
 
-配布ビルドでは以下の開発用一式を**機械的に除外**する（「配布時削除」を口約束にしない）:
+Cowork の配布は marketplace 同期＝**このリポジトリがそのまま配布物**（削除ビルドは存在しない）。/検証・TESTING・scripts/・.github/ は**品質保証機能として同梱する**（利用者が「プラグインを検証して」でいつでもセルフテストでき、CI が push ごとに回帰を担保する設計）。配布＝以下がすべて緑であること:
 
-```bash
-rm -rf commands/検証.md procedures/delve-verify.md TESTING.md docs/evals.md scripts/ .github/
-# 除外後に registry の /検証 行（コマンド台帳）と V参照を削除し、README:79 の「/検証※開発用」を除去
-```
-
-- [ ] 上記除外の実行（または配布ブランチで維持）
-- [ ] 除外後の README / 台帳から /検証・TESTING への参照を除去
-- [ ] `.claude-plugin/` の version が配布告知と一致
+- [ ] `python scripts/lint.py` → `lint: OK`（双方向突合）
+- [ ] `bash scripts/test-hooks.sh` → `ALL PASS`（防御系回帰）
+- [ ] CI（GitHub Actions）最新 run が success
+- [ ] Cowork 実機での直近の `/検証 full` 結果が TESTING.md 末尾に記録され、FAIL 0（未解消 FAIL があれば配布延期）
+- [ ] `.claude-plugin/` の version が配布告知と一致（bump 忘れは更新反映されない）
+- [ ] docs/escalations.md の上申事項が最新（プラグインで根治不可の限界が README「既知の限界」と齟齬なく開示されている）
