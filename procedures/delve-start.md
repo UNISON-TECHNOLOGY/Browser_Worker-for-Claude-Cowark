@@ -16,6 +16,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    rm -f memory/.workflow/{b4_done,e_done,k_done,bulk_send,psv_done,ov_done,critic_pending,critic_pass}
    echo "$ARGUMENTS" > memory/.workflow/active
    ```
+   （`money_alert` は**意図的に消さない** — 前回の金銭停止は新タスクに持ち越し、解除は Money Watch 復帰手順のみ。手順8参照）
 3. `knowledge/sites/` を確認し、対象サイトのナレッジ有無でフェーズを判定する:
    - ナレッジなし → ① 初回 (First Delve)
    - ナレッジあり、成功ログなし → ② 再訪問 (Return)
@@ -25,6 +26,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    ```bash
    echo "<phase>" > memory/.workflow/phase && touch memory/.workflow/b4_done
    ```
+   （`phase` は hook 非連動の状態メモ。ゲートに効くのは b4_done の方）
 5. 変更操作の前（Step E）— 順に:
    - **変更前の状態をテキスト読取で記録**する（read_page / browser_snapshot。**スクリーンショットのみでの代替不可** — Money Watch の検知面のため）
    - **フェーズ②③④なら Step J（差分比較）**: 前回ログの after_state と今回の before_state を比較し、外部変更・リセットを検出したらユーザーに報告（steps-reference.md J）

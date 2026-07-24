@@ -432,5 +432,8 @@ docs/parts/design-handoff.md へ到達するか（ツール名を言わずに発
 立てた状態でダミーPNGをユーザーに送付し【Critic Gate・試運転(warn)】が注入されるか
 （= SendUserFile 等の matcher 名の実在確認）。**どちらも注入が観測されなければ matcher 名の
 不一致であり「ゲートが効いていない」— 実際のツール名を報告に記載すること**。
+※warn→deny 昇格の実機構: 各スクリプト先頭の `GATE_MODE="${DELVEWORK_GATE_MODE:-warn}"` の
+既定値を `deny` に書き換える（環境変数 DELVEWORK_GATE_MODE はテスト時の両モード検証用。
+切替日を本ファイルに記録すること）。
 読み取り専用・外部無害の原則厳守。FAIL はエラー原文つき。報告書はアーティファクト発行。
 ```
