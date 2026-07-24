@@ -425,6 +425,12 @@ v0.94.0 の実弾検証（27項目 + 実運用E2E + 追試2ラウンド、修正
 (6) 「無人運用前チェックして」でログイン○✗一覧が出るか
 (7) design-handoff の発火解釈 — ダミーの完成ビジュアルに対し「これ自分で手直ししたい」で
 docs/parts/design-handoff.md へ到達するか（ツール名を言わずに発火するか。実送付は経路確認=list_projects 1回まで、
-プロジェクト作成はドライランで可）。
+プロジェクト作成はドライランで可）
+(8) **新2ゲートの matcher 発火実測（warn運転の主目的）**: (a) bulk_send を立てた状態で
+`touch memory/.workflow/k_done` を Bash 実行し【OV Gate・試運転(warn)】が注入されるか
+（= Cowork の Bash ツールに PreToolUse matcher "Bash" が効くかの実測） (b) critic_pending を
+立てた状態でダミーPNGをユーザーに送付し【Critic Gate・試運転(warn)】が注入されるか
+（= SendUserFile 等の matcher 名の実在確認）。**どちらも注入が観測されなければ matcher 名の
+不一致であり「ゲートが効いていない」— 実際のツール名を報告に記載すること**。
 読み取り専用・外部無害の原則厳守。FAIL はエラー原文つき。報告書はアーティファクト発行。
 ```

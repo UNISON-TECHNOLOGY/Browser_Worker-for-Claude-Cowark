@@ -121,6 +121,46 @@ out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"eleme
 check "psv: psv_done後は通過" EMPTY "$out"
 rm -f "$DELVEWORK_WF_DIR/bulk_send" "$DELVEWORK_WF_DIR/psv_done"
 
+# --- OV Gate（不可逆送出の outcome-verifier 強制） ---
+export DELVEWORK_GATE_MODE=deny
+rm -f "$DELVEWORK_WF_DIR/bulk_send" "$DELVEWORK_WF_DIR/ov_done"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"touch memory/.workflow/k_done"}}' | bash "$SC/ov-gate.sh")
+check "ov: bulk_sendなしは素通し" EMPTY "$out"
+touch "$DELVEWORK_WF_DIR/bulk_send"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"touch memory/.workflow/k_done"}}' | bash "$SC/ov-gate.sh")
+check "ov: bulk_sendあり・ov_doneなしは deny" 'OV Gate' "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -f memory/.workflow/{b4_done,e_done,k_done,bulk_send,psv_done} && touch memory/.workflow/active"}}' | bash "$SC/ov-gate.sh")
+check "ov: 初期化rmは誤爆しない" EMPTY "$out"
+echo "VERIFIED 3/3" > "$DELVEWORK_WF_DIR/ov_done"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"touch memory/.workflow/k_done"}}' | bash "$SC/ov-gate.sh")
+check "ov: ov_doneありは通過" EMPTY "$out"
+export DELVEWORK_GATE_MODE=warn
+rm -f "$DELVEWORK_WF_DIR/ov_done"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"touch memory/.workflow/k_done"}}' | bash "$SC/ov-gate.sh")
+check "ov: 既定warnモードは注入のみ（denyしない）" 'additionalContext.*OV Gate' "$out"
+rm -f "$DELVEWORK_WF_DIR/bulk_send"
+
+# --- Critic Gate（artisan生成物の critic PASS 強制） ---
+export DELVEWORK_GATE_MODE=deny
+rm -f "$DELVEWORK_WF_DIR/critic_pending" "$DELVEWORK_WF_DIR/critic_pass"
+out=$(printf '{"tool_name":"SendUserFile","tool_input":{"files":["banner.png"]}}' | bash "$SC/critic-gate.sh")
+check "critic: pendingなしは素通し" EMPTY "$out"
+touch "$DELVEWORK_WF_DIR/critic_pending"
+out=$(printf '{"tool_name":"SendUserFile","tool_input":{"files":["banner.png"]}}' | bash "$SC/critic-gate.sh")
+check "critic: pending中のPNG送付は deny" 'Critic Gate' "$out"
+out=$(printf '{"tool_name":"SendUserFile","tool_input":{"files":["report.md"]}}' | bash "$SC/critic-gate.sh")
+check "critic: pending中でもmdは素通し" EMPTY "$out"
+mkdir -p "$CLAUDE_PROJECT_DIR/knowledge/config"
+printf 'qa-.*\\.png\n' > "$CLAUDE_PROJECT_DIR/knowledge/config/critic-suppress.txt"
+out=$(printf '{"tool_name":"SendUserFile","tool_input":{"files":["qa-1.png"]}}' | bash "$SC/critic-gate.sh")
+check "critic: 抑制リスト該当は通過" EMPTY "$out"
+rm -f "$CLAUDE_PROJECT_DIR/knowledge/config/critic-suppress.txt"
+echo "PASS: layout OK" > "$DELVEWORK_WF_DIR/critic_pass"
+out=$(printf '{"tool_name":"SendUserFile","tool_input":{"files":["banner.png"]}}' | bash "$SC/critic-gate.sh")
+check "critic: critic_pass後は通過" EMPTY "$out"
+rm -f "$DELVEWORK_WF_DIR/critic_pending" "$DELVEWORK_WF_DIR/critic_pass"
+unset DELVEWORK_GATE_MODE
+
 rm -rf "$CLAUDE_PROJECT_DIR"
 [ "$FAIL" = 0 ] && echo "test-hooks: ALL PASS" || echo "test-hooks: FAILURES"
 exit "$FAIL"
