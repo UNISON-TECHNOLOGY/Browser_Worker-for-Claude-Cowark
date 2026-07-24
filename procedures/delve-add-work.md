@@ -38,7 +38,7 @@ knowledge/media/registry.yaml の該当媒体と knowledge/sites/<id>/ のナレ
 プラグインの procedures/delve-media.md（タスク分解表）に従って実行してください。引数: $ARGUMENTS
 ```
 
-SNS媒体の場合は参照先を該当パック（procedures/delve-sns-*.md）にする。既にプラグインの標準パックがある媒体（X/Instagram 等）はアカウント名コマンド（例: /IT就活大学）として生成してよい。
+SNS媒体の場合は参照先を該当パック（procedures/delve-sns-*.md）にする。媒体レベルのコマンド名は `<媒体名>運用`（例: /X運用 /Instagram運用 — /セットアップ の媒体選択もこの名前で生成する）、アカウント単位で分けたい場合はアカウント名コマンド（例: /IT就活大学）でもよい。
 
 ### 5. 締め
 
