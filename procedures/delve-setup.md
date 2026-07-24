@@ -8,7 +8,7 @@
 
 ### チェックリスト
 
-1. **運用するSNS媒体**（複数選択: X / Instagram / TikTok / note / YouTube / LINE公式 / どれもやらない）
+1. **運用するSNS媒体**（複数選択: X / Instagram / TikTok / note / YouTube / LINE公式 / どれもやらない。1媒体=1択で束ねず、1問4択に収まらないぶんは同じ呼び出し内の2問目に分割し、全問で複数選択可を維持）
    → 選ばなかった媒体は `knowledge/config/packs.conf` に `sns-<媒体>=off` を書く（例: `sns-tiktok=off`）。該当パックは以後、提案・自動発火の対象外（session-start が毎回注入）。後から「TikTokもやる」で on に戻せる
 2. **画像・動画の生成AIアカウント**（Gemini / ChatGPT / 両方 / なし + 無料/有料プラン）
    → `knowledge/config/accounts.md` に記録（imagegen 部品の Step 0 が参照。以後この質問はしない）。有料なら商用利用条件・透かし（SynthID等）も確認して記録
