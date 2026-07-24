@@ -34,7 +34,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V9 | サブエージェント | deliverable-writer に小さな執筆（3行のテスト文書）を委譲 | 起動し成果が返る。使用モデルも記録 |
 | V10 | design-artisan モデル | design-artisan を最小タスクで起動 | fable で起動できたか、sonnet フォールバックか記録 |
 | V11 | ダッシュボード | /レポート を実行（トップのダッシュボード生成まで） | dashboard-template（浮世絵ヘッダー+旅人）準拠で生成（説明書はテンプレ実態どおり「生成物」セクション内の注記1行でよい。専用セクションは不要）、タブ=全体+カテゴリー、停留点数=タブ数、アラート+場所とタスク一覧が実データ。アーティファクト発行（2回目なら同一URL更新） |
-| V12 | 部品庫到達 | docs/parts/index.md を Read し、表の部品から2つ（imagegen / design-sync）を Read | 部品に到達でき、実行粒度3段の原則が読める |
+| V12 | 部品庫到達 | docs/parts/index.md を Read し、表の部品から3つ（imagegen / design-sync / design-handoff）を Read | 部品に到達でき、実行粒度3段の原則が読める。design-sync 冒頭に認可なし時の design-handoff フォールバックポインタがあり、design-handoff に経路選択（list_projects を1回だけ試す）・消費確認・回収フローの節がある |
 | V13 | Pack制御 | packs.conf に deep=off を書き→挙動確認→元に戻す | 無効通知が次セッションに出る（今セッションでは conf の読み書きのみ確認） |
 | V14 | 日本語コマンド | /レポート を実行 | 日本語名で発火する。あわせて内部手順（「今どうなってる？」→ delve-status）が自然文で発火することを確認 |
 | V15 | スキル化 | ダミー手順（「検証用: example.comを開いて閉じる」）を「これ覚えて」で内部スキル化手順に | .claude/skills/ に生成され、frontmatter が規約通り |
