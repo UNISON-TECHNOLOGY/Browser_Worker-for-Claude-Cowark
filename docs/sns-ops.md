@@ -28,7 +28,7 @@
 1. ネタは `knowledge/sns/<platform>/queue.md`（Inbox→Ready→Used）の Ready から優先消化。不足時はリサーチから補充
 2. 生成は references/ の該当ファイルを Read して適用: 構成は content-design（C×P×T）、日本の投稿慣習は sns-jp、社員・現場エピソード系は storytelling、コピー・件名は copywriting、トーンは `knowledge/feedback/lessons.md`（ワークスペース蓄積。なければスキップ）、法規は ad-compliance-jp（**公開前チェック必須**）
 3. **1投稿ごとにユーザー承認 → ブラウザで予約投稿**（Delvework ゲート下: /タスク開始 済み・変更前記録済みであること）
-4. 予約後に記録を更新（queue の Ready→Used、予約一覧への追記）
+4. 予約後・投稿完了後は**その場で** queue の状態行を更新する（Ready→Used、承認済みなら「未承認」表記を消す、予約一覧への追記）。投稿が成功したのに queue 上のステータスが古いまま残るのは台帳鮮度の不整合（2026-07-24 検出。次回実行の判断を狂わせる）
 5. 全枠充足まで 1→4 を繰り返し、最後に「充足状況+今回の学び」を session-log に記録
 
 ## 初回実行時（ナレッジがない場合）
