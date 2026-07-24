@@ -82,7 +82,7 @@
 | 収集 | asset-collect / video-asset-collect |
 | クリエイティブ | jobpost-writing / scoutmail-writing / imagegen / videogen / image-edit / video-edit / page-improve / ad-to-lp / video-ad-script |
 | 分析 | site-audit / sns-research（数値読み） |
-| 掃き出し | design-sync / canva-export |
+| 掃き出し | design-sync / canva-export / design-handoff（成果物を Claude Design へ送って人間が編集→回収。critic PASS 後に「Design に送って手直ししますか？」） |
 
 SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `docs/media-pipeline.md`、無人運用・承認キュー・クラウド→ローカル移行は `docs/unattended-ops.md`、プラットフォーム上申事項（プラグインで根治不可の課題と緩和策）は `docs/escalations.md` が正本。
 

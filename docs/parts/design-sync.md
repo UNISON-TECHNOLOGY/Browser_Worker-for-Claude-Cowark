@@ -2,6 +2,8 @@
 
 メディア素材入り HTML / デザインシステムへの反映は claude.ai/design へ流すのが正（2026-07-23 ユーザー決定）。ローカルHTML直書きはプレビュー用途のみ。
 
+**DesignSync ツールの認可が無い環境（Cowork cloud で実測 2026-07-24）**では、この API ルートは使えない → **docs/parts/design-handoff.md（UIルート — ブラウザで claude.ai/design に添付して人間編集へハンドオフ）** に切り替える。
+
 ## 手順
 1. list_projects で対象確認（なければ create_project）
 2. 書き込むパスの計画を提示してユーザー承認（finalize_plan）— 削除も同承認制
