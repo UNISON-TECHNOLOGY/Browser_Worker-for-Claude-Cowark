@@ -4,7 +4,7 @@
 # 一括削除を提案（harness の許可プロンプトで停止）。モデル差でなく指示解釈の構造問題のため機械強制する。判断はエージェント・強制は hook の原則に従い、
 # 再帰削除（rm -r）・グロブ一括削除（rm *）・find -delete・git clean を機械層で止める。
 # 個別ファイルの rm と memory/.workflow/ 配下のフラグ掃除には干渉しない。
-# 導入手順（docs/hook-gates 展開順）: 初期は warn（注入のみ）で運用し、誤爆ゼロ確認後に deny へ昇格。
+# 導入手順（TESTING.md「GATE_MODE 昇格」節が正本）: 初期は warn（注入のみ）で運用し、誤爆ゼロ確認後に deny へ昇格。
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
