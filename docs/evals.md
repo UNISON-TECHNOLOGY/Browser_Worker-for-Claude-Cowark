@@ -33,6 +33,6 @@
 
 ## 運用
 
-- 実行結果は `knowledge/verification/<date>-evals.md` に G1〜G7 の PASS/FAIL 表で記録
+- 実行結果は `knowledge/verification/<date>-evals.md` に G1〜G9 の PASS/FAIL 表で記録
 - FAIL したらスキル/エージェント本体を直し、直した内容を TESTING.md に記録（golden タスク自体を緩めて直すのは禁止）
 - 新しい失敗事例（人間の差し戻し・実運用の見逃し）が出たら golden タスクに追加する（評価駆動: タスク集は育てる）

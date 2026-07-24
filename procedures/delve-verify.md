@@ -79,7 +79,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 
 | # | 項目 | 手順 | PASS基準 |
 |---|---|---|---|
-| V27 | golden タスク | docs/evals.md の G1〜G7 を実行 | 各タスクの PASS 基準（機械判定）を満たす。FAIL は evals.md の運用に従い本体を修正して記録 |
+| V27 | golden タスク | docs/evals.md の G1〜G9 を実行 | 各タスクの PASS 基準（機械判定）を満たす。FAIL は evals.md の運用に従い本体を修正して記録 |
 
 ## 報告書（必ず2形式）
 

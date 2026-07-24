@@ -14,7 +14,7 @@
 
 | 層 | 概念 | 実体 |
 |---|---|---|
-| **コマンド** | カテゴリーレベル（媒体・対象のタスクパック）。要望は引数に自由に書かせる | `commands/`（登録10本・日本語名）+ `procedures/delve-*.md`（内部手順含め26本） |
+| **コマンド** | カテゴリーレベル（媒体・対象のタスクパック）。要望は引数に自由に書かせる | `commands/`（登録10本・日本語名）+ `procedures/delve-*.md`（内部手順含め27本） |
 | **ワークフロー** | 進め方 = タスクの連なり。A〜K 実行チェーン + タスク5型の連結 | `docs/steps-reference.md` + hooks のゲート + フェーズ①〜④ |
 | **タスク** | 単一の仕事。動詞レベル: **リサーチ / 収集 / クリエイティブ / 分析 / 掃き出し** | `tasks/*.yaml`（/カスタマイズ のタスク登録 = delve-task が生成）+ `docs/parts/`（部品） |
 | **サブエージェント** | 専門作業の職人。タスクから呼ばれる | `agents/`（6体: writer / artisan / critic / advisor / pre-send-verifier / outcome-verifier） |
@@ -32,7 +32,7 @@
 3. 部品（docs/parts/）はコマンド登録しない。パックのタスクが Read して使う
 4. `/スキル化` が生成するワークスペーススキルも同ルール: name は英語ケバブ、description の発火例は日本語の言い方で書く
 
-## コマンド台帳（20本）
+## コマンド台帳（登録10本）
 
 | 手順書（procedures/） | コマンド名（登録） | カテゴリー | Pack | 代表的な言い方 |
 |---|---|---|---|---|
@@ -47,7 +47,7 @@
 | delve-reporting | レポート | 記録 | core | 「今どうなってる？」「今日の作業まとめて」（トップ=ダッシュボード + 作業ログ/運用レポートを選択） |
 | delve-verify | 検証 | 記録 | core | 「プラグインを検証して」※開発用 — 配布時には削除する |
 
-**計: 登録コマンド 10 / 内部手順 16 / 手順書 26（procedures/）**
+**計: 登録コマンド 10 / 内部手順 17 / 手順書 27（procedures/）**
 
 ## 内部手順台帳（メニュー非表示 — 自然文・ルール発火で動く。手順書は procedures/ に残す）
 
@@ -57,6 +57,7 @@
 | delve-sns-x | （内部）X媒体手順 | /SNS運用 が媒体判定後に振り分け |
 | delve-sns-instagram | （内部）Instagram媒体手順 | 同上 |
 | delve-sns-tiktok | （内部）TikTok媒体手順 | 同上 |
+| delve-sns-threads | （内部）Threads媒体手順 | 同上（Meta系: IGログイン連動・予約投稿不可の注意あり） |
 | delve-sns-note | （内部）note媒体手順 | 同上 |
 | delve-sns-youtube | （内部）YouTube媒体手順 | 同上 |
 | delve-sns-line | （内部）LINE媒体手順 | 同上 |
@@ -70,6 +71,8 @@
 | delve-feedback | （内部）メモリ保存 | 成果物への評価・修正指示の自動検知（session-rules (3b)） |
 | delve-memory | （内部）メモリ圧縮 | 「ログを整理して」/ session-log 肥大時に提案 |
 
+※ procedures/ を持たない内部手順: **無人運用前チェック**（docs/unattended-ops.md 内 — 「無人運用前チェックして」の自然文、およびブラウザ操作タスクのローカル登録前に delve-task が必須で通す）
+
 ## 部品台帳（docs/parts/ — タスク5型。詳細は docs/parts/index.md が正本）
 
 | タスク型 | 部品 |
@@ -81,7 +84,7 @@
 | 分析 | site-audit / sns-research（数値読み） |
 | 掃き出し | design-sync / canva-export |
 
-SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `docs/media-pipeline.md` が正本。
+SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `docs/media-pipeline.md`、無人運用・承認キュー・クラウド→ローカル移行は `docs/unattended-ops.md`、プラットフォーム上申事項（プラグインで根治不可の課題と緩和策）は `docs/escalations.md` が正本。
 
 ## 執筆リファレンス台帳（references/ — スキル一覧には登録しない内部教科書）
 
@@ -137,6 +140,7 @@ SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `do
 ## 追加時のチェックリスト
 
 - [ ] 新しい媒体 → 原則 **/ワーク追加**（ワークスペース側に動的生成。プラグインは変更しない）。プラグイン標準パックに昇格させる場合のみ `commands/<日本語名>.md` + `procedures/delve-<name>.md` を追加
+- [ ] 新しいSNS標準媒体 → `procedures/delve-sns-<name>.md` 追加とセットで **4点配線**: ①delve-sns の振り分け表 ②delve-sns §0 の媒体名リスト ③delve-setup 質問1の選択肢 ④この台帳の内部手順一覧（2026-07-24 Threads 追加時に④が漏れた教訓）
 - [ ] 新しい能力 → `docs/parts/<name>.md`（部品）+ parts/index.md に行追加。**コマンドは増やさない**
 - [ ] 新しい執筆リファレンス（references/）→ session-rules(3) と **該当サブエージェント（deliverable-writer / design-artisan / design-critic / pre-send-verifier）の参照表にも配線**（エージェントは自分でルールを読まないため、定義ファイルに書かないと届かない）
 - [ ] この台帳に1行追加（カテゴリー + Pack）

@@ -93,6 +93,17 @@ def main(shot: str, steps_json: str, out_base: str) -> None:
     if base.height % 2:
         base = base.crop((0, 0, base.width, base.height - 1))
     steps = json.loads(Path(steps_json).read_text(encoding="utf-8"))
+    if not isinstance(steps, list):
+        raise SystemExit(
+            f"steps.json はステップの配列である必要があります（{type(steps).__name__} が渡されました）。\n"
+            '正しい形式: [{"rect": [x, y, w, h], "label": "説明文"}, ...]'
+        )
+    for idx, st in enumerate(steps, 1):
+        if not isinstance(st, dict) or "rect" not in st or "label" not in st:
+            raise SystemExit(
+                f"steps.json の {idx} 番目のステップに rect / label がありません。\n"
+                '正しい形式: {"rect": [x, y, w, h], "label": "説明文"}'
+            )
 
     tmp = Path(tempfile.mkdtemp(prefix="guideanim-"))
     n = 0

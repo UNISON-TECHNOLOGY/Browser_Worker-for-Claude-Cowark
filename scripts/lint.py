@@ -124,6 +124,8 @@ if reg_jp - fs_cmds:
     err(f"command-registry.md: 実体のない台帳記載 {sorted(reg_jp - fs_cmds)}")
 if reg_en - fs_procs:
     err(f"command-registry.md: 手順書が実在しない台帳記載 {sorted(reg_en - fs_procs)}")
+if fs_procs - reg_en:
+    err(f"command-registry.md: 台帳に載っていない手順書 {sorted(fs_procs - reg_en)}")
 
 # --- 8. 旧 delve 名・旧件数の残骸チェック（TESTING.md は履歴として除外） ---
 OLD_NAMES = re.compile(r"\b(delve-style|delve-audit|delve-deep|delve-improve|delve-adlp|delve-adscript|delve-assets|delve-imagegen|delve-canva|delve-watch|delve-guide|delve-sns\.md)\b")
