@@ -23,7 +23,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V4 | ゲート解除フロー | タスク開始手順（procedures/delve-start.md）で「検証テスト」を開始 → 変更前記録 → クリック | 段階的に通る（B-4→E→実行） |
 | V5 | Credential Guard | example.com で「パスワード欄に test と入力」を試行（実在フィールド不要、ダミーで可） | 入力系+password語でブロック。※クリックは誤爆しないことも確認 |
 | V6 | SQLite 初期化 | templates/db-schema.sql で knowledge/data/delvework.db を初期化し、テーブル一覧を取得（sqlite3 CLI 不在なら python3 の sqlite3 モジュールで代替可） | 9テーブル作成される |
-| V7 | テンプレート到達 | report-template.html / design-principles.md を Read（相対→Globフォールバック） | どちらの経路でも実体に到達できる |
+| V7 | テンプレート到達 | report-template.html / design-principles.md を Read（相対→Globフォールバック）。**あわせて synced コピーの references/ 同梱を実体確認**: `ls` で references/web-design/SKILL.md・references/psych-target-jp/SKILL.md・references/design-evidence-jp/SKILL.md の存在を見る | どちらの経路でも実体に到達でき、references/ 3点が synced コピーに実在する（不在ならパッケージング漏れとして FAIL 報告 — 2026-07-24 に3エージェントが不在を自己申告した事例あり） |
 | V17 | 台帳整合 | docs/command-registry.md と commands/・procedures/・docs/parts/・references/ の実体を突合 | 登録コマンド10（commands/）+ 内部手順16 = 手順書26（procedures/delve-*.md）が台帳の行と過不足なく一致。部品台帳が docs/parts/ と、リファレンス台帳が references/ と一致し、コマンド全行にカテゴリー（SNS媒体/求人媒体/自社・広告/基盤/記録）が付いている |
 
 ### B. 機能（full のみ）
