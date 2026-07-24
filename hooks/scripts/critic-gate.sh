@@ -6,12 +6,12 @@
 # critic が PASS を返したら critic_pending を rm し、PASS の1行要約を critic_pass に書き込む。
 # 導入手順: 初期は warn で運用し、誤爆パターンを knowledge/config/critic-suppress.txt（grep -E 正規表現・
 # 1行1パターン・# はコメント。緩める方向の追記はユーザー確認必須）に収集後、deny へ昇格。
-# 昇格方法: 下の GATE_MODE 既定値を "deny" に変更。
+# 2026-07-24 deny 昇格済み（v0.101.1 実機で matcher 発火・誤爆ゼロを確認）。
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
-GATE_MODE="${DELVEWORK_GATE_MODE:-warn}"
+GATE_MODE="${DELVEWORK_GATE_MODE:-deny}"
 
 # 1) デザイン生成中でなければ素通し
 [ -f "$WF_DIR/critic_pending" ] || exit 0

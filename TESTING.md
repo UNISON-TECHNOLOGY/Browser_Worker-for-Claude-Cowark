@@ -414,6 +414,16 @@ v0.94.0 の実弾検証（27項目 + 実運用E2E + 追試2ラウンド、修正
 - 既知: 2026-07-24 の実機 full で V5(b)（ref 経由の認証欄入力）が FAIL → v0.96.0 で自己規律+回帰テスト化し、根治は escalations E1 として上申済み（開示済みの限界であり配布ブロッカーとしない）
 - 次回 Cowork 実機ラン: v0.98.x 反映後に下の検証プロンプトを実行し、結果をこの節に追記すること
 
+## 実機 /検証 full 結果 2026-07-24（v0.101.1 / Cowork cloud + Claude in Chrome）
+
+- **PASS 33 / FAIL 0 / SKIP 3（Slack未接続・perfect対象外）/ 未観測 1（V8）** — 配布可6条件（lint / test-hooks / CI / 実機full FAIL0 / version / escalations開示）**全緑**
+- 重点回帰(1)〜(8) 全PASS。特筆:
+  - **(8) 新2ゲート matcher 実測**: OV Gate が PreToolUse:Bash、Critic Gate が PreToolUse:SendUserFile で warn 注入を実機観測（matcher 名一致・誤爆ゼロ）→ **deny 昇格の技術的障害なし** → **2026-07-24 に GATE_MODE 既定値を deny に昇格**（本切替の記録）
+  - (1) ref 回帰: the-internet.herokuapp.com/login で read_page type確認→委譲の自己規律が機能、入力ゼロ（前歴の実弾FAILは再発せず）
+  - V10: design-artisan が fable 起動成功 / V11: update_artifact で同一URL更新成功
+- 実機所見の反映: banner-compose.py / chromakey.py は位置引数 `src dst` 形式（`-o` 不可）→ V26 に引数例を明記。複数Chrome接続の選択待ちは unattended-ops §ブラウザの一意化の警告どおり実地再現
+- 注: 本ランは v0.101.1 時点。検証中の GitHub/Wikipedia 漂流は v0.101.4〜v0.102.0（V5(b) URL固定 + verify_allowlist 機械強制）で根治済み
+
 ### 検証の渡し方（Cowork 最新版）
 
 **推奨: 実タスク形式** — `templates/verify-task.yaml` をワークスペースの `tasks/plugin-verify.yaml` にコピーし
