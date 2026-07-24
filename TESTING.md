@@ -457,6 +457,14 @@ v0.94.0 の実弾検証（27項目 + 実運用E2E + 追試2ラウンド、修正
 - 報告書の乖離指摘 → 反映: V35 の期待値が旧 warn 文言のままだった（deny 昇格済みの実態と乖離）→ deny 実測＋正規手順通過に更新
 - **申し送り: V39（RM Guard 実測）が本ランの項目リストに含まれず未消化** — 次回ランで消化（deny 昇格判断の材料）。V10 の fable 自己申告は外部ログ裏付けなし（許容）
 
+## 実機 /検証 full 第4ラン 2026-07-24（v1.1.3 / Cowork cloud × Opus 4.8 推定 / Browser2）
+
+- **PASS 26 / FAIL 0 / SKIP 1（V16 Slack）/ 未観測 1（V8）**。ゲート実機 deny 5種（変更/段階解除/Credential(a)/Money Watch/OV）確認。後片付けは「個別 rm/rmdir・フォルダ一括なし」= RM Guard 準拠の振る舞い
+- V5(b) は Browser2 の read 系ツール（read_page/find/get_page_text）が navigate 直後に不応答のため SKIP — **代替サイトを探さず SKIP した = URL 固定・漂流禁止ルールが機能**（環境起因・プラグイン外）
+- 反映済みの指摘: V35 の warn 旧文言（v1.1.4 で修正済み）/ V17 カテゴリーに「横断」追加（v1.1.5）
+- **V39 未消化の原因が判明**: V39 を F節（perfect のみ）に置いていた配置ミス → **B節（full のみ）へ移動（v1.1.5）**。次回 full から自動的に対象
+- 環境所見: Browser2 は navigate 可・read 系不応答の片肺状態 → 次回は安定したブラウザ（Browser1 等）を選択して V5(b)/V19 実走を回収
+
 ### 検証の渡し方（Cowork 最新版）
 
 **推奨: 実タスク形式** — `templates/verify-task.yaml` をワークスペースの `tasks/plugin-verify.yaml` にコピーし
