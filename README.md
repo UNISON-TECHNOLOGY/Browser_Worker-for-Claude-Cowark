@@ -77,9 +77,9 @@
 | 種類 | 内容 |
 |---|---|
 | コマンド 10（日本語・カテゴリーレベル） | /SNS運用 /リサーチ /媒体管理 /Webサイト /広告 + /セットアップ /ワーク追加 /カスタマイズ /レポート + /検証※開発用・配布時削除。台帳: docs/command-registry.md |
-| 内部手順 16（メニュー非表示） | タスク開始（変更操作の関所）/ 状態確認 / デモ / 機能設定 / スキル化 / メモリ保存 / メモリ圧縮 / 定常タスク登録 / ダッシュボード / 作業ログ + SNS媒体別手順6 — 各入口コマンドとルールが振り分け |
-| 手順書 26 | `procedures/delve-*.md` — 登録10+内部16 の手順の正本（メニューには登録されない。コマンド/ルールが Read して実行） |
-| 共有部品庫 17+index | `docs/parts/` — タスク5型（リサーチ/収集/クリエイティブ/分析/掃き出し）の部品。パックのタスクが Read して使う（index.md が地図） |
+| 内部手順 17（メニュー非表示） | タスク開始（変更操作の関所）/ 状態確認 / デモ / 機能設定 / スキル化 / メモリ保存 / メモリ圧縮 / 定常タスク登録 / ダッシュボード / 作業ログ + SNS媒体別手順7（X/Instagram/Threads/TikTok/note/YouTube/LINE） — 各入口コマンドとルールが振り分け |
+| 手順書 27 | `procedures/delve-*.md` — 登録10+内部17 の手順の正本（メニューには登録されない。コマンド/ルールが Read して実行） |
+| 共有部品庫 18+index | `docs/parts/` — タスク5型（リサーチ/収集/クリエイティブ/分析/掃き出し）の部品。パックのタスクが Read して使う（index.md が地図） |
 | フック 6 | 変更操作ゲート（送出監査 psv ゲート含む）/ Money Watch（金銭・契約画面の検知停止）/ URLガード(広告出稿・課金ページ遮断）/ ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 |
 | 執筆リファレンス 17 | `references/` 配下の内部教科書（スキル一覧には登録されない）。web-design / video-ad / sns-jp / ad-compliance-jp / content-design / seo-jp / cro-jp / recruit（求人・スカウト）/ copy / sales / logical / business / storytelling + **心理3部作**（psych-nudge-jp=訴求フレーム / psych-ux-jp=デザイン心理 / psych-target-jp=読み手別の書き分け。日本の実証研究ベース・不安の解消にのみ使用）+ **design-evidence-jp**（実証デザイン数値基準 — 何px・何色・どの順を実験/公的基準で決める）。業界を問わず使える執筆規範で、エージェントとコマンドが執筆時に Read して適用 |
 | エージェント 6 | deliverable-writer（レポート執筆）/ design-artisan（モックアップ生成）/ design-critic（デザイン審査）/ strategy-advisor（設計壁打ち・エスカレーション）/ pre-send-verifier（送信前の敵対的監査 — 較正ログ付き）/ outcome-verifier（送信後の証跡検証・効果測定） |
@@ -103,5 +103,7 @@
   - 同一ワークスペースの**並行セッションはフラグ（memory/.workflow/）を共有**するため相互干渉しうる。同時実行は1タスクずつを推奨
   - Credential Guard / JS mutation 判定はキーワード検知の best-effort（難読化で回避可能）。硬い防御は Money Watch・URL Guard・人間承認が担う
   - URL denylist は部分一致のため、金銭に無関係な /subscribe 等を誤ブロックすることがある → `knowledge/config/url-allowlist.txt` で開放
+  - ゲートの実体は `memory/.workflow/` のフラグファイルで、**Bash からフラグを直接 touch/rm すれば手順を飛ばして技術的に迂回できる**（Log Gate も同様に自己規律で、hook の強制はない）。ゲートは「うっかり・手順飛ばし」への防御であり、意図的な迂回への防御ではない — 意図的迂回が脅威になる環境では、ワークスペース側の権限設定で Bash による `memory/.workflow/` への書き込みを制限すること
+  - Money Watch はテキスト読取（read_page 等）の内容に反応する。**スクリーンショットだけで進むと検知面を素通りする**ため、変更前記録（Step E）はテキスト読取を必須とする（steps-reference E-3 冒頭）
 - 検証状況・既知の制約は [TESTING.md](TESTING.md) を参照
 - CI（GitHub Actions）が push ごとに参照整合 lint（scripts/lint.py）と hooks スモークテスト（scripts/test-hooks.sh）を実行。ローカルでも同コマンドで実行可

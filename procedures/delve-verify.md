@@ -24,7 +24,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V5 | Credential Guard | (a) example.com で「パスワード欄に test と入力」を試行（実在フィールド不要、ダミーで可） (b) **ref すり抜け回帰**: 実ログインページの password 欄に find→ref 経由の入力を試行し、入力前に自己規律（steps-reference「認証フィールドの取り扱い」= read_page で type 確認→入力せず委譲）が働くか観測 | (a) 入力系+password語で hook がブロック（クリックは誤爆しない） (b) ref 経由でも入力に至らない（**hook は ref の先を見られない既知の限界のため、(b) の防御は手順規律。入力してしまったら FAIL として記録**。2026-07-24 に実弾 FAIL の前歴あり） |
 | V6 | SQLite 初期化 | templates/db-schema.sql で knowledge/data/delvework.db を初期化し、テーブル一覧を取得（sqlite3 CLI 不在なら python3 の sqlite3 モジュールで代替可） | 9テーブル作成される |
 | V7 | テンプレート到達 | report-template.html / design-principles.md を Read（相対→Globフォールバック）。**あわせて synced コピーの references/ 同梱を実体確認**: `ls` で references/web-design/SKILL.md・references/psych-target-jp/SKILL.md・references/design-evidence-jp/SKILL.md の存在を見る | どちらの経路でも実体に到達でき、references/ 3点が synced コピーに実在する（※2026-07-24 検証で同梱は正常と確定済み。エージェントの「不在」自己申告は cwd起点Glob が原因 — 不在報告が再発したら委譲プロンプトの絶対パス渡しを疑う） |
-| V17 | 台帳整合 | docs/command-registry.md と commands/・procedures/・docs/parts/・references/ の実体を突合 | 登録コマンド10（commands/）+ 内部手順16 = 手順書26（procedures/delve-*.md）が台帳の行と過不足なく一致。部品台帳が docs/parts/ と、リファレンス台帳が references/ と一致し、コマンド全行にカテゴリー（SNS媒体/求人媒体/自社・広告/基盤/記録）が付いている |
+| V17 | 台帳整合 | docs/command-registry.md と commands/・procedures/・docs/parts/・references/ の実体を突合 | 登録コマンド10（commands/）+ 内部手順17 = 手順書27（procedures/delve-*.md）が台帳の行と過不足なく一致。部品台帳が docs/parts/ と、リファレンス台帳が references/ と一致し、コマンド全行にカテゴリー（SNS媒体/求人媒体/自社・広告/基盤/記録）が付いている |
 
 ### B. 機能（full のみ）
 
@@ -56,7 +56,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | # | 項目 | 手順 | PASS基準 |
 |---|---|---|---|
 | V24 | lint | `python3 scripts/lint.py`（プラグインルートで。python3 不在なら python） | `lint: OK`（参照整合・frontmatter・台帳・バージョン一致） |
-| V25 | hooks回帰 | `bash scripts/test-hooks.sh` | `test-hooks: ALL PASS`（防御系） |
+| V25 | hooks回帰 | `bash scripts/test-hooks.sh`（bash 前提。Git Bash が起動できない環境＝`CreateFileMapping error 5` 等では SKIP とし、理由を報告に明記。WSL か Linux コンテナでの代替実行可） | `test-hooks: ALL PASS`（防御系） |
 | V26 | 画像/動画テンプレ | ダミー画像で `templates/banner-compose.py`（--headline 指定）・`templates/chromakey.py`（緑背景→透過PNG）・`templates/guide-anim.py`（スクショ+steps.json→フレーム生成、ffmpeg あれば mp4/GIF まで）を実行 | 3本ともエラーなく出力生成（chromakey は四隅 alpha=0・被写体 alpha=255） |
 
 実行不可の環境（bash/python なし）では SKIP(理由) とし、CI（GitHub Actions）の最新結果に言及する。
@@ -73,7 +73,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V33 | evals 全ラン | docs/evals.md の G1〜G9 を全件実行 | 全件 PASS（FAIL は本体修正 → TESTING.md 記録 → 再ラン） |
 | V34 | 部品全到達 | docs/parts/ の全部品 + references/ 全17本を Read | 全ファイル到達・frontmatter/規約準拠（欠損ゼロ） |
 
-**perfect の報告書には「網羅率マトリクス」を必ず含める**: 行=プラグインの全構成要素（コマンド10 / 内部手順16 / 部品 / スキル17 / エージェント6 / hooks 6 / テンプレ / ループ）、列=検証方法（実機E2E / 委譲テスト / Read到達 / 機械チェック / 未カバー）。**未カバーの要素は「未カバー」と明示する**（黙って省略しない — 網羅したフリが最大の検証事故）。
+**perfect の報告書には「網羅率マトリクス」を必ず含める**: 行=プラグインの全構成要素（コマンド10 / 内部手順17 / 部品18 / リファレンス17 / エージェント6 / hooks 6 / テンプレ / ループ）、列=検証方法（実機E2E / 委譲テスト / Read到達 / 機械チェック / 未カバー）。**未カバーの要素は「未カバー」と明示する**（黙って省略しない — 網羅したフリが最大の検証事故）。
 
 ### E. 評価ハーネス（full のみ）
 

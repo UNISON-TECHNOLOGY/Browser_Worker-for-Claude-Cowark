@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS sns_metrics (
 );
 CREATE INDEX IF NOT EXISTS idx_sns_metrics ON sns_metrics(post_id, measured_at);
 
--- サイト診断履歴（/delve-audit が追記。ページ×計測日）
+-- サイト診断履歴（/Webサイト の診断タスクが追記。ページ×計測日）
 CREATE TABLE IF NOT EXISTS audit_pages (
   id INTEGER PRIMARY KEY,
   measured_at TEXT NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS audit_pages (
 );
 CREATE INDEX IF NOT EXISTS idx_audit ON audit_pages(site, url, measured_at);
 
--- 競合ウォッチ差分履歴（/delve-watch が変更検知時のみ追記）
+-- 競合ウォッチ差分履歴（競合定点観測タスクが変更検知時のみ追記）
 CREATE TABLE IF NOT EXISTS watch_changes (
   id INTEGER PRIMARY KEY,
   detected_at TEXT NOT NULL,
@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS task_runs (
   id INTEGER PRIMARY KEY,
   started_at TEXT NOT NULL,
   finished_at TEXT,
-  command TEXT NOT NULL,              -- delve-watch 等
+  command TEXT NOT NULL,              -- 実行したコマンド/タスク名（例: Webサイト / SNS運用）
   result TEXT NOT NULL,               -- ok / partial / failed / skipped
   summary TEXT                        -- 1行サマリー
 );

@@ -20,7 +20,9 @@ if [ "$IS_INPUT_OP" = "1" ] && printf '%s' "$STDIN_TEXT" | grep -qiE '(password|
   deny "【Credential Guard】パスワード・認証情報フィールドへの入力はAIには許可されていません。ログイン・認証入力は人間が行ってください（ブラウザのパスワードマネージャ推奨）。完了したら操作を再開します。"
 fi
 
-# Read-only pass-through: In Chrome の computer ツールは読み取り操作（screenshot/scroll等）も
+# Read-only pass-through（意図した順序: 読み取り専用操作は Money Watch 停止中も許可する —
+# 状況確認の読取まで止めると復帰手順自体が実行不能になるため。変更系はこの下で money_alert を検査）
+# In Chrome の computer ツールは読み取り操作（screenshot/scroll等）も
 # 同じツール名で来るため、action を見て変更を伴わない操作は素通しする
 # 素通し条件: 読み取り action が含まれる「かつ」変更系 action が一切含まれないこと。
 # batch/複合ペイロードで screenshot と click が同梱された場合の誤素通しを防ぐ。

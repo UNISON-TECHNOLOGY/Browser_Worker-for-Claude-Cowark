@@ -147,3 +147,16 @@ SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `do
 - [ ] 定常実行するものはループ台帳にも追加
 - [ ] README のコマンド数を更新
 - [ ] 両 version ファイルを bump
+
+## 配布時チェックリスト（リリースマニフェスト）
+
+配布ビルドでは以下の開発用一式を**機械的に除外**する（「配布時削除」を口約束にしない）:
+
+```bash
+rm -rf commands/検証.md procedures/delve-verify.md TESTING.md docs/evals.md scripts/ .github/
+# 除外後に registry の /検証 行（コマンド台帳）と V参照を削除し、README:79 の「/検証※開発用」を除去
+```
+
+- [ ] 上記除外の実行（または配布ブランチで維持）
+- [ ] 除外後の README / 台帳から /検証・TESTING への参照を除去
+- [ ] `.claude-plugin/` の version が配布告知と一致

@@ -25,7 +25,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    ```bash
    echo "<phase>" > memory/.workflow/phase && touch memory/.workflow/b4_done
    ```
-5. ブラウザで変更操作を行う前に、必ず read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録し、**不可逆操作（送信・投稿・公開・削除・保存）があるなら CP（Critical Point）と成功証跡を宣言してから**（steps-reference.md E-3）:
+5. ブラウザで変更操作を行う前に、必ず read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録する（**テキスト読取が必須 — スクリーンショットのみでの代替不可**。Money Watch の検知面のため）。**フェーズ②③④では記録直後に Step J（差分比較）を実行**: 前回ログの after_state と今回の before_state を比較し、外部変更・リセットを検出したらユーザーに報告（steps-reference.md J）。そのうえで、**不可逆操作（送信・投稿・公開・削除・保存）があるなら CP（Critical Point）と成功証跡を宣言してから**（steps-reference.md E-3）:
    ```bash
    touch memory/.workflow/e_done
    ```
@@ -34,5 +34,5 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    ```bash
    touch memory/.workflow/k_done
    ```
-   （session-log 未更新だと Log Gate がブロックする）
+   （Log Gate = 運用ルール: session-log を更新するまで k_done を作らない。hook の技術的強制はないため自己規律で守る）
 8. タスク中に Money Watch 停止（money_alert）が立った場合の復帰手順は steps-reference.md 末尾に従う（strategy-advisor 助言 → ユーザー明示承認 → 解除。承認なしの解除は禁止）
