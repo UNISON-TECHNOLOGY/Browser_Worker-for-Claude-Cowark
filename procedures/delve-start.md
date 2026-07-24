@@ -25,11 +25,18 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    ```bash
    echo "<phase>" > memory/.workflow/phase && touch memory/.workflow/b4_done
    ```
-5. ブラウザで変更操作を行う前に、必ず read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録する（**テキスト読取が必須 — スクリーンショットのみでの代替不可**。Money Watch の検知面のため）。**フェーズ②③④では記録直後に Step J（差分比較）を実行**: 前回ログの after_state と今回の before_state を比較し、外部変更・リセットを検出したらユーザーに報告（steps-reference.md J）。そのうえで、**不可逆操作（送信・投稿・公開・削除・保存）があるなら CP（Critical Point）と成功証跡を宣言してから**（steps-reference.md E-3）:
+5. 変更操作の前（Step E）— 順に:
+   - **変更前の状態をテキスト読取で記録**する（read_page / browser_snapshot。**スクリーンショットのみでの代替不可** — Money Watch の検知面のため）
+   - **フェーズ②③④なら Step J（差分比較）**: 前回ログの after_state と今回の before_state を比較し、外部変更・リセットを検出したらユーザーに報告（steps-reference.md J）
+   - **不可逆操作（送信・投稿・公開・削除・保存）があるなら CP（Critical Point）と成功証跡を宣言**（steps-reference.md E-3）
+   - 済んだら:
    ```bash
    touch memory/.workflow/e_done
    ```
-6. 実行後は CP 証跡を照合し（証跡なしで成功扱い禁止）、**不可逆送出（送信・投稿・公開・配信）があったタスクではメインループの CP 照合だけで完了にせず、outcome-verifier サブエージェントに after_state と CP 証跡を渡して独立検証させ、確定成功数で報告する（必須。steps-reference.md I）**。検証の応答を受領したら判定要約を記録する: `echo "<VERIFIED n/m と1行要約>" > memory/.workflow/ov_done`（**OV Gate**: bulk_send 宣言タスクは ov_done なしで k_done できない）。その後 `knowledge/logs/<タスク名>_<日付>.md` に **YAMLフロントマター付き**でログを記録、サイトナレッジを更新する（steps-reference.md I-1.5〜I-5。フロントマター無しだと次回のフェーズ判定が壊れる）
+6. 実行後（Step I）— 順に:
+   - **CP 証跡を照合**する（証跡なしで成功扱い禁止）
+   - **不可逆送出（送信・投稿・公開・配信）があったタスクは outcome-verifier に after_state と CP 証跡を渡して独立検証させ、確定成功数で報告**（必須。steps-reference.md I）。判定を受領したら `echo "<VERIFIED n/m と1行要約>" > memory/.workflow/ov_done`（OV Gate: bulk_send 宣言タスクは ov_done なしで k_done 不可）
+   - `knowledge/logs/<タスク名>_<日付>.md` に **YAMLフロントマター付き**でログを記録し、サイトナレッジを更新（steps-reference.md I-1.5〜I-5。フロントマター無しだと次回のフェーズ判定が壊れる）
 7. タスク完了時は `memory/session-log.md`（正本はここ。`knowledge/logs/session-log.md` ではない — logs/ はタスク単位ログ専用）に学びを記録してから:
    ```bash
    touch memory/.workflow/k_done
