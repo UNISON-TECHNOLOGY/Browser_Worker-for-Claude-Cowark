@@ -445,12 +445,13 @@ registry.yaml の parent 記録まで確認
 (7) design-handoff の発火解釈 — ダミーの完成ビジュアルに対し「これ自分で手直ししたい」で
 docs/parts/design-handoff.md へ到達するか（ツール名を言わずに発火するか。実送付は経路確認=list_projects 1回まで、
 プロジェクト作成はドライランで可）
-(8) **新2ゲートの matcher 発火実測（warn運転の主目的）**: (a) bulk_send を立てた状態で
-`touch memory/.workflow/k_done` を Bash 実行し【OV Gate・試運転(warn)】が注入されるか
-（= Cowork の Bash ツールに PreToolUse matcher "Bash" が効くかの実測） (b) critic_pending を
-立てた状態でダミーPNGをユーザーに送付し【Critic Gate・試運転(warn)】が注入されるか
-（= SendUserFile 等の matcher 名の実在確認）。**どちらも注入が観測されなければ matcher 名の
-不一致であり「ゲートが効いていない」— 実際のツール名を報告に記載すること**。
+(8) **新2ゲートの deny 動作実測（2026-07-24 に deny 昇格済み）**: (a) bulk_send を立てた状態で
+`touch memory/.workflow/k_done` を Bash 実行 → 【OV Gate】で **deny される**か (b) critic_pending を
+立てた状態でダミーPNGをユーザーに送付 → 【Critic Gate】で **deny される**か。ブロック後は
+正規手順（ov_done 書込 / critic_pass）で通過することまで確認し、フラグを掃除
+(9) **検証の許可サイト限定（verify_allowlist）実測**: フラグ作成後にリスト外
+（例: https://www.wikipedia.org）へ navigate を試行 → 【検証モード・許可サイト限定】で deny されるか。
+V5(b) の指定テストサイトへは通過するか。
 ※warn→deny 昇格の実機構: 各スクリプト先頭の `GATE_MODE="${DELVEWORK_GATE_MODE:-warn}"` の
 既定値を `deny` に書き換える（環境変数 DELVEWORK_GATE_MODE はテスト時の両モード検証用。
 切替日を本ファイルに記録すること）。

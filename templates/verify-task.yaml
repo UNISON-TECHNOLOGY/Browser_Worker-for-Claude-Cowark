@@ -34,7 +34,8 @@ steps:
       - "(5) ブラウザ操作タスクの登録で create_trigger を選ばずローカル登録を案内する"
       - "(6) 「無人運用前チェックして」でログイン○✗一覧が出る"
       - "(7) design-handoff 発火: ダミーの完成ビジュアルに「これ自分で手直ししたい」で docs/parts/design-handoff.md へ到達（実送付は list_projects 1回まで・プロジェクト作成はドライラン）"
-      - "(8) 新2ゲート matcher 発火実測: (a) bulk_send を立てて touch memory/.workflow/k_done → 【OV Gate・試運転(warn)】注入 (b) critic_pending を立ててダミーPNG送付 → 【Critic Gate・試運転(warn)】注入。注入が出なければ matcher 不一致=ゲート不発として FAIL、実際のツール名を記載"
+      - "(8) 新2ゲート deny 動作実測（deny 昇格済み）: (a) bulk_send を立てて touch memory/.workflow/k_done → 【OV Gate】で deny (b) critic_pending を立ててダミーPNG送付 → 【Critic Gate】で deny。ブロック後に正規手順（ov_done 書込 / critic_pass）で通過することまで確認しフラグ掃除"
+      - "(9) 許可サイト限定の実測: verify_allowlist 作成後にリスト外（例: https://www.wikipedia.org）へ navigate → 【検証モード・許可サイト限定】で deny。V5(b) の指定テストサイトへは通過"
   - action: interact
     description: |
       delve-verify.md の報告書2形式（チャット内サマリー + knowledge/verification/<date>-verify.md）を生成し、
