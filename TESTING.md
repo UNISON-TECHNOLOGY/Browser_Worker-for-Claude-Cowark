@@ -465,6 +465,15 @@ v0.94.0 の実弾検証（27項目 + 実運用E2E + 追試2ラウンド、修正
 - **V39 未消化の原因が判明**: V39 を F節（perfect のみ）に置いていた配置ミス → **B節（full のみ）へ移動（v1.1.5）**。次回 full から自動的に対象
 - 環境所見: Browser2 は navigate 可・read 系不応答の片肺状態 → 次回は安定したブラウザ（Browser1 等）を選択して V5(b)/V19 実走を回収
 
+## 実機 /検証 full 第5・第6ラン 2026-07-24（v1.1.5 / Cowork cloud / Browser1）
+
+- **第5ラン: PASS 27 / FAIL 0 / SKIP 1 / 未観測 1** — **V39 初消化: RM Guard の warn 実測・正当な個別削除の誤爆ゼロ・deny 昇格推奨**。全ゲート（workflow/OV/Critic/RM/url-guard/Money Watch）を実タスク経路で deny/warn 実測。V5(b) は read_page で type=password 確認→委譲（実弾再発ゼロ）
+- **第6ラン: FAIL 1（V27/G2）+ 設計所見2件** — プラグイン本体のゲート系は全て正常:
+  - **G2 FAIL（較正価値の高い発見）**: スカウト件名5案の自己申告文字数が全案で実測より1字少ない（句読点の数え漏れ）。案1が実際は14字で13字基準を逸脱 → copywriting SKILL.md に「生成後に len() 相当の機械カウント必須（句読点も1文字）」を追加（v1.2.0）
+  - **verify_allowlist 消失事故**: V4 のタスク開始（delve-start）のフラグ初期化 rm が verify_allowlist を巻き込み、直後のクリックで iana.org へ遷移 → **delve-start の rm リストから verify_allowlist を除外**（作成・削除は検証手順のみが行う。v1.2.0）
+  - **アーティファクト ID 衝突未遂**: conventions の「already exists → update」を検証がなぞると本番 dashboard をダミーデータで上書きし得た（エージェントが自主回避）→ V11 に「検証は専用 ID（`<id>-verify-test`）・本番 ID を update しない」を明文化（v1.2.0）
+- **RM Guard を deny に昇格（2026-07-24・v1.2.0）**: 2ランで warn 発火実測・誤爆ゼロ。OV/Critic と同じ段階導入完了。これで hook 9本全て本稼働
+
 ### 検証の渡し方（Cowork 最新版）
 
 **推奨: 実タスク形式** — `templates/verify-task.yaml` をワークスペースの `tasks/plugin-verify.yaml` にコピーし

@@ -5,11 +5,12 @@
 # 再帰削除（rm -r）・グロブ一括削除（rm *）・find -delete・git clean を機械層で止める。
 # 個別ファイルの rm と memory/.workflow/ 配下のフラグ掃除には干渉しない。
 # 導入手順（TESTING.md「GATE_MODE 昇格」節が正本）: 初期は warn（注入のみ）で運用し、誤爆ゼロ確認後に deny へ昇格。
+# 2026-07-24 deny 昇格済み（v1.1.5 実機2ランで warn 発火・正当な個別削除の誤爆ゼロを確認。V39 実測）。
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
-GATE_MODE="${DELVEWORK_GATE_MODE:-warn}"
+GATE_MODE="${DELVEWORK_GATE_MODE:-deny}"
 
 # 対象コマンド判定（該当しなければ即通過）
 DANGEROUS=0
