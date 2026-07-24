@@ -29,8 +29,8 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    ```bash
    touch memory/.workflow/e_done
    ```
-6. 実行後は CP 証跡を照合し（証跡なしで成功扱い禁止）、`knowledge/logs/<タスク名>_<日付>.md` に **YAMLフロントマター付き**でログを記録、サイトナレッジを更新する（steps-reference.md I-1.5〜I-5。フロントマター無しだと次回のフェーズ判定が壊れる）
-7. タスク完了時は `memory/session-log.md` に学びを記録してから:
+6. 実行後は CP 証跡を照合し（証跡なしで成功扱い禁止）、**不可逆送出（送信・投稿・公開・配信）があったタスクではメインループの CP 照合だけで完了にせず、outcome-verifier サブエージェントに after_state と CP 証跡を渡して独立検証させ、確定成功数で報告する（必須。steps-reference.md I）**。その後 `knowledge/logs/<タスク名>_<日付>.md` に **YAMLフロントマター付き**でログを記録、サイトナレッジを更新する（steps-reference.md I-1.5〜I-5。フロントマター無しだと次回のフェーズ判定が壊れる）
+7. タスク完了時は `memory/session-log.md`（正本はここ。`knowledge/logs/session-log.md` ではない — logs/ はタスク単位ログ専用）に学びを記録してから:
    ```bash
    touch memory/.workflow/k_done
    ```

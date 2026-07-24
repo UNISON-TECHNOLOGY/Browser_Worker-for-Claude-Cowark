@@ -19,6 +19,10 @@
    → 未設定なら README「メディア制作を使う場合」の3手順を案内し、setup.yaml に `dl_folder: pending` と記録（メディア加工の依頼時に再案内される）
 6. **自社サイトURL**（あれば記録 — /Webサイト の定常診断ループ提案につなげる）
 
+### 仕上げ（質問なし・自動）
+
+- `knowledge/verification/verdict-log.md` が無ければヘッダ行だけ作成する（`# 送信監査 VERDICT ログ` + 列説明1行）。pre-send-verifier の較正資産の置き場を確定させるため
+
 ### 保存形式（knowledge/config/setup.yaml）
 
 ```yaml

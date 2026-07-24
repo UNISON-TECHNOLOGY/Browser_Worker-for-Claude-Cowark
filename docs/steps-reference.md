@@ -15,7 +15,7 @@
 | J | Report | 差分比較 | フェーズ②③④のみ、E直後。前回 after_state と今回 before_state を比較し、外部変更/リセットを検出したらユーザーに報告 |
 | F | Plan | プランニング | 実行計画 + レギュレーション検証（下記 F-4）。**計画に不可逆な一括送出（スカウト/投稿/配信/入稿）が含まれるなら `touch memory/.workflow/bulk_send` を宣言**（以後 psv_done まで変更操作が hook でブロックされる） |
 | G | Act | アクション | 実行。生成物があれば H に遷移 |
-| H | Review | レビュー | 生成物・破壊的操作のユーザー承認（無人運用時は docs/unattended-ops.md の承認キューに従う）。**一括送信・投稿・入稿など不可逆送出は、承認提示の前に pre-send-verifier サブエージェントの敵対的監査（VERDICT）を材料として添え、監査とユーザー承認が揃ったら `touch memory/.workflow/psv_done`**（bulk_send 宣言済みタスクは psv_done まで hook が変更操作をブロック）。design-critic が REVISE を返した生成物は、メインループが FIX 内容を design-artisan に再投入し PASS まで反復してから承認に出す |
+| H | Review | レビュー | 生成物・破壊的操作のユーザー承認（無人運用時は docs/unattended-ops.md の承認キューに従う）。**一括送信・投稿・入稿など不可逆送出は、承認提示の前に pre-send-verifier サブエージェントの敵対的監査（VERDICT）を材料として添え、監査とユーザー承認が揃ったら `touch memory/.workflow/psv_done`**（bulk_send 宣言済みタスクは psv_done まで hook が変更操作をブロック）。**design-artisan のビジュアル生成物は必ず design-critic の審査を経てから承認に出す（critic を呼ばず直接ユーザーに引き渡すのは禁止）**。REVISE が返ったら、メインループが FIX 内容を design-artisan に再投入し PASS まで反復（最大2周）してから承認に出す |
 | I | Verify | チェック | CP証跡照合（I-1.5）+ ログ記録（下記 I-3）+ ナレッジ更新。不可逆送出（件数を問わず）と定常タスクの締めでは **outcome-verifier**（送信後検証・効果測定）に after_state と CP 証跡を渡して独立検証させる |
 | K | Offer | オファー | 完了報告 → session-log 更新 → k_done |
 
