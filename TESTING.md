@@ -424,6 +424,18 @@ v0.94.0 の実弾検証（27項目 + 実運用E2E + 追試2ラウンド、修正
 - 実機所見の反映: banner-compose.py / chromakey.py は位置引数 `src dst` 形式（`-o` 不可）→ V26 に引数例を明記。複数Chrome接続の選択待ちは unattended-ops §ブラウザの一意化の警告どおり実地再現
 - 注: 本ランは v0.101.1 時点。検証中の GitHub/Wikipedia 漂流は v0.101.4〜v0.102.0（V5(b) URL固定 + verify_allowlist 機械強制）で根治済み
 
+## 実機 /検証 full 結果 2026-07-24 第2ラン（v0.103.1 / Cowork cloud + Claude in Chrome）→ **v1.0.0 昇格**
+
+- **PASS 33 / FAIL 0 / SKIP 1（V16 Slack未接続）/ 未観測 1（V8 自然文発火の事例なし）** — 修正なしのクリーンラン
+- 重点回帰(1)〜(9) **全て実測 PASS**。今回初の実測:
+  - **(8) 新2ゲート deny 実測**: OV Gate / Critic Gate とも deny 昇格後の実機で deny 発火→正規手順（ov_done / critic_pass）で通過を確認。**追加観測（良）: `echo ov_done && touch k_done` を単一 Bash に束ねても deny**（フェイルクローズ・迂回不能）
+  - **(9) verify_allowlist 実測**: wikipedia.org へ navigate → 【検証モード・許可サイト限定】で deny。the-internet.herokuapp.com は通過。漂流対策が機械層で機能
+  - 訪問先は example.com / the-internet.herokuapp.com のみ（前回の漂流は再発ゼロ）
+- V5(b): find→ref 取得後、入力前 read_page で type="password" 確認→人間委譲。ref 経由入力ゼロ
+- 環境所見: セッション後半に navigate / tabs_context_mcp が断続タイムアウト（拡張/回線側と推定・プラグイン起因でない）。MCPタブグループ一時消失は再取得で復構
+- 発見(良・要判断): Cowork cloud ではワークスペース生成の .claude/skills / .claude/commands が**同一セッション内で即時登録**される。delve-setup の「次セッションから」注記は保守的すぎる可能性（環境差ありうるため文言変更は保留）
+- **判定: この結果をもって v1.0.0 を付与**（0.94.0 からの hardening サイクル完了。公開 API＝コマンド体系・ゲート契約の安定を宣言）
+
 ### 検証の渡し方（Cowork 最新版）
 
 **推奨: 実タスク形式** — `templates/verify-task.yaml` をワークスペースの `tasks/plugin-verify.yaml` にコピーし
