@@ -10,6 +10,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 ## 検証の原則
 
 - **読み取り専用・外部無害**: 検証中に実サイトへの送信・投稿・変更は一切しない。ブラウザ検証は example.com のみ使用（唯一の例外は V5(b) の指定テストサイト。**それ以外のサイトを自分の判断で訪問しない** — GitHub・Wikipedia 等への遷移は原則違反）
+- **許可サイト限定の機械強制**: 検証開始時に最初に実行 — `printf 'example\.com\nthe-internet\.herokuapp\.com\n' > memory/.workflow/verify_allowlist`（url-guard がリスト外への navigate を deny する。deny されたら該当項目を SKIP して次へ — リスト外の代替サイトを探さない）。終了時の後片付けで必ず `rm` する
 - 各項目は PASS / FAIL / SKIP(理由) で判定し、**FAIL には必ず実際のエラーメッセージ・観測事実を添える**（「たぶん」禁止）
 - 1項目の失敗で止めない。全項目を消化してから報告する
 
@@ -50,7 +51,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 
 ### C. 後片付け
 
-- 検証で作ったフラグ・ダミースキル・テストデータを削除（delvework.db は残してよい）
+- 検証で作ったフラグ（**memory/.workflow/verify_allowlist 含む**）・ダミースキル・テストデータを削除（delvework.db は残してよい）
 - session-log に検証実施を1行記録
 
 ### D. 機械チェック（quick/full 共通・環境に bash/python があれば）

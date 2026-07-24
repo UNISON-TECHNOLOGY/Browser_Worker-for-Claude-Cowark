@@ -13,7 +13,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
 2. フラグを初期化する:
    ```bash
    mkdir -p memory/.workflow knowledge/sites knowledge/logs
-   rm -f memory/.workflow/{b4_done,e_done,k_done,bulk_send,psv_done,ov_done,critic_pending,critic_pass}
+   rm -f memory/.workflow/{b4_done,e_done,k_done,bulk_send,psv_done,ov_done,critic_pending,critic_pass,verify_allowlist}
    echo "$ARGUMENTS" > memory/.workflow/active
    ```
    （`money_alert` は**意図的に消さない** — 前回の金銭停止は新タスクに持ち越し、解除は Money Watch 復帰手順のみ。手順8参照）

@@ -103,6 +103,16 @@ check "url-guard: 複数URL照合" 'URL Guard' "$out"
 out=$(printf '{"url":"https://example.com/"}' | bash "$SC/url-guard.sh")
 check "url-guard: 無害URL通過" EMPTY "$out"
 
+# 9b. 検証モード（verify_allowlist）: リスト外は deny・リスト内は通過・フラグ削除後は平常
+printf 'example\\.com\nthe-internet\\.herokuapp\\.com\n' > "$DELVEWORK_WF_DIR/verify_allowlist"
+out=$(printf '{"url":"https://en.wikipedia.org/wiki/Password"}' | bash "$SC/url-guard.sh")
+check "verify-allowlist: リスト外は deny" '検証モード・許可サイト限定' "$out"
+out=$(printf '{"url":"https://the-internet.herokuapp.com/login"}' | bash "$SC/url-guard.sh")
+check "verify-allowlist: リスト内は通過" EMPTY "$out"
+rm -f "$DELVEWORK_WF_DIR/verify_allowlist"
+out=$(printf '{"url":"https://en.wikipedia.org/wiki/Password"}' | bash "$SC/url-guard.sh")
+check "verify-allowlist: フラグ削除後は平常動作" EMPTY "$out"
+
 # 10. session-start: JSON 妥当性
 if printf '{}' | bash "$SC/session-start.sh" | json_valid; then
   echo "PASS: session-start JSON"

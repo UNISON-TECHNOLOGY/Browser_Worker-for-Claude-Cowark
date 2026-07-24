@@ -29,6 +29,20 @@ match_list() {
   return 1
 }
 
+# 検証モード（memory/.workflow/verify_allowlist が存在する間）: リスト記載サイト以外への遷移を全て deny。
+# 検証タスクが実サービス（GitHub等）へ漂流するのを機械的に防ぐ（2026-07-24 実機で github.com/login へ漂流した実測より）
+VERIFY_ALLOW="$WF_DIR/verify_allowlist"
+if [ -f "$VERIFY_ALLOW" ]; then
+  while IFS= read -r URL; do
+    [ -z "$URL" ] && continue
+    if ! match_list "$VERIFY_ALLOW" "$URL"; then
+      deny "【検証モード・許可サイト限定】$URL は検証の許可サイト（memory/.workflow/verify_allowlist 記載）ではありません。検証中はリスト外のサイトを訪問できません — 該当項目は SKIP(理由) として次の項目へ進んでください。"
+    fi
+  done <<EOF2
+$URLS
+EOF2
+fi
+
 while IFS= read -r URL; do
   [ -z "$URL" ] && continue
   # 1. 許可リスト（ユーザーの明示開放）が最優先
