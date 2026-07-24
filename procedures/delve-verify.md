@@ -33,7 +33,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V8 | 自然文発火 | このセッションのここまでで、delve コマンドがコマンド名なしの依頼から発火したか振り返り | 事例があれば PASS、なければ「未観測」 |
 | V9 | サブエージェント | deliverable-writer に小さな執筆（3行のテスト文書）を委譲 | 起動し成果が返る。使用モデルも記録 |
 | V10 | design-artisan モデル | design-artisan を最小タスクで起動 | fable で起動できたか、sonnet フォールバックか記録 |
-| V11 | ダッシュボード | /レポート を実行（トップのダッシュボード生成まで） | dashboard-template（浮世絵ヘッダー+旅人）準拠で生成（説明書=旧ガイド統合を含む）、タブ=全体+カテゴリー、停留点数=タブ数、アラート+場所とタスク一覧が実データ。アーティファクト発行（2回目なら同一URL更新） |
+| V11 | ダッシュボード | /レポート を実行（トップのダッシュボード生成まで） | dashboard-template（浮世絵ヘッダー+旅人）準拠で生成（説明書はテンプレ実態どおり「生成物」セクション内の注記1行でよい。専用セクションは不要）、タブ=全体+カテゴリー、停留点数=タブ数、アラート+場所とタスク一覧が実データ。アーティファクト発行（2回目なら同一URL更新） |
 | V12 | 部品庫到達 | docs/parts/index.md を Read し、表の部品から2つ（imagegen / design-sync）を Read | 部品に到達でき、実行粒度3段の原則が読める |
 | V13 | Pack制御 | packs.conf に deep=off を書き→挙動確認→元に戻す | 無効通知が次セッションに出る（今セッションでは conf の読み書きのみ確認） |
 | V14 | 日本語コマンド | /レポート を実行 | 日本語名で発火する。あわせて内部手順（「今どうなってる？」→ delve-status）が自然文で発火することを確認 |
@@ -41,7 +41,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V16 | Slack | Slack ツールの有無を確認、あればテスト通知1件 | 到達 or 「コネクタ未接続」を記録 |
 | V18 | タスク登録 | /カスタマイズ でタスク登録 verify-loop（内容: example.com を開いて見出しを確認するだけの読み取り専用タスク・cadence「手動」）| tasks/verify-loop.yaml と knowledge/config/loops.yaml が task-template.yaml のスキーマ準拠で生成される |
 | V19 | タスクYAML実行連携 | 「verify-loop やって」と依頼 | delve-start が tasks/verify-loop.yaml を Read し、その steps を実行計画に使う（読み取り専用なので承認不要で完走）。終了後 /カスタマイズ のタスク削除で verify-loop を掃除し、YAML と loops 行が消えることまで確認 |
-| V20 | Money Watch | 「決済・お支払い方法」等の watchlist 語を含むローカルHTML（file:// か data: で自作）を read_page/snapshot で読み取り → 変更操作を試行 → 検証後 `rm memory/.workflow/money_alert` | 読み取り直後に【Money Watch】警告が注入され、money_alert が生成され、変更操作が deny される。**日本語語句（Unicodeエスケープ経由）でも検知されること** |
+| V20 | Money Watch | ハイブリッド方式: (a) money-watch.sh に watchlist 語（「決済・お支払い方法」等）を含む PostToolUse 形式の実 JSON を渡し、警告注入と money_alert 生成を確認（日本語は ensure_ascii=True の Unicode エスケープ経由で渡す） → (b) money_alert がある状態で実ブラウザの変更操作を試行し deny を確認 → 検証後 `rm memory/.workflow/money_alert`。※ローカルHTML（file:///data:）の read_page 方式は使わない（Claude in Chrome は browser-internal URL への navigate を拒否するため実行不能。2026-07-23 実測） | (a) 【Money Watch】警告が注入され money_alert が生成される（Unicodeエスケープ経由の日本語語句でも検知）、(b) 変更操作が Money Watch 文言で deny される |
 | V21 | strategy-advisor | ダミーのタスクYAML案を渡して壁打ち | VERDICT（GO/GO-WITH-CHANGES/RETHINK）形式で助言が返る |
 | V22 | pre-send-verifier | ダミー送信計画（本文+宛先2件、うち1件をわざと基準違反に）を渡して監査 | VERDICT: NO-GO/GO-WITH-FIXES が返り、違反の1件を根拠つきで FAIL 指摘する |
 | V23 | steps正本到達 | docs/steps-reference.md を Read（${CLAUDE_PLUGIN_ROOT} → Glob フォールバック） | 到達でき、CP定義（E-3）とログスキーマ（I-3）の節が読める |
