@@ -80,7 +80,7 @@
 | 内部手順 17（メニュー非表示） | タスク開始（変更操作の関所）/ 状態確認 / デモ / 機能設定 / スキル化 / メモリ保存 / メモリ圧縮 / 定常タスク登録 / ダッシュボード / 作業ログ + SNS媒体別手順7（X/Instagram/Threads/TikTok/note/YouTube/LINE） — 各入口コマンドとルールが振り分け |
 | 手順書 27 | `procedures/delve-*.md` — 登録10+内部17 の手順の正本（メニューには登録されない。コマンド/ルールが Read して実行） |
 | 共有部品庫 19+index | `docs/parts/` — タスク5型（リサーチ/収集/クリエイティブ/分析/掃き出し）の部品。パックのタスクが Read して使う（index.md が地図） |
-| フック 8 | 変更操作ゲート（送出監査 psv ゲート含む）/ Money Watch（金銭・契約画面の検知停止）/ URLガード(広告出稿・課金ページ遮断。検証タスク中は許可サイト限定モードでリスト外への遷移を全ブロック）/ ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 / **OV Gate**（不可逆送出の outcome-verifier 独立検証を完了条件に強制）/ **Critic Gate**（デザイン生成物の critic PASS を送付条件に強制）※新2ゲートは warn 試運転で実機の matcher 発火・誤爆ゼロを確認済み、2026-07-24 に deny 昇格 |
+| フック 9 | 変更操作ゲート（送出監査 psv ゲート含む）/ Money Watch（金銭・契約画面の検知停止）/ URLガード(広告出稿・課金ページ遮断。検証タスク中は許可サイト限定モードでリスト外への遷移を全ブロック）/ ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 / **OV Gate**（不可逆送出の outcome-verifier 独立検証を完了条件に強制）/ **Critic Gate**（デザイン生成物の critic PASS を送付条件に強制）/ **RM Guard**（一括・再帰削除を止め個別削除へ誘導。warn 試運転中）※OV/Critic は 2026-07-24 に deny 昇格。**hooks は cloud セッションで有効・ローカル Cowork では未配線**（既知の限界参照） |
 | 執筆リファレンス 17 | `references/` 配下の内部教科書（スキル一覧には登録されない）。web-design / video-ad / sns-jp / ad-compliance-jp / content-design / seo-jp / cro-jp / recruit（求人・スカウト）/ copy / sales / logical / business / storytelling + **心理3部作**（psych-nudge-jp=訴求フレーム / psych-ux-jp=デザイン心理 / psych-target-jp=読み手別の書き分け。日本の実証研究ベース・不安の解消にのみ使用）+ **design-evidence-jp**（実証デザイン数値基準 — 何px・何色・どの順を実験/公的基準で決める）。業界を問わず使える執筆規範で、エージェントとコマンドが執筆時に Read して適用 |
 | エージェント 6 | deliverable-writer（レポート執筆）/ design-artisan（モックアップ生成）/ design-critic（デザイン審査）/ strategy-advisor（設計壁打ち・エスカレーション）/ pre-send-verifier（送信前の敵対的監査 — 較正ログ付き）/ outcome-verifier（送信後の証跡検証・効果測定） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 + 検証タスク（verify-task — /検証 full を実タスク形式で回す）+ 画像/動画（banner-compose / chromakey / guide-anim。地図: docs/media-pipeline.md） |
@@ -113,6 +113,7 @@
 - 無人運用（PC起動→自動定常タスク）の構成は [docs/unattended-ops.md](docs/unattended-ops.md) を参照（パスワード無保管のまま自動化する3層設計）
 - 送信・投稿など不可逆な送出の前は pre-send-verifier（敵対的監査）+ 人間承認の二段ゲート。金銭・契約系画面は **Money Watch** が検知して変更操作を強制停止します
 - **既知の限界（設計上の割り切り）**:
+  - **ローカル Cowork（デスクトップのローカルセッション）では plugin hooks が配線されず、全ゲート（URL Guard / OV / Critic / Money Watch / Credential Guard / 変更操作ゲート）が機械強制されない**（2026-07-24 v1.0.0 ローカル実測）。ローカルでの安全性は自己規律＋Cowork 本体の許可プロンプトに依存する。**一括送出・金銭近傍・無人運用などゲート前提の運用は cloud セッションで行うこと**。matcher にはローカルのツール名（mcp__workspace__bash / mcp__cowork__present_files）も登録済みで、配線され次第そのまま効く
   - ゲートは MCP ブラウザツールが対象。**Bash 経由の直接送信（node/curl 等）はゲート対象外** — Node スクリプト等での送信運用はワークスペース側の hook か権限設定で別途ゲートすること
   - 同一ワークスペースの**並行セッションはフラグ（memory/.workflow/）を共有**するため相互干渉しうる。同時実行は1タスクずつを推奨
   - Credential Guard / JS mutation 判定はキーワード検知の best-effort（難読化で回避可能）。硬い防御は Money Watch・URL Guard・人間承認が担う

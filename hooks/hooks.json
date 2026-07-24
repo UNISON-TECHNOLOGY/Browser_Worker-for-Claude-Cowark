@@ -22,16 +22,20 @@
         ]
       },
       {
-        "matcher": "Bash",
+        "matcher": "Bash|mcp__workspace__bash",
         "hooks": [
           {
             "type": "command",
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/ov-gate.sh\""
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/scripts/rm-guard.sh\""
           }
         ]
       },
       {
-        "matcher": "SendUserFile|mcp__remote-devices__device_commit_files|mcp__remote-devices__create_artifact|mcp__remote-devices__update_artifact|mcp__claude-in-chrome__file_upload",
+        "matcher": "SendUserFile|mcp__remote-devices__device_commit_files|mcp__remote-devices__create_artifact|mcp__remote-devices__update_artifact|mcp__claude-in-chrome__file_upload|mcp__cowork__present_files",
         "hooks": [
           {
             "type": "command",

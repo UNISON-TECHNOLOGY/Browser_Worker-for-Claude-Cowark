@@ -150,6 +150,29 @@ out=$(printf '{"tool_name":"Bash","tool_input":{"command":"touch memory/.workflo
 check "ov: 既定warnモードは注入のみ（denyしない）" 'additionalContext.*OV Gate' "$out"
 rm -f "$DELVEWORK_WF_DIR/bulk_send"
 
+# --- RM Guard（一括・再帰削除の機械ガード） ---
+export DELVEWORK_GATE_MODE=deny
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: rm -rf は deny" 'RM Guard' "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm outputs/*.png"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: グロブ一括は deny" 'RM Guard' "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"find outputs -name \\"*.tmp\\" -delete"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: find -delete は deny" 'RM Guard' "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"git clean -fd"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: git clean は deny" 'RM Guard' "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm outputs/v10-test.html"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: 個別ファイルrmは通過" EMPTY "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -f memory/.workflow/{b4_done,e_done,k_done} && touch memory/.workflow/active"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: .workflowフラグ掃除は通過" EMPTY "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm memory/.workflow/verify_*"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: .workflow内グロブは通過" EMPTY "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"ls outputs/"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: rmなしコマンドは通過" EMPTY "$out"
+export DELVEWORK_GATE_MODE=warn
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: warnモードは注入のみ" 'additionalContext.*RM Guard' "$out"
+unset DELVEWORK_GATE_MODE
+
 # --- Critic Gate（artisan生成物の critic PASS 強制） ---
 export DELVEWORK_GATE_MODE=deny
 rm -f "$DELVEWORK_WF_DIR/critic_pending" "$DELVEWORK_WF_DIR/critic_pass"

@@ -436,6 +436,19 @@ v0.94.0 の実弾検証（27項目 + 実運用E2E + 追試2ラウンド、修正
 - 発見(良・要判断): Cowork cloud ではワークスペース生成の .claude/skills / .claude/commands が**同一セッション内で即時登録**される。delve-setup の「次セッションから」注記は保守的すぎる可能性（環境差ありうるため文言変更は保留）
 - **判定: この結果をもって v1.0.0 を付与**（0.94.0 からの hardening サイクル完了。公開 API＝コマンド体系・ゲート契約の安定を宣言）
 
+## ローカル差分検証 2026-07-24（v1.0.0 / Cowork ローカル × Opus 4.8・Sonnet 5 の2ラン）
+
+目的: 「ローカル環境 × 非Fableモデル」の差分確認（full は cloud で消化済み）。両ラン L1〜L7。
+
+- **最重要発見（→ escalations E4）**: **ローカル Cowork では plugin hooks が未配線** — matcher 完全一致のツール（mcp__claude-in-chrome__navigate）でも不発（Sonnet ラン L2 で確定）。全ゲートがフェイルオープン。加えてローカルのツール名は cloud と異なる（Bash→mcp__workspace__bash / 送付→mcp__cowork__present_files）→ matcher に先回り登録済み（v1.1.0）
+- **モデル差分（両モデル共通の好結果）**:
+  - L3 ref回帰: Opus・Sonnet とも hooks 無効環境で **自己規律のみで password 委譲**（入力ゼロ）— 手順書規律がモデル非依存で保持
+  - L4: 親が非Fableでも design-artisan は **fable 起動を貫徹**（フォールバックなし）
+  - L5 ルーティング解釈: 両モデル正答
+- **モデル非依存の指示欠陥を検出**: 「後片付けする」を Opus・Sonnet **両方**が outputs フォルダ一括削除と解釈（harness 許可プロンプトで停止）→ v1.1.0 で根治: RM Guard hook 新設（一括・再帰削除を機械ガード・warn 試運転）+ 手順書を「作成ファイルの列挙→個別 rm・削除拒否時は残置報告」に書き換え + session-rules (14) 削除ガード追加
+- L6 スキル即時登録: cloud=即時 / ローカル=次セッションから（delve-setup の注記は正しかった。環境差として注記を更新）
+- **モデル運用の推奨（この2ランに基づく）**: 開発・検証=Fable / 設計・初回探索・セットアップ=Opus / **定常ラン（フェーズ④・手順固定）=Sonnet 可**。ただし前提は「ゲートが効く cloud セッション」— **ローカルは hooks 未配線のため、一括送出・金銭近傍・無人運用はモデルを問わず cloud で行うこと**
+
 ### 検証の渡し方（Cowork 最新版）
 
 **推奨: 実タスク形式** — `templates/verify-task.yaml` をワークスペースの `tasks/plugin-verify.yaml` にコピーし
