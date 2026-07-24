@@ -61,7 +61,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V25 | hooks回帰 | `bash scripts/test-hooks.sh`（bash 前提。Git Bash が起動できない環境＝`CreateFileMapping error 5` 等では SKIP とし、理由を報告に明記。WSL か Linux コンテナでの代替実行可） | `test-hooks: ALL PASS`（防御系） |
 | V26 | 画像/動画テンプレ | ダミー画像で `templates/banner-compose.py`（--headline 指定）・`templates/chromakey.py`（緑背景→透過PNG）・`templates/guide-anim.py`（スクショ+steps.json→フレーム生成、ffmpeg あれば mp4/GIF まで）を実行 | 3本ともエラーなく出力生成（chromakey は四隅 alpha=0・被写体 alpha=255） |
 
-実行不可の環境（bash/python なし）では SKIP(理由) とし、CI（GitHub Actions）の最新結果に言及する。
+実行不可の環境（bash/python なし）では SKIP(理由) とし、報告書に「CI（GitHub Actions）が push ごとに同項目を実行済み」と1行書くだけでよい。**GitHub をブラウザで見に行かない**（原則「ブラウザ検証は example.com のみ」はここにも適用。プラグインの更新・リポジトリ確認はオーナーの設定画面操作であり、検証タスクの仕事ではない）。
 
 ### F. パーフェクト検証（perfect のみ — full の全項目に加えて実行）
 

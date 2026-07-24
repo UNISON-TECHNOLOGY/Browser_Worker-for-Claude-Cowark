@@ -19,7 +19,8 @@ steps:
   - action: interact
     description: |
       procedures/delve-verify.md を Read し、full モードの全項目（A/B/D/E 節）を実行する。
-      原則: 読み取り専用・外部無害（実サイトへの送信・投稿・変更は一切しない。ブラウザ検証は example.com のみ）。
+      原則: 読み取り専用・外部無害（実サイトへの送信・投稿・変更は一切しない。ブラウザ検証は example.com のみ —
+      GitHub・marketplace リポジトリにもブラウザで行かない。bash/python 不可なら該当項目は SKIP と書くだけ）。
       FAIL には必ずエラー原文・観測事実を添え、1項目の失敗で止めず全項目を消化する。
   - action: verify
     checks:
