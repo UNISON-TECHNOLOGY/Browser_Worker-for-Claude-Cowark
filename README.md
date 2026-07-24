@@ -83,7 +83,7 @@
 | フック 8 | 変更操作ゲート（送出監査 psv ゲート含む）/ Money Watch（金銭・契約画面の検知停止）/ URLガード(広告出稿・課金ページ遮断）/ ナビゲーション警告 / インジェクション検知 / セッション開始時の引き継ぎ通知 / **OV Gate**（不可逆送出の outcome-verifier 独立検証を完了条件に強制）/ **Critic Gate**（デザイン生成物の critic PASS を送付条件に強制）※新2ゲートは試運転（warn）から開始し誤爆ゼロ確認後に deny 昇格 |
 | 執筆リファレンス 17 | `references/` 配下の内部教科書（スキル一覧には登録されない）。web-design / video-ad / sns-jp / ad-compliance-jp / content-design / seo-jp / cro-jp / recruit（求人・スカウト）/ copy / sales / logical / business / storytelling + **心理3部作**（psych-nudge-jp=訴求フレーム / psych-ux-jp=デザイン心理 / psych-target-jp=読み手別の書き分け。日本の実証研究ベース・不安の解消にのみ使用）+ **design-evidence-jp**（実証デザイン数値基準 — 何px・何色・どの順を実験/公的基準で決める）。業界を問わず使える執筆規範で、エージェントとコマンドが執筆時に Read して適用 |
 | エージェント 6 | deliverable-writer（レポート執筆）/ design-artisan（モックアップ生成）/ design-critic（デザイン審査）/ strategy-advisor（設計壁打ち・エスカレーション）/ pre-send-verifier（送信前の敵対的監査 — 較正ログ付き）/ outcome-verifier（送信後の証跡検証・効果測定） |
-| テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 + 画像/動画（banner-compose / chromakey / guide-anim。地図: docs/media-pipeline.md） |
+| テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 + 検証タスク（verify-task — /検証 full を実タスク形式で回す）+ 画像/動画（banner-compose / chromakey / guide-anim。地図: docs/media-pipeline.md） |
 | ステップ正本 | `docs/steps-reference.md` — A〜K 手順・CP証跡・ログスキーマ・ナレッジ構造の正本（/タスク開始 が最初に Read） |
 
 ## 自社カスタマイズ

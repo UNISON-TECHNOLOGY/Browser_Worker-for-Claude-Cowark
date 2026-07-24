@@ -5,6 +5,8 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 
 プラグインの自己検証を実行してください。モード: $ARGUMENTS
 
+> **実タスク形式での実行（推奨）**: `templates/verify-task.yaml` をワークスペースの `tasks/plugin-verify.yaml` にコピーし「plugin-verify やって」で起動すると、delve-start → A〜K の本物の経路で検証が走る（ゲート・フェーズ判定・ログ記録が通り道で実地に効くため、チャット貼り付けより実運用に近い）。
+
 ## 検証の原則
 
 - **読み取り専用・外部無害**: 検証中に実サイトへの送信・投稿・変更は一切しない。ブラウザ検証は example.com のみ使用
