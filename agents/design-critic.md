@@ -1,7 +1,7 @@
 ---
 name: design-critic
 description: デザインレビュー専任エージェント。design-artisan が生成したモックアップHTMLを references/web-design のチェックリストで批評し、修正指示を返す。修正ループ（生成→批評→修正）の批評役。生成や修正の実作業はしない。
-model: opus
+model: sonnet
 effort: medium
 tools: Read, Glob, Grep
 ---

@@ -10,42 +10,27 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
 
 0. `tasks/$ARGUMENTS.yaml`（登録済み定常タスク。/カスタマイズ のタスク登録が生成）があれば Read し、その steps を実行計画の正とする（destructive: true/auto のステップは Step H で人の承認を必ず取る）。なければ依頼文から計画を組む
 
-0.5. **実行環境を判定する（cloud / local の両対応）**。使えるツール名で見分け、結果を記録する:
+0.5. **環境と使える能力を確定する**（cloud / local 両対応）。ツール名で見分ける:
 
-   | 観測 | 環境 | ゲートの効き方 |
-   |------|------|--------------|
-   | シェルが `Bash`、送付が `SendUserFile` | **Cowork cloud** | plugin hooks が配線済み＝**全ゲートが機械強制**される |
-   | シェルが `mcp__workspace__bash`、送付が `mcp__cowork__present_files` | **Cowork ローカル** | **hooks が未配線＝ゲートは一切効かない**（escalations E4）。安全性は自己規律のみ |
-   | 判別できない | ローカル扱い（保守側） | 同上 |
+   | シェル / 送付ツール | 環境 | ゲート |
+   |---|---|---|
+   | `Bash` / `SendUserFile` | Cowork cloud | hooks 配線済み＝**機械強制される** |
+   | `mcp__workspace__bash` / `mcp__cowork__present_files`（不明なときも） | Cowork ローカル | **hooks 未配線＝効かない**（E4）。自己規律のみ |
 
-   **ローカルと判定したら、ゲート前提の運用（一括送出・金銭近傍・無人運用）はここで行わず、cloud セッションに回す**ようユーザーに1行で伝えること。「hooks が効かないので、この環境では一括送出はやりません」と明示してから代替を提案する。
+   ローカルなら**ゲート前提の運用（一括送出・金銭近傍・無人）はここで行わず cloud に回す**旨を
+   ユーザーに1行で伝える。フラグ操作はどちらの環境でも同じように行う。
 
-   **フラグ操作はどちらの環境でも同じように行う**（ローカルで hook が効かなくても、状態記録として意味があり、配線され次第そのまま効く）。
+   **bash とブラウザは常に別マシン**（cloud もローカルも。ローカルは Hyper-V 上の Linux VM）。
+   **サンドボックスから `localhost:9222` には到達できず、Playwright / CDP 前提のスクリプトは
+   Cowork では実行できない**。bash の役割はデータ加工（CSV・集計・判定ロジック・画像・PDF・SQLite）で、
+   ブラウザを動かすのはブラウザツールだけ（凍結のしかたは steps-reference G'。実測根拠は docs/rationale.md）。
 
-### bash とブラウザは常に別マシンにいる（cloud / ローカル共通）
+   **使える能力**を実際に呼べるかで確認し（推測しない）、ナレッジの `requires:` と照合する:
+   `claude-in-chrome` / `playwright` / `cdp-9222` / `bash` / `python3` / `ffmpeg` / `sqlite` /
+   `design-sync` / `slack` / `local-schedule`。
+   **満たさない `kind: operation` のファイルは読まない・従わない・移植しない**
+   （代替手段を自分で探さず、足りないものを報告して指示を仰ぐ。詳細は steps-reference D-2「有効条件」）。
 
-環境判定より重要な構造がこれ。**cloud でもローカルでも、bash はサンドボックス（ローカルは Hyper-V 上の Linux VM）の中で動き、ブラウザ操作はユーザーのマシン側の Chrome に届く。この2つは別のマシン**。
-
-- **サンドボックスの bash から `localhost:9222`（CDP）でユーザーの Chrome には届かない**。ローカルセッションでも同じ（2026-07-27 に `%APPDATA%\Claude\vm_bundles\claudevm.bundle` の vmlinuz / rootfs.vhdx を実地確認）
-- したがって **Playwright / CDP 接続を前提としたスクリプトは、Cowork からは実行できない**。「ローカルなら動くはず」と思って書き始めないこと
-- サンドボックスの bash でできるのは**データ加工**（CSV・集計・判定ロジック・画像・PPTX/PDF・SQLite）。ブラウザを動かすのはブラウザツールだけ
-- **この分業が凍結のしかたを決める**: DOM 操作は `javascript_tool` / `browser_batch` に凍結し、判定ロジック（適合判定・重複除外・上限管理）は bash 側のスクリプトに凍結する。詳細は steps-reference.md の G'
-
-### 使える能力を確定し、ナレッジの `requires:` と照合する
-
-環境判定と同時に、**このセッションで使える能力**を確認しておく（B や C でナレッジを読む前に）。
-判定は「そのツール・コマンドが実際に呼べるか」で行い、推測しない:
-
-`claude-in-chrome` / `playwright` / `cdp-9222` / `bash` / `python3` / `ffmpeg` / `sqlite` /
-`design-sync`（認可済みか）/ `slack`（コネクタ接続済みか）/ `local-schedule`
-
-**ナレッジを読むとき、`kind: operation` のファイルは冒頭の `requires:` を先に見る**（steps-reference D-2「有効条件」）:
-
-- 満たす → 通常どおり使う
-- **満たさない → そのファイルは読まない・従わない・他手段へ「移植」しない**。
-  代替手段を自分で探し始めないこと。実行できない旨と、何が足りないかを報告して指示を仰ぐ
-- 恒久的に満たせないと判明したら、手段非依存の知識（セレクタ・判定順・事故防止ルール）だけを
-  現行ファイルへ救出してから `_archive/` へ移す。**丸ごと捨てない**
 1. ワークスペースに `memory/.workflow/` と `knowledge/sites/` がなければ作成する
 2. フラグを初期化する:
    ```bash

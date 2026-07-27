@@ -150,8 +150,35 @@ for f in list(ROOT.glob("commands/*.md")) + list(ROOT.glob("procedures/*.md")) +
         if n >= 3:
             err(f"{f.relative_to(ROOT)}: 同一行が{n}回重複（一括置換バグの疑い）: {line[:40]}…")
 
+# --- ホットパス予算（毎タスク必読ファイルの行数上限） ---
+# 全タスクが冒頭で Read するファイルは、増えた分を毎タスク払い続ける。
+# 2026-07-27: D-2 に「150行超えたら分割」と書いた当日、同じ規則を書いた本人が
+# steps-reference.md を 151→303行にした（規則の正本に根拠の散文を書いたため）。
+# 文書のルールでは止まらないと実証されたので機械強制する。
+# 根拠・実例・事故の記録は docs/rationale.md（必読でない）へ置く。
+HOT_PATH_BUDGET = {          # ファイル: 上限バイト数
+    "docs/steps-reference.md": 21000,
+    "procedures/delve-start.md": 8500,
+    "docs/conventions.md": 6000,
+    "hooks/scripts/session-rules.txt": 7500,
+    "docs/parts/index.md": 6000,
+}
+_hot_total = 0
+for rel, limit in HOT_PATH_BUDGET.items():
+    f = ROOT / rel
+    if not f.exists():
+        err(f"{rel}: ホットパス予算の対象が存在しない（パスを変えたら lint.py も更新する）")
+        continue
+    n = len(read(f).encode("utf-8"))
+    _hot_total += n
+    if n > limit:
+        err(f"{rel}: {n}バイト（上限 {limit}）。毎タスク必読なので超過分は全タスクのコストになる — "
+            f"根拠・実例は docs/rationale.md へ移し、規則だけ残すこと")
+    elif n > limit * 0.92:
+        warns.append(f"{rel}: {n}バイト（上限 {limit} の9割超）。次の追記で超える")
+
 # --- 結果 ---
-print(f"lint: commands={len(commands)} procedures={len(procedures)} "
+print(f"lint: hotpath={_hot_total}B commands={len(commands)} procedures={len(procedures)} "
       f"agents={len(list((ROOT/'agents').glob('*.md')))} skills={len(list((ROOT/'references').glob('*/SKILL.md')))} "
       f"version={plugin['version']}")
 for w in warns:
