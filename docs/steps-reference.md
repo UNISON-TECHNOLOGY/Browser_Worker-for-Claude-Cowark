@@ -14,8 +14,8 @@
 | E | Observe | モニタリング | 変更前状態の記録 + CP証跡定義（下記 E-3） |
 | J | Report | 差分比較 | フェーズ②③④のみ、E直後。前回 after_state と今回 before_state を比較し、外部変更/リセットを検出したらユーザーに報告 |
 | F | Plan | プランニング | 実行計画 + レギュレーション検証（下記 F-4）。**計画に不可逆な一括送出（スカウト/投稿/配信/入稿）が含まれるなら `touch memory/.workflow/bulk_send` を宣言**（以後 psv_done まで変更操作が hook でブロックされる） |
-| G | Act | アクション | 実行。生成物があれば H に遷移 |
-| H | Review | レビュー | 生成物・破壊的操作のユーザー承認（無人運用時は docs/unattended-ops.md の承認キューに従う）。**一括送信・投稿・入稿など不可逆送出は、承認提示の前に pre-send-verifier サブエージェントの敵対的監査（VERDICT）を材料として添え、監査とユーザー承認が揃ったら `touch memory/.workflow/psv_done`**（bulk_send 宣言済みタスクは psv_done まで hook が変更操作をブロック）。**design-artisan のビジュアル生成物は必ず design-critic の審査を経てから承認に出す（critic を呼ばず直接ユーザーに引き渡すのは禁止 — Critic Gate hook が送付出口で強制）**。フラグ運用: artisan へ委譲した直後に `touch memory/.workflow/critic_pending && rm -f memory/.workflow/critic_pass`、critic が PASS を返したら `rm memory/.workflow/critic_pending` して PASS の1行要約を `memory/.workflow/critic_pass` に書き込む。REVISE が返ったら、メインループが FIX 内容を design-artisan に再投入し PASS まで反復（最大2周）してから承認に出す。見た目ものの成果物は、承認の選択肢として「Claude Design ハンドオフ（docs/parts/design-handoff.md）」も提示してよい。ハンドオフしたら成果物の最終正本は回収後のファイルとする |
+| G | Act | アクション | 実行。生成物があれば H に遷移。**フェーズ④で手順が固定したら凍結スクリプト経由に移す（下記 G'）** — 1操作ごとの LLM 往復が消え、ローカル環境ではこれが主経路 |
+| H | Review | レビュー | 生成物・破壊的操作のユーザー承認（無人運用時は docs/unattended-ops.md の承認キューに従う）。**一括送信・投稿・入稿など不可逆送出は、承認提示の前に pre-send-verifier サブエージェントの敵対的監査（VERDICT）を材料として添え、監査とユーザー承認が揃ったら `touch memory/.workflow/psv_done`**（bulk_send 宣言済みタスクは psv_done まで hook が変更操作をブロック）。**監査は「実際に送る対象が確定した1回」だけ行う** — 計画段階と選定後の2回に分けない。監査に渡すのは判断の説明ではなく**確定した対象の表**（識別番号・属性・使用テンプレ・添付先）。監査は最大2周で、2周目は1周目の BLOCKER の差分だけを見る（agents/pre-send-verifier.md「収束条件」）。**design-artisan のビジュアル生成物は必ず design-critic の審査を経てから承認に出す（critic を呼ばず直接ユーザーに引き渡すのは禁止 — Critic Gate hook が送付出口で強制）**。フラグ運用: artisan へ委譲した直後に `echo "<レビュー対象のファイル名またはパターン>" > memory/.workflow/critic_pending && rm -f memory/.workflow/critic_pass`（**対象を書くこと** — 空にすると全ビジュアル成果物がゲート対象になり、デバッグ用スクショなど無関係なファイルまで送付できなくなる）、critic が PASS を返したら `rm memory/.workflow/critic_pending` して PASS の1行要約を `memory/.workflow/critic_pass` に書き込む。REVISE が返ったら、メインループが FIX 内容を design-artisan に再投入し PASS まで反復（最大2周）してから承認に出す。見た目ものの成果物は、承認の選択肢として「Claude Design ハンドオフ（docs/parts/design-handoff.md）」も提示してよい。ハンドオフしたら成果物の最終正本は回収後のファイルとする |
 | I | Verify | チェック | CP証跡照合（I-1.5）+ ログ記録（下記 I-3）+ ナレッジ更新。不可逆送出（件数を問わず）と定常タスクの締めでは **outcome-verifier**（送信後検証・効果測定）に after_state と CP 証跡を渡して独立検証させ、判定要約を `memory/.workflow/ov_done` に書き込む（OV Gate hook: bulk_send 宣言タスクは ov_done なしで k_done 不可） |
 | K | Offer | オファー | 完了報告 → session-log 更新 → k_done |
 
@@ -49,6 +49,77 @@ shortcut_memo は「操作 + 期待ランドマーク」の対で書く（例: `
 2. **一致** → そのまま実行（探索・再マッピングの判断を省略 = 2回目以降は決定的に速くなる）
 3. **不一致** → 主観で続行せず**自動でフェーズ③（Remap）へ**（e_done 削除 → E からやり直し。Remap 発動を人の判断に依存させない）
 4. ランドマークの無い旧形式 memo はフェーズ②相当として扱う（照合できないレシピを盲信しない）
+
+## G'. 手順の凍結
+
+フェーズ④の次段。shortcut_memo が「速い道のメモ」なら、**凍結は道そのものをコードにする**こと。
+1要素ごとの LLM 往復が消えるので実行が桁で速くなり、手順が固定されるので揺れがなくなる。
+
+### 前提: 使える道具（Claude in Chrome）
+
+**Playwright も CDP（9222）も Cowork には存在しない。** 既存の Playwright/CDP 資産を
+「移植」しようとしないこと（2026-07-27 実運用: 移植不能と判断して手動チェックリストに
+退化させた結果、送出0件のまま監査が5周した）。使えるのは以下:
+
+Cowork から呼べるのは以下の16本だけ（2026-07-27 に拡張 v1.0.81 の
+sidepanel-iframe トランスポートのホワイトリストを実地確認）:
+
+`javascript_tool` `read_page` `find` `form_input` `computer` `browser_batch`
+`navigate` `resize_window` `gif_creator` `upload_image` `get_page_text`
+`tabs_context_mcp` `tabs_create_mcp` `tabs_close_mcp`
+`read_console_messages` `read_network_requests`
+
+| ツール | 凍結での役割 |
+|---|---|
+| `javascript_tool` | **ページ内で JS 実行**。一覧の一括抽出・一括判定・DOM 操作を**1コール**で行う。凍結の主役 |
+| `browser_batch` | 複数アクションを**1コールに束ねる**。制約: **入れ子不可**（子に browser_batch を置けない）・ホワイトリスト外のツール名を含むと呼び出し全体が拒否・**最初のエラーで停止**（後続は実行されない）。子ごとに結果とスクリーンショットが返る |
+| `read_page` / `find` / `get_page_text` | 読み取り。`read_page` は `filter: interactive \| all`。構造が単純なら javascript_tool より安全 |
+| `computer` / `form_input` / `upload_image` | 個別操作。凍結できない箇所だけここに残す |
+
+**`shortcuts_execute`（拡張の録画ショートカット）は Cowork からは呼べない** — 拡張には存在するが
+上のホワイトリストに無く弾かれる。加えてショートカットはコード書き出し不可でアカウント内に閉じるため、
+`knowledge/` に地図を残せない。**凍結手段は `javascript_tool` と `browser_batch` の2つだけ**と考えること。
+
+**重要**: `javascript_tool` と `browser_batch` は workflow-gate の matcher に入っている。
+つまり**凍結しても全ゲートが効いたまま速くなる**。Bash 経由の送信（ゲート対象外）に逃がすより安全。
+
+### 凍結物は2つに分かれる
+
+サンドボックスの bash とブラウザは別マシンなので（delve-start 0.5）、凍結先も分ける:
+
+| | 置き場所 | 実行 | 中身 |
+|---|---|---|---|
+| **DOM 側** | `knowledge/sites/<site>/snippets/<用途>.js` | `javascript_tool` に渡す | 一覧の一括抽出（→JSON で返す）・一括入力・一括操作 |
+| **判定側** | `scripts/<タスク名>.js`（node）または手順内の計算 | サンドボックスの bash | 適合判定・許可リスト照合・重複除外・上限管理・レギュレーション検証 |
+
+この分割の効き目が大きい。**判定側は純粋計算なので、他環境（Playwright 前提の既存資産等）から
+そのまま持ち込める。移植不能なのは DOM 側だけ。** 既存スクリプトを丸ごと捨てる前に、
+判定ロジックを切り出して救出すること。
+
+### 凍結してよい条件（全て満たすこと）
+
+1. フェーズ④に到達している（成功ログ + shortcut_memo あり）
+2. **直近2回以上、同じ手順で成功している**（1回成功しただけの手順は凍結しない — 偶然かもしれない）
+3. 対象ページのランドマークが安定している（フェーズ④の機械検証が通り続けている）
+
+### 作り方
+
+1. **読み取りから凍結する**。一覧ページの全カードを1コールで JSON 化する抽出スニペットを書き、`snippets/` に保存する。ここが一番効く（N回の read_page が1回になる）
+2. 抽出 JSON を判定側に通し、**対象リストを表として出力する**（識別番号・属性・使用テンプレ・添付先）。これが dry-run 出力であり、Step H で pre-send-verifier に渡す入力そのものになる
+3. **ミューテーションは既定で起こさない**。判定側は対象リストを出すところまでを既定動作とし、実際の送信・保存・公開は明示的な実行指示があったときだけ行う
+4. **ゲートを内蔵する**。CP 判定（E-3）・上限・履歴突合・レギュレーション検証（F-4）を判定側に実装する。DOM 側スニペットには判定を書かない（承認済みリストを受け取って実行するだけにする）
+5. 送信・保存の DOM 操作は**1件ずつ**に留めるか、`browser_batch` で束ねる場合も**成功証跡（CP5）を1件ずつ確認できる形**にする。束ねて一気に流して証跡が取れない設計にしない
+6. dry-run で1回、実行で1回、実機検証してログに記録する
+7. サイトナレッジに「このタスクは `snippets/<名前>.js` + `scripts/<名前>.js` に凍結済み」と1行書く
+
+### 凍結後の運用
+
+そのタスクは「AI が要素を1つずつ操作する」から「**AI が凍結物を呼び、結果を検証して報告する**」に変わる。
+Step E（変更前記録）・Step I（CP 証跡照合）・Step J（差分比較）は引き続き AI の仕事で、省略しない。
+実行前のユーザー提示（dry-run の対象と件数）と承認（Step H）も従来どおり。
+
+スニペットがセレクタ不一致で落ちたら**フェーズ③（Remap）へ戻る**。
+落ちたスニペットを勘で直さないこと — 再マッピングしてから凍結し直す。
 
 ## E-3. Critical Point 証跡定義（不可逆操作の前に必須）
 
@@ -149,3 +220,16 @@ UIより速いパターン（API直接取得・evaluate一括・URL直接遷移�
 
 タスク中に money_alert（金銭・契約系画面の検知）が立ったら: strategy-advisor に状況を渡して助言（STOP/RESPOND/MONITOR）を得る →
 操作内容をユーザーに提示して明示承認 → 承認を得た場合のみ `rm memory/.workflow/money_alert` し、承認の事実を session-log に1行記録して再開。
+
+停止中も**画面を読むこと自体は許可されている**（read_page / get_page_text / computer の screenshot・scroll）。
+状況を読めないと復帰手順そのものが実行できないため、意図的にそう設計してある。止まるのは変更操作だけ。
+ただし **`browser_batch` は読み取りのみでも停止中は deny される**（既知の不整合 — 同じ読み取りが
+包み方で通ったり止まったりする）。停止中は batch を使わず、read_page 等を単体で呼ぶこと。
+
+検知は2段階。**【弱】（`Money Watch・注意`）は停止していない** — 注意喚起だけなので、
+操作対象が金銭・契約に触れないことを自分で確かめたうえで、そのまま進んでよい。
+strategy-advisor もユーザー承認も不要（それが要るのは money_alert が立つ【強】検知のとき）。
+
+**前セッションからの持ち越し**: money_alert はタスクをまたいで残る（/タスク開始 でも消さない）。
+セッション開始時に「残留フラグ」の通知が出たら、まずユーザーに「前回の金銭停止が残っています」と
+1行で伝え、指示を仰ぐこと。**自分の判断で rm しない。**

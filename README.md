@@ -110,12 +110,22 @@
 
 - 認証情報は扱いません。ログインは人間が行います。**Credential Guard**: パスワード・認証コード欄へのAI入力は hook が常時ブロック（ワークフロー承認済みでも）
 - 変更操作はワークフローゲート（フェーズ判定・変更前記録）を通過しないと実行されません
-- **推奨実行環境: cloud セッション主体**（hooks＝安全ゲートが有効なのは cloud のみ。2026-07-24 実測）。ローカルセッションはゲートが効かないため、使う場合は読み取り・下書きなど失敗してもやり直せる作業に限る。例外: ブラウザ操作の定常タスクの自動発火だけはローカル登録が必要（escalations E2）
+- **実行環境は cloud / ローカルの両対応**（2026-07-27）。/タスク開始 の手順 0.5 で環境を判定し、安全装置の担い手を切り替える:
+
+  | | Cowork cloud | Cowork ローカル |
+  |---|---|---|
+  | 安全装置 | **plugin hooks（機械強制）** | **自己規律のみ**（hooks は未配線。escalations E4） |
+  | 向く仕事 | 一括送出・金銭近傍・無人運用・初回探索 | 読み取り・下書き・やり直しのきく作業 |
+
+  ローカルで**一括送出・金銭近傍の操作は行わない** — それらは cloud で。matcher にはローカルのツール名（mcp__workspace__bash / mcp__cowork__present_files）も登録済みで、hooks が配線され次第そのまま効く
+
+- **bash とブラウザは別マシン（cloud / ローカル共通）**。bash はサンドボックス（ローカルは Hyper-V 上の Linux VM）の中で動き、ブラウザ操作はユーザーのマシンの Chrome に届く。**サンドボックスから `localhost:9222`（CDP）には構造的に到達できず、Playwright / CDP 前提のスクリプトは Cowork では実行できない**。速くしたい定常タスクは `javascript_tool`（ページ内 JS）と `browser_batch`（複数アクションの束ね）に凍結する — この2つは hooks の matcher に入っているので**ゲートが効いたまま速くなる**（[docs/steps-reference.md](docs/steps-reference.md) G'）
 - 無人運用（PC起動→自動定常タスク）の構成は [docs/unattended-ops.md](docs/unattended-ops.md) を参照（パスワード無保管のまま自動化する3層設計）
-- 送信・投稿など不可逆な送出の前は pre-send-verifier（敵対的監査）+ 人間承認の二段ゲート。金銭・契約系画面は **Money Watch** が検知して変更操作を強制停止します
+- 送信・投稿など不可逆な送出の前は pre-send-verifier（敵対的監査）+ 人間承認の二段ゲート。金銭・契約系画面は **Money Watch** が検知して変更操作を強制停止します（検知は2段階 — 停止するのは「購入を確定」等の確定表現だけで、ナビに常在する「決済」「請求」等は注意喚起のみ。2026-07-27 の過剰ゲート監査で分離）
 - **既知の限界（設計上の割り切り）**:
   - **ローカル Cowork（デスクトップのローカルセッション）では plugin hooks が配線されず、全ゲート（URL Guard / OV / Critic / Money Watch / Credential Guard / 変更操作ゲート）が機械強制されない**（2026-07-24 v1.0.0 ローカル実測）。ローカルでの安全性は自己規律＋Cowork 本体の許可プロンプトに依存する。**一括送出・金銭近傍・無人運用などゲート前提の運用は cloud セッションで行うこと**。matcher にはローカルのツール名（mcp__workspace__bash / mcp__cowork__present_files）も登録済みで、配線され次第そのまま効く
-  - ゲートは MCP ブラウザツールが対象。**Bash 経由の直接送信（node/curl 等）はゲート対象外** — Node スクリプト等での送信運用はワークスペース側の hook か権限設定で別途ゲートすること
+  - ゲートは MCP ブラウザツールが対象。**Bash 経由の直接送信（node/curl 等）はゲート対象外** — Node スクリプト等での送信運用は、スクリプト自身に CP 判定・上限・履歴突合を内蔵する（steps-reference G' の作り方3）か、ワークスペース側の hook・権限設定で別途ゲートすること
+  - **`browser_batch` は読み取りのみでも Money Watch 停止中は deny される**（単体の read_page は通る）。同じ読み取りが包み方で挙動を変える不整合 — 停止中は batch を使わず単体呼び出しにすること
   - 同一ワークスペースの**並行セッションはフラグ（memory/.workflow/）を共有**するため相互干渉しうる。同時実行は1タスクずつを推奨
   - Credential Guard / JS mutation 判定はキーワード検知の best-effort（難読化で回避可能）。硬い防御は Money Watch・URL Guard・人間承認が担う
   - URL denylist は部分一致のため、金銭に無関係な /subscribe 等を誤ブロックすることがある → `knowledge/config/url-allowlist.txt` で開放

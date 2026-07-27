@@ -71,13 +71,24 @@ else
 fi
 rm -f "$DELVEWORK_WF_DIR/money_alert"
 
-# 5. Money Watch: \uXXXX エスケープ済み日本語で検知 → フラグ生成 → ゲート deny
+# 5. Money Watch【強】: \uXXXX エスケープ済み日本語で検知 → フラグ生成 → ゲート deny
+# ペイロードは『購入を確定』（動詞つきの確定表現＝強パターン）
 rm -f "$DELVEWORK_WF_DIR/money_alert"
-out=$(printf '{"tool_response":"\\u6c7a\\u6e08\\u753b\\u9762"}' | bash "$SC/money-watch.sh")
-check "money-watch: エスケープ済み『決済』検知" 'Money Watch' "$out"
+out=$(printf '{"tool_response":"\\u8cfc\\u5165\\u3092\\u78ba\\u5b9a"}' | bash "$SC/money-watch.sh")
+check "money-watch【強】: エスケープ済み『購入を確定』検知" 'Money Watch' "$out"
 [ -f "$DELVEWORK_WF_DIR/money_alert" ] && echo "PASS: money_alert 生成" || { echo "FAIL: money_alert 未生成"; FAIL=1; }
 out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
 check "gate: money_alert 中は deny" 'Money Watch' "$out"
+
+# 5b. Money Watch【弱】: ナビ語は注意喚起のみで停止しない（2026-07-27 過剰ゲート監査の回帰）
+# ペイロードは『決済画面』。以前はこれで money_alert が立ち、媒体の管理画面を開いた時点で
+# 定常タスクが毎回停止していた（解除に strategy-advisor + ユーザー承認が必要）。
+rm -f "$DELVEWORK_WF_DIR/money_alert"
+out=$(printf '{"tool_response":"\\u6c7a\\u6e08\\u753b\\u9762"}' | bash "$SC/money-watch.sh")
+check "money-watch【弱】: 『決済』は注意喚起のみ" 'Money Watch・注意' "$out"
+[ ! -f "$DELVEWORK_WF_DIR/money_alert" ] || { echo "FAIL: 弱パターンで money_alert が立った（過剰ゲート再発）"; FAIL=1; }
+out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+check "gate: 弱検知の後も変更操作は通る" EMPTY "$out"
 
 # 6. deny 出力の JSON 妥当性（フラグに " や \\ を含めて壊れないか）
 printf 'te"st\\path' > "$DELVEWORK_WF_DIR/money_alert"
@@ -192,7 +203,36 @@ echo "PASS: layout OK" > "$DELVEWORK_WF_DIR/critic_pass"
 out=$(printf '{"tool_name":"SendUserFile","tool_input":{"files":["banner.png"]}}' | bash "$SC/critic-gate.sh")
 check "critic: critic_pass後は通過" EMPTY "$out"
 rm -f "$DELVEWORK_WF_DIR/critic_pending" "$DELVEWORK_WF_DIR/critic_pass"
+
+# Critic Gate 対象スコープ（2026-07-27 過剰ゲート監査の回帰）:
+# critic_pending に対象パターンが書かれていれば、それ以外のビジュアル送付は巻き込まない
+printf 'banner-v2' > "$DELVEWORK_WF_DIR/critic_pending"
+out=$(printf '{"tool_name":"SendUserFile","tool_input":{"files":["banner-v2.png"]}}' | bash "$SC/critic-gate.sh")
+check "critic: スコープ内（対象ファイル）は deny" 'Critic Gate' "$out"
+out=$(printf '{"tool_name":"SendUserFile","tool_input":{"files":["debug-screenshot.png"]}}' | bash "$SC/critic-gate.sh")
+check "critic: スコープ外の無関係画像は巻き込まない" EMPTY "$out"
+rm -f "$DELVEWORK_WF_DIR/critic_pending"
 unset DELVEWORK_GATE_MODE
+
+# --- deny 文言に実行可能な出口があるか（2026-07-27 過剰ゲート監査） ---
+# 承認を求めるだけで実行経路の無い deny は、AI が「承認 → やはり不可」を往復して進まなくなる
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
+check "rm-guard: deny 文言に出口（ユーザー自身の実行／残置報告）がある" 'ユーザー自身の手で実行|残置' "$out"
+touch "$DELVEWORK_WF_DIR/bulk_send"; rm -f "$DELVEWORK_WF_DIR/ov_done"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"touch memory/.workflow/k_done"}}' | bash "$SC/ov-gate.sh")
+check "ov: deny 文言に送出ゼロの出口（NO_SEND）がある" 'NO_SEND' "$out"
+rm -f "$DELVEWORK_WF_DIR/bulk_send"
+
+# --- session-start: 残留フラグの通知（2026-07-27 過剰ゲート監査） ---
+printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
+printf 'example\\.com' > "$DELVEWORK_WF_DIR/verify_allowlist"
+out=$(bash "$SC/session-start.sh")
+check "session-start: 残留フラグを通知" '残留フラグ' "$out"
+check "session-start: 残留通知に verify_allowlist を含む" 'verify_allowlist' "$out"
+printf '%s' "$out" | json_valid && echo "PASS: session-start 残留通知 JSON" || { echo "FAIL: session-start 残留通知 JSON が壊れる"; FAIL=1; }
+rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/verify_allowlist"
+out=$(bash "$SC/session-start.sh")
+printf '%s' "$out" | grep -q '残留フラグ' && { echo "FAIL: 残留なしでも通知が出る（誤爆）"; FAIL=1; } || echo "PASS: 残留なしでは通知しない"
 
 rm -rf "$CLAUDE_PROJECT_DIR"
 [ "$FAIL" = 0 ] && echo "test-hooks: ALL PASS" || echo "test-hooks: FAILURES"

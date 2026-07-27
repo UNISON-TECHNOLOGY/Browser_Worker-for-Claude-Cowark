@@ -23,7 +23,9 @@ printf '%s' "$STDIN_TEXT" | grep -qE '(^|[^[:alnum:]_-])rm([[:space:]]|$)' && ex
 # 3) outcome-verifier の判定記録があれば通す
 [ -f "$WF_DIR/ov_done" ] && exit 0
 
-MSG="【OV Gate】不可逆送出を含むタスク（bulk_send 宣言済み）は outcome-verifier の独立検証なしに完了できません。after_state と CP証跡を outcome-verifier サブエージェントに渡して検証させ、応答の判定要約を memory/.workflow/ov_done に書き込んで（echo '<VERIFIED n/m と1行要約>' > memory/.workflow/ov_done）から k_done してください。"
+# deny 時は「送出ゼロで終わった場合」の出口も書く。これが無いと、DRY-RUN だけ・中止・
+# 0件で終わったタスクが完了できず、AI が実態と違う VERIFIED を書く誘因になる（2026-07-27 過剰ゲート監査）。
+MSG="【OV Gate】不可逆送出を含むタスク（bulk_send 宣言済み）は outcome-verifier の独立検証なしに完了できません。after_state と CP証跡を outcome-verifier サブエージェントに渡して検証させ、応答の判定要約を memory/.workflow/ov_done に書き込んで（echo '<VERIFIED n/m と1行要約>' > memory/.workflow/ov_done）から k_done してください。／**実際には1件も送出せずに終わる場合**（DRY-RUN のみ・0件・中止）は検証する対象がないので、echo 'NO_SEND: <理由>' > memory/.workflow/ov_done として完了してよい。送っていないのに VERIFIED と書くことは禁止です。"
 if [ "$GATE_MODE" = "deny" ]; then
   deny "$MSG"
 else

@@ -13,7 +13,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "mcp__claude-in-chrome__computer|mcp__claude-in-chrome__form_input|mcp__claude-in-chrome__javascript_tool|mcp__claude-in-chrome__shortcuts_execute|mcp__claude-in-chrome__browser_batch|mcp__playwright__browser_click|mcp__playwright__browser_type|mcp__playwright__browser_fill_form|mcp__playwright__browser_select_option|mcp__playwright__browser_file_upload|mcp__playwright__browser_press_key|mcp__playwright__browser_drag|mcp__playwright__browser_evaluate|mcp__playwright__browser_run_code|mcp__playwright__browser_handle_dialog",
+        "matcher": "mcp__claude-in-chrome__computer|mcp__claude-in-chrome__form_input|mcp__claude-in-chrome__javascript_tool|mcp__claude-in-chrome__shortcuts_execute|mcp__claude-in-chrome__browser_batch|mcp__claude-in-chrome__upload_image|mcp__claude-in-chrome__tabs_close_mcp|mcp__playwright__browser_click|mcp__playwright__browser_type|mcp__playwright__browser_fill_form|mcp__playwright__browser_select_option|mcp__playwright__browser_file_upload|mcp__playwright__browser_press_key|mcp__playwright__browser_drag|mcp__playwright__browser_evaluate|mcp__playwright__browser_run_code|mcp__playwright__browser_handle_dialog",
         "hooks": [
           {
             "type": "command",
@@ -35,7 +35,7 @@
         ]
       },
       {
-        "matcher": "SendUserFile|mcp__remote-devices__device_commit_files|mcp__remote-devices__create_artifact|mcp__remote-devices__update_artifact|mcp__claude-in-chrome__file_upload|mcp__cowork__present_files",
+        "matcher": "SendUserFile|mcp__remote-devices__device_commit_files|mcp__remote-devices__create_artifact|mcp__remote-devices__update_artifact|mcp__claude-in-chrome__file_upload|mcp__claude-in-chrome__upload_image|mcp__cowork__present_files",
         "hooks": [
           {
             "type": "command",
@@ -59,7 +59,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "mcp__claude-in-chrome__read_page|mcp__claude-in-chrome__find|mcp__claude-in-chrome__get_page_text|mcp__playwright__browser_snapshot|mcp__playwright__browser_evaluate|mcp__playwright__browser_run_code",
+        "matcher": "mcp__claude-in-chrome__read_page|mcp__claude-in-chrome__find|mcp__claude-in-chrome__get_page_text|mcp__claude-in-chrome__read_console_messages|mcp__claude-in-chrome__read_network_requests|mcp__playwright__browser_snapshot|mcp__playwright__browser_evaluate|mcp__playwright__browser_run_code",
         "hooks": [
           {
             "type": "command",

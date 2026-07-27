@@ -11,6 +11,18 @@ if [ -f "$WF_DIR/active" ] && [ ! -f "$WF_DIR/k_done" ]; then
   PREFIX="【Delvework】前回のタスク「$task」が未完了です（k_done なし）。memory/session-log.md を確認して引き継ぐこと。 "
 fi
 
+# 残留フラグ通知（2026-07-27 過剰ゲート監査）: 前セッションが途中で切れると停止系フラグが残り、
+# 新しいセッションが「なぜか全部ブロックされる」状態で始まる。原因をここで先に開示する。
+# フラグを消すのは各復帰手順の仕事で、この hook は消さない（通知のみ）。
+STALE=""
+[ -f "$WF_DIR/money_alert" ] && STALE="${STALE}money_alert（変更操作が全て停止中／解除は steps-reference.md 末尾の復帰手順）, "
+[ -f "$WF_DIR/verify_allowlist" ] && STALE="${STALE}verify_allowlist（検証モード＝許可サイト以外へ navigate 不可。検証タスク中でなければ残留です）, "
+[ -f "$WF_DIR/critic_pending" ] && STALE="${STALE}critic_pending（design-critic の PASS まで画像・HTMLの送付が不可）, "
+[ -f "$WF_DIR/bulk_send" ] && [ ! -f "$WF_DIR/ov_done" ] && STALE="${STALE}bulk_send（outcome-verifier の記録なしでタスク完了が不可）, "
+if [ -n "$STALE" ]; then
+  PREFIX="${PREFIX}【残留フラグ】memory/.workflow/ に前セッションの停止系フラグが残っています: ${STALE%, }。この状態で操作がブロックされたら原因はこれです。**勝手に rm して解除しないこと** — 各フラグの正規の復帰手順に従うか、残留だと判断できる場合はユーザーに状況を1行で伝えて指示を仰ぐこと。 "
+fi
+
 # 永続化チェック: ワークスペースに蓄積の痕跡（knowledge/）が無い場合、
 # クラウドセッションの一時領域で動いている可能性が高い（セッション終了で蓄積消失）。
 # 注: .git の存在は永続化の根拠にしない（クラウドコンテナ内の clone でも .git は存在するため）

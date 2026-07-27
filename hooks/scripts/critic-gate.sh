@@ -22,6 +22,17 @@ printf '%s' "$STDIN_TEXT" | grep -qiE '\.(html|png|jpe?g|webp|svg|gif|pptx)' || 
 # 3) critic PASS 記録があれば通す
 [ -f "$WF_DIR/critic_pass" ] && exit 0
 
+# 3b) 対象スコープ（2026-07-27 過剰ゲート監査）: critic_pending に「レビュー対象のファイル名／
+# パターン」が書かれている場合、それに一致する送付だけをゲートする。
+# 空（従来どおり touch しただけ）なら全ビジュアル成果物が対象＝従来挙動を維持する。
+# 背景: critic_pending が立っている間はデバッグ用スクショや無関係な既存 HTML まで送付できず、
+# 「レビュー対象と関係ないファイルを渡すには critic を通すしかない」という詰み方をしていた。
+# design-artisan 委譲時に対象ファイル名を書き込む運用（delve-media / design-handoff）とセット。
+PENDING_SCOPE="$(head -c 500 "$WF_DIR/critic_pending" 2>/dev/null | tr -d '\000-\037')"
+if [ -n "$PENDING_SCOPE" ]; then
+  printf '%s' "$STDIN_TEXT" | grep -qE "$PENDING_SCOPE" 2>/dev/null || exit 0
+fi
+
 # 4) 抑制リスト照会（例: デバッグ用スクショ・QA中間画像）
 SUPPRESS="$PROJECT_DIR/knowledge/config/critic-suppress.txt"
 if [ -f "$SUPPRESS" ]; then
