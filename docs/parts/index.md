@@ -30,8 +30,8 @@
 | リサーチ | logical-writing（レポート化するとき） | 大規模並列調査のみ調査系サブエージェントに分割 |
 | 収集 | —（ライセンスCPが規範） | — |
 | クリエイティブ（文章） | recruit / copy / sales / logical / business / storytelling / sns-jp / content-design / video-ad / **seo-jp**（SEO記事）を依頼内容で選択 + **psych-nudge-jp**（訴求フレーム）・**psych-target-jp**（読み手別の書き分け） | 本格執筆は **deliverable-writer** へ委譲 |
-| クリエイティブ（画像・動画・ページ） | web-design + **psych-ux-jp**（心理根拠）+ **design-evidence-jp**（実証数値基準）+ 公開物は ad-compliance-jp 必須 | ビジュアル成果物（モックアップ・カルーセル・バナー等）は **design-artisan**（生成）→ **design-critic**（審査）のループ。**critic の PASS を得るまでユーザーに引き渡さない**（REVISE なら FIX を artisan に戻して再審査、最大2周。依頼経路を問わずこの順序は省略不可） |
-| 分析 | logical-writing / **seo-jp**（SEO診断）/ **cro-jp**（転換率のボトルネック分析） | 効果測定（返信率・エンゲージ集計）は **outcome-verifier** |
-| 掃き出し | —（不可逆送出の規律が規範） | 不可逆な一括送出は **pre-send-verifier**（敵対的監査）必須 → ユーザー承認 → 完了後に **outcome-verifier**（証跡検証） |
+| クリエイティブ（画像・動画・ページ） | web-design + **psych-ux-jp**（心理根拠）+ **design-evidence-jp**（実証数値基準）+ 公開物は ad-compliance-jp 必須 | **ユーザーに渡す**ビジュアル成果物（モックアップ・カルーセル・バナー等）は **design-artisan**（生成）→ **design-critic**（審査）のループ。**critic の PASS を得るまでユーザーに引き渡さない**（REVISE なら FIX を artisan に戻して再審査、最大2周。依頼経路を問わずこの順序は省略不可）。**中間物は対象外** — 作業確認用スクショ・検証中のダミー・自分で見るだけの試作に critic を呼ばない（Critic Gate の対象スコープと同じ線引き） |
+| 分析 | logical-writing / **seo-jp**（SEO診断）/ **cro-jp**（転換率のボトルネック分析） | 効果測定（返信率・エンゲージ集計）は **outcome-verifier**（集計対象の期間・件数があるときだけ。読み取り巡回の締めには呼ばない） |
+| 掃き出し | —（不可逆送出の規律が規範） | 不可逆な一括送出は **pre-send-verifier**（敵対的監査）必須 → ユーザー承認 → 完了後に **outcome-verifier**（証跡検証）。**不可逆操作が無かったタスクではどちらも呼ばない** |
 | （横断）設計判断 | — | 長く効く判断・確信のない分岐は **strategy-advisor** に壁打ち（session-rules (11)(12)） |
 

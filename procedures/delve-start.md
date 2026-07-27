@@ -80,7 +80,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
 
 6. 実行後（Step I）— 順に:
    - **CP 証跡を照合**する（証跡なしで成功扱い禁止）
-   - **不可逆送出（送信・投稿・公開・配信）があったタスクは outcome-verifier に after_state と CP 証跡を渡して独立検証させ、確定成功数で報告**（必須。steps-reference.md I）。判定を受領したら `echo "<VERIFIED n/m と1行要約>" > memory/.workflow/ov_done`（OV Gate: bulk_send 宣言タスクは ov_done なしで k_done 不可）
+   - **不可逆送出（送信・投稿・公開・配信）があったタスクは outcome-verifier に after_state と CP 証跡を渡して独立検証させ、確定成功数で報告**（必須。steps-reference.md I）。**読み取りだけで終わったタスクでは起動しない**（照合する CP 証跡がなく、渡す材料がない）。判定を受領したら `echo "<VERIFIED n/m と1行要約>" > memory/.workflow/ov_done`（OV Gate: bulk_send 宣言タスクは ov_done なしで k_done 不可）
      - **1件も送出せずに終わった場合**（DRY-RUN のみ・対象0件・途中で中止）は検証する対象がないので `echo "NO_SEND: <理由>" > memory/.workflow/ov_done` として完了してよい。送っていないのに VERIFIED と書くことは禁止
    - `knowledge/logs/<タスク名>_<日付>.md` に **YAMLフロントマター付き**でログを記録し、サイトナレッジを更新（steps-reference.md I-1.5〜I-5。フロントマター無しだと次回のフェーズ判定が壊れる）
 7. タスク完了時は `memory/session-log.md`（正本はここ。`knowledge/logs/session-log.md` ではない — logs/ はタスク単位ログ専用）に学びを記録してから:

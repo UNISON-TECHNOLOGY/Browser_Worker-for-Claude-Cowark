@@ -49,6 +49,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V41 | 残留フラグ通知 | `printf x > memory/.workflow/money_alert` と同 `verify_allowlist` を置いた状態で session-start.sh を実行 → 個別に rm して再実行 | 1回目は【残留フラグ】通知に両フラグ名とブロック内容が出る（JSON も妥当）。2回目は通知が出ない（誤爆ゼロ） |
 | V42 | upload_image ゲート回帰 | フラグなしの状態で `upload_image`（ページへの画像アップロード）を試行。あわせて critic_pending 中の upload_image も試行 | 【Delvework Gate】でブロックされ、critic_pending 中は【Critic Gate】で止まる。※通ってしまったら **FAIL** — v1.3.0 以前は matcher 未登録で、**artisan の生成画像を無審査で外部サイトへ上げられる穴**だった（critic-gate が存在しない `file_upload` を見ていた） |
 | V43 | Critic Gate スコープ | `echo "banner-v2" > memory/.workflow/critic_pending` の状態で (a) `banner-v2.png` (b) 無関係な `debug-shot.png` の送付を試行 | (a) は【Critic Gate】で deny、(b) は**通る**。※(b) が止まるとデバッグ用スクショすら渡せず詰む（v1.3.0 で導入したスコープの回帰） |
+| V48 | 無駄な委譲をしない | (a) 読み取りだけの定常タスク（example.com の巡回等）を1本完走させる (b) 作業確認用のスクリーンショットを1枚撮る | (a) 締めで **outcome-verifier を起動しない**（照合する CP 証跡が無い。起動したら FAIL） (b) 中間物に **design-critic を呼ばない**。※逆に不可逆操作を含むタスクでは両方が起動すること（削りすぎの検知。conventions 1.5「呼ばない条件／必ず委譲する」の両側を見る） |
 | V46 | `requires:` 照合 | ダミーのサイトナレッジを2本置く: (a) `requires: [claude-in-chrome]`（満たす） (b) `requires: [playwright, cdp-9222]`（Cowork では満たさない）。そのサイトのタスクを開始させる | (a) は読まれ、**(b) は「現環境では実行不能」として読まれず、代替手段の探索も移植の試みも起きない**。※(b) の手順を実行しようとしたら FAIL（2026-07-27 の実運用事故＝移植を試みて手動チェックリストに退化・送出0件の再現） |
 | V47 | index のルーター | ルーター表（タスク別・読むファイル）を持つサイトナレッジで1タスク実行 | 表の該当行のファイルだけを Read し、`_archive/` と `logs/` を読まない。無関係なタスクのファイルまで読み込まない |
 | V21 | strategy-advisor | ダミーのタスクYAML案を渡して壁打ち | VERDICT（GO/GO-WITH-CHANGES/RETHINK）形式で助言が返る |
