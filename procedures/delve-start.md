@@ -29,7 +29,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    `claude-in-chrome` / `playwright` / `cdp-9222` / `bash` / `python3` / `ffmpeg` / `sqlite` /
    `design-sync` / `slack` / `local-schedule`。
    **満たさない `kind: operation` のファイルは読まない・従わない・移植しない**
-   （代替手段を自分で探さず、足りないものを報告して指示を仰ぐ。詳細は steps-reference D-2「有効条件」）。
+   （代替手段を自分で探さず、足りないものを報告して指示を仰ぐ。詳細は docs/steps/knowledge.md「有効条件」）。
 
 1. ワークスペースに `memory/.workflow/` と `knowledge/sites/` がなければ作成する
 2. フラグを初期化する:
@@ -61,7 +61,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
 
    - `knowledge/sites/<site>/snippets/*.js`（抽出・一括操作の JS）があれば Read して `javascript_tool` に渡す
    - `scripts/<タスク名>.js`（判定ロジック）があれば、**まず dry-run（既定）で対象と件数をユーザーに提示 → 承認 → `--apply` 相当で実行**する
-   - まだ無く、今回の手順が安定していると判断できるなら、Step I の後に凍結を提案する（作り方の正本は `${CLAUDE_PLUGIN_ROOT}/docs/steps-reference.md` の Step G'）
+   - まだ無く、今回の手順が安定していると判断できるなら、Step I の後に凍結を提案する（作り方の正本は `${CLAUDE_PLUGIN_ROOT}/docs/steps/freeze.md`）
 
 6. 実行後（Step I）— 順に:
    - **CP 証跡を照合**する（証跡なしで成功扱い禁止）

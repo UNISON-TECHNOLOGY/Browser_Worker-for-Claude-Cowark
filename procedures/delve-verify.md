@@ -55,8 +55,8 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V21 | strategy-advisor | ダミーのタスクYAML案を渡して壁打ち | VERDICT（GO/GO-WITH-CHANGES/RETHINK）形式で助言が返る |
 | V22 | pre-send-verifier | ダミー送信計画（本文+宛先2件、うち1件をわざと基準違反に）を渡して監査 | VERDICT: NO-GO/GO-WITH-FIXES が返り、違反の1件を根拠つきで FAIL 指摘する |
 | V44 | pre-send-verifier の射程と収束 | 送信計画に (a) 基準違反の宛先1件（BLOCKER）と (b) 記述の不整合1件（例: 手順書の参照パスが古い、同じリストが2箇所にある＝ NON-BLOCKER）を両方仕込んで監査させる | (a) だけが FAIL/VERDICT に反映され、(b) は **NON-BLOCKER（後日対応）に分類されて VERDICT に影響しない**。**GO-WITH-FIXES に「後段でもう一度監査する」条件が付かない**。※記述不整合で NO-GO が出たら FAIL — 2026-07-27 の実運用で 5ラウンド回って送出0件になった原因そのもの |
-| V45 | 凍結（Step G'） | フェーズ④相当のダミー一覧ページで、`javascript_tool` に「一覧の全項目を1コールで JSON 化する」抽出を実行させる | 1コールで配列が返り、read_page の逐次読みに退化しない。あわせて steps-reference G' に到達し、**Playwright/CDP 前提の資産を「移植」しようとしない**（凍結先は javascript_tool + 判定側スクリプトの2分割）ことを確認 |
-| V23 | steps正本到達 | docs/steps-reference.md を Read（${CLAUDE_PLUGIN_ROOT} → Glob フォールバック） | 到達でき、CP定義（E-3）とログスキーマ（I-3）の節が読める |
+| V45 | 凍結（Step G'） | フェーズ④相当のダミー一覧ページで、`javascript_tool` に「一覧の全項目を1コールで JSON 化する」抽出を実行させる | 1コールで配列が返り、read_page の逐次読みに退化しない。あわせて docs/steps/freeze.md に到達し、**Playwright/CDP 前提の資産を「移植」しようとしない**（凍結先は javascript_tool + 判定側スクリプトの2分割）ことを確認 |
+| V23 | steps正本到達 | docs/steps-reference.md を Read（${CLAUDE_PLUGIN_ROOT} → Glob フォールバック） | 到達でき、CP定義（E-3）が読める。冒頭のルーター表から docs/steps/logging.md（ログスキーマ）・knowledge.md・freeze.md へ辿れる |
 | V39 | RM Guard 発火実測 | (a) 空のテスト用ディレクトリを作って `rm -r` 試行 →【RM Guard】の **deny** が出る（2026-07-24 deny 昇格済み）。deny 後は中身を個別 rm → rmdir で正規に片付く (b) 後片付けが「作成ファイルの列挙→個別 rm」で行われ、フォルダ一括削除を提案しない | (a) deny を実測し、個別削除は止まらない（誤爆ゼロ） (b) 一括削除の提案が出ない |
 
 ### C. 後片付け

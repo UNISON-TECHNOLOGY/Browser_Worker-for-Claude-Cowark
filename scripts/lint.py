@@ -157,7 +157,7 @@ for f in list(ROOT.glob("commands/*.md")) + list(ROOT.glob("procedures/*.md")) +
 # 文書のルールでは止まらないと実証されたので機械強制する。
 # 根拠・実例・事故の記録は docs/rationale.md（必読でない）へ置く。
 HOT_PATH_BUDGET = {          # ファイル: 上限バイト数
-    "docs/steps-reference.md": 21000,
+    "docs/steps-reference.md": 13000,
     "procedures/delve-start.md": 8500,
     "docs/conventions.md": 6000,
     "hooks/scripts/session-rules.txt": 7500,

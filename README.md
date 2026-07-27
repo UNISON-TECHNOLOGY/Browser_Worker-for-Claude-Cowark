@@ -84,7 +84,7 @@
 | 執筆リファレンス 17 | `references/` 配下の内部教科書（スキル一覧には登録されない）。web-design / video-ad / sns-jp / ad-compliance-jp / content-design / seo-jp / cro-jp / recruit（求人・スカウト）/ copy / sales / logical / business / storytelling + **心理3部作**（psych-nudge-jp=訴求フレーム / psych-ux-jp=デザイン心理 / psych-target-jp=読み手別の書き分け。日本の実証研究ベース・不安の解消にのみ使用）+ **design-evidence-jp**（実証デザイン数値基準 — 何px・何色・どの順を実験/公的基準で決める）。業界を問わず使える執筆規範で、エージェントとコマンドが執筆時に Read して適用 |
 | エージェント 6 | deliverable-writer（レポート執筆）/ design-artisan（モックアップ生成）/ design-critic（デザイン審査）/ strategy-advisor（設計壁打ち・エスカレーション）/ pre-send-verifier（送信前の敵対的監査 — 較正ログ付き）/ outcome-verifier（送信後の証跡検証・効果測定） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 + 検証タスク（verify-task — /検証 full を実タスク形式で回す）+ 画像/動画（banner-compose / chromakey / guide-anim。地図: docs/media-pipeline.md） |
-| ステップ正本 | `docs/steps-reference.md` — A〜K 手順・CP証跡・ログスキーマ・ナレッジ構造の正本（/タスク開始 が最初に Read） |
+| ステップ正本 | `docs/steps-reference.md` — A〜K 手順・CP証跡の骨格（/タスク開始 が最初に Read）。詳細節は `docs/steps/` に分離し**必要なときだけ読む**（knowledge=ナレッジ構造 / freeze=凍結 / logging=ログスキーマ / money-recovery=復帰）。規則の背景・実例は `docs/rationale.md`（必読でない） |
 
 ## 自社カスタマイズ
 
@@ -119,12 +119,12 @@
 
   ローカルで**一括送出・金銭近傍の操作は行わない** — それらは cloud で。matcher にはローカルのツール名（mcp__workspace__bash / mcp__cowork__present_files）も登録済みで、hooks が配線され次第そのまま効く
 
-- **bash とブラウザは別マシン（cloud / ローカル共通）**。bash はサンドボックス（ローカルは Hyper-V 上の Linux VM）の中で動き、ブラウザ操作はユーザーのマシンの Chrome に届く。**サンドボックスから `localhost:9222`（CDP）には構造的に到達できず、Playwright / CDP 前提のスクリプトは Cowork では実行できない**。速くしたい定常タスクは `javascript_tool`（ページ内 JS）と `browser_batch`（複数アクションの束ね）に凍結する — この2つは hooks の matcher に入っているので**ゲートが効いたまま速くなる**（[docs/steps-reference.md](docs/steps-reference.md) G'）
+- **bash とブラウザは別マシン（cloud / ローカル共通）**。bash はサンドボックス（ローカルは Hyper-V 上の Linux VM）の中で動き、ブラウザ操作はユーザーのマシンの Chrome に届く。**サンドボックスから `localhost:9222`（CDP）には構造的に到達できず、Playwright / CDP 前提のスクリプトは Cowork では実行できない**。速くしたい定常タスクは `javascript_tool`（ページ内 JS）と `browser_batch`（複数アクションの束ね）に凍結する — この2つは hooks の matcher に入っているので**ゲートが効いたまま速くなる**（[docs/steps/freeze.md](docs/steps/freeze.md)）
 - 無人運用（PC起動→自動定常タスク）の構成は [docs/unattended-ops.md](docs/unattended-ops.md) を参照（パスワード無保管のまま自動化する3層設計）
 - 送信・投稿など不可逆な送出の前は pre-send-verifier（敵対的監査）+ 人間承認の二段ゲート。金銭・契約系画面は **Money Watch** が検知して変更操作を強制停止します（検知は2段階 — 停止するのは「購入を確定」等の確定表現だけで、ナビに常在する「決済」「請求」等は注意喚起のみ。2026-07-27 の過剰ゲート監査で分離）
 - **既知の限界（設計上の割り切り）**:
   - **ローカル Cowork（デスクトップのローカルセッション）では plugin hooks が配線されず、全ゲート（URL Guard / OV / Critic / Money Watch / Credential Guard / 変更操作ゲート）が機械強制されない**（2026-07-24 v1.0.0 ローカル実測）。ローカルでの安全性は自己規律＋Cowork 本体の許可プロンプトに依存する。**一括送出・金銭近傍・無人運用などゲート前提の運用は cloud セッションで行うこと**。matcher にはローカルのツール名（mcp__workspace__bash / mcp__cowork__present_files）も登録済みで、配線され次第そのまま効く
-  - ゲートは MCP ブラウザツールが対象。**Bash 経由の直接送信（node/curl 等）はゲート対象外** — Node スクリプト等での送信運用は、スクリプト自身に CP 判定・上限・履歴突合を内蔵する（steps-reference G' の作り方3）か、ワークスペース側の hook・権限設定で別途ゲートすること
+  - ゲートは MCP ブラウザツールが対象。**Bash 経由の直接送信（node/curl 等）はゲート対象外** — Node スクリプト等での送信運用は、スクリプト自身に CP 判定・上限・履歴突合を内蔵する（docs/steps/freeze.md の作り方3）か、ワークスペース側の hook・権限設定で別途ゲートすること
   - **`browser_batch` は読み取りのみでも Money Watch 停止中は deny される**（単体の read_page は通る）。同じ読み取りが包み方で挙動を変える不整合 — 停止中は batch を使わず単体呼び出しにすること
   - 同一ワークスペースの**並行セッションはフラグ（memory/.workflow/）を共有**するため相互干渉しうる。同時実行は1タスクずつを推奨
   - Credential Guard / JS mutation 判定はキーワード検知の best-effort（難読化で回避可能）。硬い防御は Money Watch・URL Guard・人間承認が担う
