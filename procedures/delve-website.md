@@ -10,5 +10,6 @@
 | 「このページ/LPを改善して」「リニューアル案」 | クリエイティブ | docs/parts/page-improve.md |
 | 「Designに反映して」「書き出して」 | 掃き出し | docs/parts/design-sync.md / docs/parts/canva-export.md |
 
+- 管理画面を伴う媒体・サイトの診断は、サイト種別判定 → FA/SA/TA/DA の出し分け（docs/parts/site-audit.md §4。公開ページ無しなら DA=運用データ解析）に従う
 - 連続依頼（例:「診断して改善案まで」）は 分析→クリエイティブ→掃き出し のワークフローとして連結する
 - 実サイトへの変更操作は必ず /タスク開始（A〜K）経由。成果物は docs/conventions.md 準拠
