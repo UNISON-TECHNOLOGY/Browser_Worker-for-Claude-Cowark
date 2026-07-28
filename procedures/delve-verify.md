@@ -87,6 +87,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V53 | session-rules 予算 | `wc -c hooks/scripts/session-rules.txt` | 6,500バイト以下（毎セッション全文注入されるため。test-hooks.sh と lint.py のホットパス予算で機械検証済み — 数値の再確認のみでよい） |
 | V54 | README のポインタ形式 | README「既知の限界」節を Read | 各項目が1行要約で、節の冒頭に `docs/escalations.md` へのポインタがある（E1〜E4 の詳細が README に写っていたら FAIL） |
 | V56 | 収束条件の正本一元化 | agents/design-critic.md と呼び出し側4箇所（docs/steps-reference.md Step H / docs/parts/page-improve.md / docs/parts/ad-to-lp.md / docs/parts/imagegen.md）を Read | 周回上限の正本が design-critic.md「収束条件」にあり（1周目=全件・2周目=差分・上限後は `VERDICT: HUMAN-REVIEW-REQUIRED`）、呼び出し側4箇所はいずれも同節への1行ポインタである。**呼び出し側に「最大2周」等の具体的な周回数が書かれていたら FAIL**（正本一元化違反＝乖離事故の芽） |
+| V57 | 規制・実証値の正本一元化 | references/ の psych-ux-jp / psych-nudge-jp / psych-target-jp / cro-jp / ad-compliance-jp と web-design/resources/lp-cro.md・design-evidence-jp を Read | 景表法No.1表示・ステマ規制の**内容説明が ad-compliance-jp 以外に複製されていない**（他スキルは分担ヘッダ+ポインタ+心理側の注意1行のみ）。CTA原則・FV把握時間（3秒）・5秒テスト・CVR比較値の**正本が design-evidence-jp「3. LPレイアウト」**にあり、cro-jp / lp-cro.md は原則1行+ポインタである。※他ファイルに規制の内容説明や実証数値が書き戻されていたら FAIL（乖離事故の芽） |
 | V55 | 非ホットパス上限 | ダミーの 210行 md を `docs/` に置いて `python3 scripts/lint.py` → 削除 | ERROR で検知される（150行超は WARN / 200行 or 32KB 超は ERROR）。検知しなければ FAIL |
 
 ### F. パーフェクト検証（perfect のみ — full の全項目に加えて実行）
