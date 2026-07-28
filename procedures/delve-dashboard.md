@@ -50,9 +50,8 @@ argument-hint: [なし]
 
 ## アーティファクト発行（重要）
 
-- create_artifact / update_artifact が使える環境では、**初回は create、以降は必ず同じアーティファクトを update** する（URL を固定し、ブックマーク可能な「司令塔ページ」にする）
-- アーティファクトの ID/URL は `knowledge/media/dashboard-artifact.md` に記録し、次回の update で参照する
-- 発行後、共有URLを報告する
+- 手順は `docs/conventions.md` §2（固定URL物の create/update・already exists 時の扱い・artifacts-index への追記）に従う。ダッシュボードは**固定URL物**として扱う
+- ID/URL の記録先は `knowledge/media/dashboard-artifact.md`
 
 ## 運用の推奨
 

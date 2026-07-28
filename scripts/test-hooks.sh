@@ -34,6 +34,7 @@ check "gate: 未初期化で deny" '"permissionDecision":"deny"' "$out"
 
 # 2. ゲート: フラグ完備で通過
 echo t > "$DELVEWORK_WF_DIR/active"; touch "$DELVEWORK_WF_DIR/b4_done" "$DELVEWORK_WF_DIR/e_done"
+echo return > "$DELVEWORK_WF_DIR/phase"   # b4_done は phase 非空も要求する（2026-07-28 整合検証）
 out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
 check "gate: フラグ完備で通過" EMPTY "$out"
 
@@ -133,6 +134,7 @@ fi
 
 # --- psv_done ゲート（一括送出の監査強制） ---
 echo t > "$DELVEWORK_WF_DIR/active"; touch "$DELVEWORK_WF_DIR/b4_done" "$DELVEWORK_WF_DIR/e_done"
+echo return > "$DELVEWORK_WF_DIR/phase"
 rm -f "$DELVEWORK_WF_DIR/money_alert"
 touch "$DELVEWORK_WF_DIR/bulk_send"
 out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"send button"}}' | bash "$SC/workflow-gate.sh")
@@ -233,6 +235,90 @@ printf '%s' "$out" | json_valid && echo "PASS: session-start 残留通知 JSON" 
 rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/verify_allowlist"
 out=$(bash "$SC/session-start.sh")
 printf '%s' "$out" | grep -q '残留フラグ' && { echo "FAIL: 残留なしでも通知が出る（誤爆）"; FAIL=1; } || echo "PASS: 残留なしでは通知しない"
+
+# --- phase 整合検証（2026-07-28 コンテキスト管理監査）: b4_done だけでは通さない ---
+rm -f "$DELVEWORK_WF_DIR"/.deny_* "$DELVEWORK_WF_DIR/bulk_send" "$DELVEWORK_WF_DIR/psv_done" "$DELVEWORK_WF_DIR/money_alert"
+echo t > "$DELVEWORK_WF_DIR/active"; touch "$DELVEWORK_WF_DIR/b4_done" "$DELVEWORK_WF_DIR/e_done"
+: > "$DELVEWORK_WF_DIR/phase"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+check "gate: phase が空なら b4 未完了として deny" 'B-4' "$out"
+printf '   \n' > "$DELVEWORK_WF_DIR/phase"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+check "gate: phase が空白のみでも deny" '"permissionDecision":"deny"' "$out"
+echo return > "$DELVEWORK_WF_DIR/phase"
+rm -f "$DELVEWORK_WF_DIR"/.deny_*
+out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+check "gate: phase 記録済みなら通過" EMPTY "$out"
+
+# --- deny 文言の減衰（同一理由の連投でフル文言を再送しない） ---
+rm -f "$DELVEWORK_WF_DIR"/.deny_*
+printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
+out1=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+out2=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+out3=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+check "decay: 1回目はフル文言" '復帰手順の正本' "$out1"
+check "decay: 2回目もフル文言" '復帰手順の正本' "$out2"
+check "decay: 3回目は短縮（フル文言を再送しない）" '"permissionDecision":"deny"' "$out3"
+if printf '%s' "$out3" | grep -q '復帰手順の正本'; then
+  echo "FAIL: decay: 3回目もフル文言が再送されている"; FAIL=1
+else
+  echo "PASS: decay: 3回目はフル文言なし"
+fi
+check "decay: 短縮版にも正本パスと自己診断導線がある" 'money-recovery\.md' "$out3"
+check "decay: 短縮版に /状態確認 がある" '状態確認' "$out3"
+printf '%s' "$out3" | json_valid && echo "PASS: decay 短縮 JSON" || { echo "FAIL: decay 短縮 JSON が壊れる"; FAIL=1; }
+# 理由が変わったらカウンタはリセット（別ゲートの deny はフル文言で出る）
+rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/active"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+check "decay: 理由が変わればフル文言に戻る" 'delve-start\.md' "$out"
+[ -f "$DELVEWORK_WF_DIR/.deny_money" ] && { echo "FAIL: decay: 旧理由のカウンタが残っている"; FAIL=1; } || echo "PASS: decay: 理由変更でカウンタ入れ替え"
+# フラグ解除で通り抜けたらカウンタは全消去
+echo t > "$DELVEWORK_WF_DIR/active"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+check "decay: 通過するとカウンタが消える（次はフル文言）" EMPTY "$out"
+ls "$DELVEWORK_WF_DIR"/.deny_* >/dev/null 2>&1 && { echo "FAIL: decay: 通過後もカウンタが残る"; FAIL=1; } || echo "PASS: decay: 通過でカウンタ消去"
+# 減衰しても deny は deny（fail-closed の維持）
+printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
+for i in 1 2 3 4 5; do
+  out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+  printf '%s' "$out" | grep -q '"permissionDecision":"deny"' || { echo "FAIL: decay: ${i}回目が deny でない（ゲートが緩んだ）"; FAIL=1; }
+done
+echo "PASS: decay: 連投しても常に deny（fail-closed）"
+rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR"/.deny_*
+
+# --- Money Watch の hook 出力は復帰手順の正本ポインタ（文言の二重管理をしない） ---
+out=$(printf '{"tool_response":"\u8cfc\u5165\u3092\u78ba\u5b9a"}' | bash "$SC/money-watch.sh")
+check "money-watch: 正本 money-recovery.md を指す" 'docs/steps/money-recovery\.md' "$out"
+if printf '%s' "$out" | grep -q 'STOP/RESPOND/MONITOR'; then
+  echo "FAIL: money-watch 出力に復帰手順の写しが残存（正本と乖離する）"; FAIL=1
+else
+  echo "PASS: money-watch 出力は手順を写さずポインタのみ"
+fi
+rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR"/.deny_*
+
+# --- session-start: session-log 肥大検知（該当時のみ1行） ---
+mkdir -p "$CLAUDE_PROJECT_DIR/memory"
+out=$(bash "$SC/session-start.sh" </dev/null)
+printf '%s' "$out" | grep -q 'session-log】' && { echo "FAIL: session-log なしで肥大通知が出る"; FAIL=1; } || echo "PASS: session-log 未肥大では通知しない"
+awk 'BEGIN{for(i=0;i<401;i++)print "line "i}' > "$CLAUDE_PROJECT_DIR/memory/session-log.md"
+out=$(bash "$SC/session-start.sh" </dev/null)
+check "session-start: 401行で肥大を通知" 'session-log】' "$out"
+check "session-start: 圧縮導線（/メモリ）を案内" 'メモリ' "$out"
+printf '%s' "$out" | json_valid && echo "PASS: session-start 肥大通知 JSON" || { echo "FAIL: session-start 肥大通知 JSON が壊れる"; FAIL=1; }
+rm -f "$CLAUDE_PROJECT_DIR/memory/session-log.md"
+
+# --- session-start: 減衰カウンタをセッション開始時にクリアする ---
+printf '9' > "$DELVEWORK_WF_DIR/.deny_money"
+bash "$SC/session-start.sh" >/dev/null </dev/null
+[ -f "$DELVEWORK_WF_DIR/.deny_money" ] && { echo "FAIL: session-start が減衰カウンタを消さない"; FAIL=1; } || echo "PASS: session-start が減衰カウンタをクリア"
+
+# --- session-rules.txt のホットパス予算（毎セッション全文注入されるため） ---
+RULES_BYTES=$(wc -c < "$SC/session-rules.txt" | tr -dc '0-9')
+if [ "$RULES_BYTES" -le 6500 ]; then
+  echo "PASS: session-rules.txt ${RULES_BYTES}B（目標 6500B 以内）"
+else
+  echo "FAIL: session-rules.txt ${RULES_BYTES}B（目標 6500B 超）"; FAIL=1
+fi
 
 rm -rf "$CLAUDE_PROJECT_DIR"
 [ "$FAIL" = 0 ] && echo "test-hooks: ALL PASS" || echo "test-hooks: FAILURES"

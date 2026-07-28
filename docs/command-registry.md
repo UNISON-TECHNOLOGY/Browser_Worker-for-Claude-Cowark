@@ -137,24 +137,6 @@ SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `do
 | 自社・広告 | knowledge/audits/・styles/・mockups/・assets/・drafts/ |
 | 基盤・記録（横断） | knowledge/sites/・logs/・reports/・tacit/・feedback/・data/・config/・artifacts-index.md |
 
-## 追加時のチェックリスト
+## チェックリスト
 
-- [ ] 新しい媒体 → 原則 **/ワーク追加**（ワークスペース側に動的生成。プラグインは変更しない）。プラグイン標準パックに昇格させる場合のみ `commands/<日本語名>.md` + `procedures/delve-<name>.md` を追加
-- [ ] 新しいSNS標準媒体 → `procedures/delve-sns-<name>.md` 追加とセットで **4点配線**: ①delve-sns の振り分け表 ②delve-sns §0 の媒体名リスト ③delve-setup 質問1の選択肢 ④この台帳の内部手順一覧（2026-07-24 Threads 追加時に④が漏れた教訓）
-- [ ] 新しい能力 → `docs/parts/<name>.md`（部品）+ parts/index.md に行追加。**コマンドは増やさない**
-- [ ] 新しい執筆リファレンス（references/）→ session-rules(3) と **該当サブエージェント（deliverable-writer / design-artisan / design-critic / pre-send-verifier）の参照表にも配線**（エージェントは自分でルールを読まないため、定義ファイルに書かないと届かない）
-- [ ] この台帳に1行追加（カテゴリー + Pack）
-- [ ] 定常実行するものはループ台帳にも追加
-- [ ] README のコマンド数を更新
-- [ ] 両 version ファイルを bump
-
-## 配布時チェックリスト（Cowork 配布の実態に合わせた品質ゲート）
-
-Cowork の配布は marketplace 同期＝**このリポジトリがそのまま配布物**（削除ビルドは存在しない）。/検証・TESTING・scripts/・.github/ は**品質保証機能として同梱する**（利用者が「プラグインを検証して」でいつでもセルフテストでき、CI が push ごとに回帰を担保する設計）。配布＝以下がすべて緑であること:
-
-- [ ] `python scripts/lint.py` → `lint: OK`（双方向突合）
-- [ ] `bash scripts/test-hooks.sh` → `ALL PASS`（防御系回帰）
-- [ ] CI（GitHub Actions）最新 run が success
-- [ ] Cowork 実機での直近の `/検証 full` 結果が TESTING.md 末尾に記録され、FAIL 0（未解消 FAIL があれば配布延期）
-- [ ] `.claude-plugin/` の version が配布告知と一致（bump 忘れは更新反映されない）
-- [ ] docs/escalations.md の上申事項が最新（プラグインで根治不可の限界が README「既知の限界」と齟齬なく開示されている）
+追加時（コマンド・媒体・部品・リファレンス）と配布時の手順は **[registry-checklists.md](registry-checklists.md)** が正本（この台帳の更新もそこに含む）。

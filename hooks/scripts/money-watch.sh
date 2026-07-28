@@ -48,10 +48,12 @@ matched="$(match_lists "$SCRIPT_DIR/money-watchlist.txt" "$PROJECT_DIR/knowledge
 if [ -z "$matched" ]; then
   weak="$(match_lists "$SCRIPT_DIR/money-watchlist-weak.txt" "$PROJECT_DIR/knowledge/config/money-watchlist-weak.txt")"
   [ -z "$weak" ] && exit 0
-  warn_posttool "【Money Watch・注意】この画面に金銭系の表示があります（パターン: $weak）。停止はしていません — 変更操作を行う前に、操作対象の要素が金銭・契約・不可逆登録に触れないことを自分で確かめてください。触れる場合は自己判断で進めず、strategy-advisor の助言とユーザーの明示承認を得ること。"
+  warn_posttool "【Money Watch・注意】この画面に金銭系の表示があります（パターン: $weak）。停止はしていません — 変更操作の前に、操作対象が金銭・契約・不可逆登録に触れないことを自分で確かめてください。触れる場合は自己判断で進めず docs/steps/money-recovery.md に従うこと。"
 fi
 
 mkdir -p "$WF_DIR" 2>/dev/null
 printf '%s' "$matched" > "$WF_DIR/money_alert"
 
-warn_posttool "【Money Watch】いま読み取った画面に金銭・契約・不可逆登録系の要素を検知しました（パターン: $matched）。変更操作は一時停止されます（ゲートが deny）。docs/steps-reference.md 末尾『Money Watch 停止からの復帰』の手順に従うこと: (1) strategy-advisor サブエージェントにこの画面の状況と実行しようとしていた操作を渡し、続行可否の助言（STOP/RESPOND/MONITOR）を得る。(2) 助言と操作内容をユーザーに提示し、明示的な承認を得る。(3) 承認を得た場合のみ手順書記載の方法で解除し、承認の事実を session-log に1行記録して再開する。ユーザー承認なしの解除は禁止。"
+# hook 出力は「フラグを設置した事実 + 正本へのポインタ」に留める（復帰手順の文言を二重管理しない。
+# 正本は docs/steps/money-recovery.md — ここに写すと乖離してどちらが正か分からなくなる）
+warn_posttool "【Money Watch】いま読み取った画面に金銭・契約・不可逆登録系の要素を検知したため、memory/.workflow/money_alert を設置しました（パターン: $matched）。以降の変更操作はゲートが deny します。復帰手順の正本 docs/steps/money-recovery.md を Read して従うこと（ユーザーの明示承認なしの解除は禁止）。"

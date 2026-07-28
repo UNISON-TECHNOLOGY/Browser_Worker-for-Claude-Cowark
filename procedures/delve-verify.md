@@ -46,7 +46,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V19 | タスクYAML実行連携 | 「verify-loop やって」と依頼 | delve-start が tasks/verify-loop.yaml を Read し、その steps を実行計画に使う（読み取り専用なので承認不要で完走）。終了後 /カスタマイズ のタスク削除で verify-loop を掃除し、YAML と loops 行が消えることまで確認 |
 | V20 | Money Watch【強】 | ハイブリッド方式: (a) money-watch.sh に**強**パターン（「購入を確定」「この操作は取り消せません」等。単独の「決済」「請求」は v1.3.0 で弱に降格したので使わない）を含む PostToolUse 形式の実 JSON を渡し、警告注入と money_alert 生成を確認（日本語は ensure_ascii=True の Unicode エスケープ経由で渡す） → (b) money_alert がある状態で実ブラウザの変更操作を試行し deny を確認 → 検証後 `rm memory/.workflow/money_alert`。※ローカルHTML（file:///data:）の read_page 方式は使わない（Claude in Chrome は browser-internal URL への navigate を拒否するため実行不能。2026-07-23 実測） | (a) 【Money Watch】警告が注入され money_alert が生成される（Unicodeエスケープ経由の日本語語句でも検知）、(b) 変更操作が Money Watch 文言で deny される |
 | V40 | Money Watch【弱】は止めない | (a) money-watch.sh に**弱**パターンだけを含む JSON（「決済画面」等のナビ語）を渡す (b) 直後に変更操作を試行 → 終了後フラグ掃除 | (a)【Money Watch・注意】が注入されるが **money_alert は生成されない** (b) 変更操作が**通る**。※money_alert が立ったら **FAIL**（v1.3.0 で分離した過剰ゲートの再発。媒体の管理画面を開いた時点で定常タスクが毎回止まる状態に戻る） |
-| V41 | 残留フラグ通知 | `printf x > memory/.workflow/money_alert` と同 `verify_allowlist` を置いた状態で session-start.sh を実行 → 個別に rm して再実行 | 1回目は【残留フラグ】通知に両フラグ名とブロック内容が出る（JSON も妥当）。2回目は通知が出ない（誤爆ゼロ） |
+| V41 | 残留フラグ通知 | `printf x > memory/.workflow/money_alert` と同 `verify_allowlist` を置いた状態で session-start.sh を実行 → 個別に rm して再実行 | 1回目は【残留フラグ】通知に両フラグ名とブロック内容が出る（JSON も妥当）。2回目は通知が出ない（誤爆ゼロ）。**注: 実機 compaction（auto-compact / `/compact`）時に SessionStart が発火するかは未観測 → escalations.md E5 参照。この項目は手動実行での検証であり、compaction 時の再通知を保証しない** |
 | V42 | upload_image ゲート回帰 | フラグなしの状態で `upload_image`（ページへの画像アップロード）を試行。あわせて critic_pending 中の upload_image も試行 | 【Delvework Gate】でブロックされ、critic_pending 中は【Critic Gate】で止まる。※通ってしまったら **FAIL** — v1.3.0 以前は matcher 未登録で、**artisan の生成画像を無審査で外部サイトへ上げられる穴**だった（critic-gate が存在しない `file_upload` を見ていた） |
 | V43 | Critic Gate スコープ | `echo "banner-v2" > memory/.workflow/critic_pending` の状態で (a) `banner-v2.png` (b) 無関係な `debug-shot.png` の送付を試行 | (a) は【Critic Gate】で deny、(b) は**通る**。※(b) が止まるとデバッグ用スクショすら渡せず詰む（v1.3.0 で導入したスコープの回帰） |
 | V48 | 無駄な委譲をしない | (a) 読み取りだけの定常タスク（example.com の巡回等）を1本完走させる (b) 作業確認用のスクリーンショットを1枚撮る | (a) 締めで **outcome-verifier を起動しない**（照合する CP 証跡が無い。起動したら FAIL） (b) 中間物に **design-critic を呼ばない**。※逆に不可逆操作を含むタスクでは両方が起動すること（削りすぎの検知。conventions 1.5「呼ばない条件／必ず委譲する」の両側を見る） |
@@ -76,6 +76,18 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 
 実行不可の環境（bash/python なし）では SKIP(理由) とし、報告書に「CI（GitHub Actions）が push ごとに同項目を実行済み」と1行書くだけでよい。**GitHub をブラウザで見に行かない**（原則「ブラウザ検証は example.com のみ」はここにも適用。プラグインの更新・リポジトリ確認はオーナーの設定画面操作であり、検証タスクの仕事ではない）。
 
+### G. コンテキスト管理（full のみ・2026-07-28 の監査で追加。bash/python が無ければ SKIP）
+
+| # | 項目 | 手順 | PASS基準 |
+|---|---|---|---|
+| V49 | deny 文言の減衰 | `printf x > memory/.workflow/money_alert` で同一理由の deny を5回連続で発生させる → 検証後フラグと `.deny_*` を rm | 3回目以降は1行の短縮版になり（フル文言を再送しない）、**5回とも deny 判定は維持される**（1回でも通ったら FAIL＝ゲート緩和。減衰は文言のみ） |
+| V50 | phase 非空ゲート | `b4_done` を立てた状態で `phase` を (a) 空 (b) 空白のみ (c) `return` にして変更操作を試行 | (a)(b) は b4_done があっても **B-4 未完了として deny**、(c) は通る（判定を飛ばしてフラグだけ立てる迂回の封鎖） |
+| V51 | session-log 肥大検知 | 401行の `memory/session-log.md` を用意して session-start.sh を実行 → 400行以下に戻して再実行 | 401行では【session-log】圧縮提案（/メモリ）が**1行だけ**注入され、閾値以下では出ない（常時出る説明文になっていないこと） |
+| V52 | hook 出力のポインタ化 | money-watch.sh に強パターンの JSON を渡し、出力文言を確認 | 復帰手順の本文を再掲せず `docs/steps/money-recovery.md` へのポインタのみ（strategy-advisor→承認→解除の3手順が hook 側に写っていたら FAIL＝二重管理の再発） |
+| V53 | session-rules 予算 | `wc -c hooks/scripts/session-rules.txt` | 6,500バイト以下（毎セッション全文注入されるため。test-hooks.sh と lint.py のホットパス予算で機械検証済み — 数値の再確認のみでよい） |
+| V54 | README のポインタ形式 | README「既知の限界」節を Read | 各項目が1行要約で、節の冒頭に `docs/escalations.md` へのポインタがある（E1〜E4 の詳細が README に写っていたら FAIL） |
+| V55 | 非ホットパス上限 | ダミーの 210行 md を `docs/` に置いて `python3 scripts/lint.py` → 削除 | ERROR で検知される（150行超は WARN / 200行 or 32KB 超は ERROR）。検知しなければ FAIL |
+
 ### F. パーフェクト検証（perfect のみ — full の全項目に加えて実行）
 
 | # | 項目 | 手順 | PASS基準 |
@@ -85,7 +97,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V30 | 動的コマンド生成 | (a) /ワーク追加 をダミー媒体（example.com 管理画面想定）でドライラン（マッピングは1ページのみ・登録後に削除） (b) delve-setup の媒体選択経由で SNS 専用コマンド（例: /X運用）と**広告専用コマンド（例: /Google広告 — delve-ads 参照・媒体固定）**の生成をドライラン（生成物確認後に削除。setup.yaml は**書き換え前に cp でバックアップを取り、バックアップから cp で復元** — 記憶で書き直すとユーザーデータを失う） | (a) .claude/commands/<媒体>.md が規約どおり生成され、**registry.yaml に `parent:` が記録され**（既存パック非該当なら parent: other = 非表示親）、削除フローで消える (b) 両専用コマンドが親判定表（delve-add-work §4: SNS=<媒体名>運用 / 広告=<媒体名>広告 / 求人=<媒体名>）どおり生成される |
 | V31 | セットアップ再質問なし | setup.yaml 回答済みの項目（生成AIアカウント等）を含む依頼を実行 | accounts.md/setup.yaml を読み、同じ質問を繰り返さない |
 | V32 | 全エージェント起動 | 6体それぞれに最小タスク（3行以内の入力）を委譲 | 全員が定義どおりの形式（VERDICT / VERIFIED / 批評形式等）で応答。使用モデルを記録 |
-| V33 | evals 全ラン | docs/evals.md の G1〜G9 を全件実行 | 全件 PASS（FAIL は本体修正 → TESTING.md 記録 → 再ラン） |
+| V33 | evals 全ラン | docs/evals.md の G1〜G10 を全件実行 | 全件 PASS（FAIL は本体修正 → TESTING.md 記録 → 再ラン） |
 | V34 | 全ファイル到達 | docs/parts/ の全部品 + references/ 全17本 + **procedures/ 全27本**（SNS媒体別7本含む）を Read | 全ファイル到達・frontmatter/規約準拠（欠損ゼロ） |
 | V36 | design-handoff 発火 | ダミーの完成ビジュアルに対し「これ自分で手直ししたい」（ツール名を言わずに） | docs/parts/design-handoff.md に到達し経路選択（list_projects は1回だけ・実送付なし、プロジェクト作成はドライラン）が始まる。「直し終わった」で回収フローに入る |
 | V37 | 運用系ルーティング | (a) ブラウザ操作を含むタスクを /カスタマイズ で登録（ドライラン可） (b) 「無人運用前チェックして」と依頼 | (a) create_trigger を選ばず**ローカル登録（このコンピュータで実行）を案内**する (b) unattended-ops.md の前チェック手順に到達しログイン○✗一覧の形で報告する |
@@ -97,7 +109,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 
 | # | 項目 | 手順 | PASS基準 |
 |---|---|---|---|
-| V27 | golden タスク | docs/evals.md の G1〜G9 を実行 | 各タスクの PASS 基準（機械判定）を満たす。FAIL は evals.md の運用に従い本体を修正して記録 |
+| V27 | golden タスク | docs/evals.md の G1〜G10 を実行 | 各タスクの PASS 基準（機械判定）を満たす。FAIL は evals.md の運用に従い本体を修正して記録 |
 | V35 | 新2ゲート発火実測 | (a) `touch memory/.workflow/bulk_send` 後に `touch memory/.workflow/k_done` を Bash 実行 (b) `touch memory/.workflow/critic_pending` 後にダミーPNGをユーザーに送付試行。終了後フラグを掃除 | (a)【OV Gate】(b)【Critic Gate】の **deny** が観測される（両ゲートとも 2026-07-24 に deny 昇格済み）。**deny が出なければゲート不発として FAIL** — 実際のツール名を報告に記載（V25 は機械テストであり実機 matcher の代替にならない）。deny 後は正規手順（ov_done 書込 / critic_pass）で通過することまで確認 |
 
 ## 報告書（必ず2形式）

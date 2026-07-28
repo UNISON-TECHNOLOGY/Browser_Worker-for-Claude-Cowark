@@ -177,6 +177,25 @@ for rel, limit in HOT_PATH_BUDGET.items():
     elif n > limit * 0.92:
         warns.append(f"{rel}: {n}バイト（上限 {limit} の9割超）。次の追記で超える")
 
+# --- 非ホットパスの緩い上限（全 md の肥大検知） ---
+# ホットパス以外にも「150行超えたら分割」の規約はかかる。台帳が 160行に育っていたのを
+# 人力レビューでしか検知できなかったため、緩い閾値で機械化する（分割 or ポインタ化で下げる）。
+DOC_WARN_LINES, DOC_ERR_LINES, DOC_ERR_BYTES = 150, 200, 32000
+_doc_files = sorted(set(
+    list(ROOT.glob("docs/**/*.md")) + list(ROOT.glob("procedures/*.md")) +
+    list(ROOT.glob("agents/*.md")) + list(ROOT.glob("commands/*.md"))))
+for f in _doc_files:
+    rel = f.relative_to(ROOT).as_posix()
+    if rel in HOT_PATH_BUDGET:
+        continue  # ホットパス予算（バイト厳格）で見ている
+    text = read(f)
+    lines, size = len(text.splitlines()), len(text.encode("utf-8"))
+    if lines > DOC_ERR_LINES or size > DOC_ERR_BYTES:
+        err(f"{rel}: {lines}行 / {size}バイト（上限 {DOC_ERR_LINES}行 / {DOC_ERR_BYTES}バイト）。"
+            f"節を分割して別ファイル＋ポインタにすること")
+    elif lines > DOC_WARN_LINES:
+        warns.append(f"{rel}: {lines}行（規約の150行超）。分割かポインタ化を検討")
+
 # --- 結果 ---
 print(f"lint: hotpath={_hot_total}B commands={len(commands)} procedures={len(procedures)} "
       f"agents={len(list((ROOT/'agents').glob('*.md')))} skills={len(list((ROOT/'references').glob('*/SKILL.md')))} "

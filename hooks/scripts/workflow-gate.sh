@@ -36,7 +36,9 @@ fi
 # Money Watch 停止フラグ: 金銭・契約系画面の検知後は、ユーザー承認による解除まで変更操作を全て deny。
 # JS実行系より前に置く（コード実行は mutation 可能なため、金銭停止中は無条件で止める＝フェイルクローズ）。
 if [ -f "$WF_DIR/money_alert" ]; then
-  deny "【Money Watch】金銭・契約・不可逆登録系の画面を検知したため変更操作を停止中です（検知: $(cat "$WF_DIR/money_alert" 2>/dev/null | head -c 80)）。docs/steps-reference.md 末尾『Money Watch 停止からの復帰』の手順（strategy-advisor の助言 → ユーザーへの操作内容提示 → 明示的な承認）に従ってください。ユーザーの明示承認なしに停止を解除することは禁止です。"
+  deny_decay money \
+    "【Money Watch】金銭・契約・不可逆登録系の画面を検知したため変更操作を停止中です（検知: $(cat "$WF_DIR/money_alert" 2>/dev/null | head -c 80)）。復帰手順の正本 docs/steps/money-recovery.md を Read して従うこと。ユーザーの明示承認なしに停止を解除することは禁止です。現状が不明なら /状態確認（delve-status）でフラグ・フェーズを一覧できます。" \
+    "【Money Watch】停止中（money_alert）。復帰は docs/steps/money-recovery.md を Read。現状は /状態確認。"
 fi
 
 # JS実行系（javascript_tool / browser_evaluate / browser_run_code）は読み取り計測にも使うため、
@@ -60,20 +62,34 @@ if printf '%s' "$STDIN_JSON" | grep -q 'browser_batch'; then
 fi
 
 if [ ! -f "$WF_DIR/active" ]; then
-  deny "【Delvework Gate】ワークフロー未初期化。/タスク開始 でタスクを開始し、B-4（フェーズ判定）を完了してください（browser_batch は変更系を1つでも含むと一括でゲート対象になります）。"
+  deny_decay init \
+    "【Delvework Gate】ワークフロー未初期化。/タスク開始（procedures/delve-start.md）でタスクを開始し、B-4（フェーズ判定）を完了してください（browser_batch は変更系を1つでも含むと一括でゲート対象になります）。現状が不明なら /状態確認（delve-status）で一覧できます。" \
+    "【Delvework Gate】未初期化（active なし）。手順: procedures/delve-start.md ／現状: /状態確認。"
 fi
 
-if [ ! -f "$WF_DIR/b4_done" ]; then
-  deny "【Delvework Gate】B-4（フェーズ判定）が未完了です。/タスク開始 の手順に戻り、B-4（フェーズ判定）まで完了してから変更操作を行ってください。フラグを直接 touch して迂回することは禁止です。"
+# b4_done は「フラグの存在」だけでなく「phase にフェーズ判定が記録されていること」も要求する
+# （2026-07-28: phase が空でも b4_done だけで通っていた＝判定を飛ばした迂回が成立していた）
+PHASE_VAL=""
+[ -f "$WF_DIR/phase" ] && PHASE_VAL="$(tr -d '[:space:]' < "$WF_DIR/phase" 2>/dev/null)"
+if [ ! -f "$WF_DIR/b4_done" ] || [ -z "$PHASE_VAL" ]; then
+  deny_decay b4 \
+    "【Delvework Gate】B-4（フェーズ判定）が未完了です（b4_done またはフェーズ記録なし）。/タスク開始（procedures/delve-start.md）の手順に戻り、B-4 で判定したフェーズ（first / return / remap / optimize）を memory/.workflow/phase に記録してから変更操作を行ってください。判定せずフラグだけ立てて迂回することは禁止です。現状が不明なら /状態確認（delve-status）で一覧できます。" \
+    "【Delvework Gate】B-4未完了（b4_done または phase が空）。手順: procedures/delve-start.md ／現状: /状態確認。"
 fi
 
 # 一括送出タスク（Step F で bulk_send 宣言）は pre-send-verifier 監査完了（psv_done）まで変更操作を止める
 if [ -f "$WF_DIR/bulk_send" ] && [ ! -f "$WF_DIR/psv_done" ]; then
-  deny "【Delvework Gate】一括送出タスクは pre-send-verifier の敵対的監査（VERDICT）とユーザー承認が先です。監査完了後に psv_done を立ててから実行してください（手順: docs/steps-reference.md の Step H）。フラグだけ立てる迂回は禁止です。"
+  deny_decay psv \
+    "【Delvework Gate】一括送出タスクは pre-send-verifier の敵対的監査（VERDICT）とユーザー承認が先です。監査完了後に psv_done を立ててから実行してください（手順の正本: docs/steps-reference.md の Step H）。フラグだけ立てる迂回は禁止です。現状が不明なら /状態確認（delve-status）で一覧できます。" \
+    "【Delvework Gate】psv_done 未了（pre-send-verifier 監査が先）。手順: docs/steps-reference.md の Step H ／現状: /状態確認。"
 fi
 
 if [ ! -f "$WF_DIR/e_done" ]; then
-  deny "【Delvework Gate】Step E（変更前記録）が未完了です。/タスク開始 の手順どおり、read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録・保存してから進んでください。記録せずフラグだけ立てる迂回は禁止です。"
+  deny_decay e \
+    "【Delvework Gate】Step E（変更前記録）が未完了です。read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録・保存してから進んでください（手順の正本: procedures/delve-start.md）。記録せずフラグだけ立てる迂回は禁止です。現状が不明なら /状態確認（delve-status）で一覧できます。" \
+    "【Delvework Gate】Step E（変更前記録）未完了。手順: procedures/delve-start.md ／現状: /状態確認。"
 fi
 
+# ここまで来たら停止要因なし = 減衰カウンタを捨てる（次に止まったときは再びフル文言で伝える）
+deny_reset
 exit 0

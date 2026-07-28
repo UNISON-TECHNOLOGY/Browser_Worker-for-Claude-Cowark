@@ -43,9 +43,10 @@ if [ -f "$SUPPRESS" ]; then
   done < "$SUPPRESS"
 fi
 
-MSG="【Critic Gate】design-artisan の生成物は design-critic の PASS まで人間に送付・投稿できません。design-critic にレビューさせ、REVISE なら FIX を design-artisan に再投入し、PASS 後に memory/.workflow/critic_pass に PASS の1行要約を書き込んで（同時に critic_pending を rm）から送付してください。"
+MSG="【Critic Gate】design-artisan の生成物は design-critic の PASS まで人間に送付・投稿できません。design-critic にレビューさせ、REVISE なら FIX を design-artisan に再投入し、PASS 後に memory/.workflow/critic_pass に PASS の1行要約を書き込んで（同時に critic_pending を rm）から送付してください。現状が不明なら /状態確認（delve-status）で一覧できます。"
+SHORT="【Critic Gate】critic_pass 未記録（design-critic の PASS が先）。手順: docs/steps-reference.md の Step H ／現状: /状態確認。"
 if [ "$GATE_MODE" = "deny" ]; then
-  deny "$MSG"
+  deny_decay critic "$MSG" "$SHORT"
 else
   warn_pretool "【Critic Gate・試運転(warn)】本来ここでブロックされる操作です — $MSG"
 fi

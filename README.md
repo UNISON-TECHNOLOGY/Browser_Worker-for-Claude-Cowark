@@ -122,14 +122,14 @@
 - **bash とブラウザは別マシン（cloud / ローカル共通）**。bash はサンドボックス（ローカルは Hyper-V 上の Linux VM）の中で動き、ブラウザ操作はユーザーのマシンの Chrome に届く。**サンドボックスから `localhost:9222`（CDP）には構造的に到達できず、Playwright / CDP 前提のスクリプトは Cowork では実行できない**。速くしたい定常タスクは `javascript_tool`（ページ内 JS）と `browser_batch`（複数アクションの束ね）に凍結する — この2つは hooks の matcher に入っているので**ゲートが効いたまま速くなる**（[docs/steps/freeze.md](docs/steps/freeze.md)）
 - 無人運用（PC起動→自動定常タスク）の構成は [docs/unattended-ops.md](docs/unattended-ops.md) を参照（パスワード無保管のまま自動化する3層設計）
 - 送信・投稿など不可逆な送出の前は pre-send-verifier（敵対的監査）+ 人間承認の二段ゲート。金銭・契約系画面は **Money Watch** が検知して変更操作を強制停止します（検知は2段階 — 停止するのは「購入を確定」等の確定表現だけで、ナビに常在する「決済」「請求」等は注意喚起のみ。2026-07-27 の過剰ゲート監査で分離）
-- **既知の限界（設計上の割り切り）**:
-  - **ローカル Cowork（デスクトップのローカルセッション）では plugin hooks が配線されず、全ゲート（URL Guard / OV / Critic / Money Watch / Credential Guard / 変更操作ゲート）が機械強制されない**（2026-07-24 v1.0.0 ローカル実測）。ローカルでの安全性は自己規律＋Cowork 本体の許可プロンプトに依存する。**一括送出・金銭近傍・無人運用などゲート前提の運用は cloud セッションで行うこと**。matcher にはローカルのツール名（mcp__workspace__bash / mcp__cowork__present_files）も登録済みで、配線され次第そのまま効く
-  - ゲートは MCP ブラウザツールが対象。**Bash 経由の直接送信（node/curl 等）はゲート対象外** — Node スクリプト等での送信運用は、スクリプト自身に CP 判定・上限・履歴突合を内蔵する（docs/steps/freeze.md の作り方3）か、ワークスペース側の hook・権限設定で別途ゲートすること
-  - **`browser_batch` は読み取りのみでも Money Watch 停止中は deny される**（単体の read_page は通る）。同じ読み取りが包み方で挙動を変える不整合 — 停止中は batch を使わず単体呼び出しにすること
-  - 同一ワークスペースの**並行セッションはフラグ（memory/.workflow/）を共有**するため相互干渉しうる。同時実行は1タスクずつを推奨
-  - Credential Guard / JS mutation 判定はキーワード検知の best-effort（難読化で回避可能）。硬い防御は Money Watch・URL Guard・人間承認が担う
-  - URL denylist は部分一致のため、金銭に無関係な /subscribe 等を誤ブロックすることがある → `knowledge/config/url-allowlist.txt` で開放
-  - ゲートの実体は `memory/.workflow/` のフラグファイルで、**Bash からフラグを直接 touch/rm すれば手順を飛ばして技術的に迂回できる**（Log Gate も同様に自己規律で、hook の強制はない）。ゲートは「うっかり・手順飛ばし」への防御であり、意図的な迂回への防御ではない — 意図的迂回が脅威になる環境では、ワークスペース側の権限設定で Bash による `memory/.workflow/` への書き込みを制限すること
-  - Money Watch はテキスト読取（read_page 等）の内容に反応する。**スクリーンショットだけで進むと検知面を素通りする**ため、変更前記録（Step E）はテキスト読取を必須とする（steps-reference E-3 冒頭）
+- **既知の限界（設計上の割り切り）** — 各1行の要約。**詳細と最新は [docs/escalations.md](docs/escalations.md)**（プラットフォーム側でしか根治できない課題 E1〜E4 と緩和策の台帳）:
+  - **ローカル Cowork では plugin hooks が未配線＝全ゲートが機械強制されない**（E4）。ゲート前提の運用は cloud セッションで行う
+  - **Bash 経由の直接送信（node/curl 等）はゲート対象外** — スクリプト側に CP 判定・上限・履歴突合を内蔵する（docs/steps/freeze.md）か、ワークスペースの権限設定で別途ゲートする
+  - **`browser_batch` は読み取りのみでも Money Watch 停止中は deny される**（停止中は read_page 等の単体呼び出しを使う）
+  - **並行セッションはフラグ（memory/.workflow/）を共有**して干渉しうる — 同時実行は1タスクずつ
+  - **Credential Guard / JS mutation 判定はキーワード検知の best-effort**（ref 経由のすり抜けは E1）。硬い防御は Money Watch・URL Guard・人間承認が担う
+  - **URL denylist は部分一致**のため無関係なページを誤ブロックしうる → `knowledge/config/url-allowlist.txt` で開放
+  - **ゲートはフラグファイルなので Bash から直接 touch/rm すれば技術的に迂回できる**（Log Gate も自己規律）。「うっかり・手順飛ばし」への防御であって意図的迂回への防御ではない
+  - **Money Watch はテキスト読取の内容に反応する** — スクショだけで進むと検知面を素通りするため、変更前記録（Step E）はテキスト読取必須
 - 検証状況・既知の制約は [TESTING.md](TESTING.md) を参照
 - CI（GitHub Actions）が push ごとに参照整合 lint（scripts/lint.py）と hooks スモークテスト（scripts/test-hooks.sh）を実行。ローカルでも同コマンドで実行可
