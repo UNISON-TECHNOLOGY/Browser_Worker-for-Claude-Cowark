@@ -13,6 +13,8 @@ argument-hint: <サイトURL> [最大ページ数（デフォルト10）]
 
 ## 2. ページごとの計測（navigate + JS実行 + ネットワーク監視 — Claude in Chrome / Playwright どちらでも可）
 
+> 速度規範の正本は docs/steps/speed.md。**下の3観点（スピード実測・品質チェック・リンク健全性の JS 部分）を観点ごとに分けず、1ページ = `javascript_tool` 1コールで `{speed, quality}` を1つのオブジェクトにまとめて返す**。複数ページは可能なら `browser_batch` で navigate + 抽出を束ねる（1ページずつ read_page で往復しない）。
+
 **スピード実測** — JS 実行ツール（`javascript_tool` / `browser_evaluate`）で Performance API から取得:
 ```js
 // Navigation Timing: TTFB, DOMContentLoaded, load

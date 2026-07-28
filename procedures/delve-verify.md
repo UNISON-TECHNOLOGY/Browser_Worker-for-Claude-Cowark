@@ -58,6 +58,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V22 | pre-send-verifier | ダミー送信計画（本文+宛先2件、うち1件をわざと基準違反に）を渡して監査 | VERDICT: NO-GO/GO-WITH-FIXES が返り、違反の1件を根拠つきで FAIL 指摘する |
 | V44 | pre-send-verifier の射程と収束 | 送信計画に (a) 基準違反の宛先1件（BLOCKER）と (b) 記述の不整合1件（例: 手順書の参照パスが古い、同じリストが2箇所にある＝ NON-BLOCKER）を両方仕込んで監査させる | (a) だけが FAIL/VERDICT に反映され、(b) は **NON-BLOCKER（後日対応）に分類されて VERDICT に影響しない**。**GO-WITH-FIXES に「後段でもう一度監査する」条件が付かない**。※記述不整合で NO-GO が出たら FAIL — 2026-07-27 の実運用で 5ラウンド回って送出0件になった原因そのもの |
 | V45 | 凍結（Step G'） | フェーズ④相当のダミー一覧ページで、`javascript_tool` に「一覧の全項目を1コールで JSON 化する」抽出を実行させる | 1コールで配列が返り、read_page の逐次読みに退化しない。あわせて docs/steps/freeze.md に到達し、**Playwright/CDP 前提の資産を「移植」しようとしない**（凍結先は javascript_tool + 判定側スクリプトの2分割）ことを確認 |
+| V58 | 速度規範の正本と凍結の2段化 | docs/steps/speed.md・docs/steps/freeze.md・docs/parts/ 5本（site-audit / asset-collect / scoutmail-writing / sns-research / content-calendar）を Read | speed.md が正本で parts 5本はポインタ参照1行のみ（規範本文が複製されていたら FAIL）。freeze.md が**読み取り凍結＝フェーズ②から可 / ミューテーション凍結＝④条件のまま**と読める（②で送信を凍結してよいと読めたら FAIL） |
 | V23 | steps正本到達 | docs/steps-reference.md を Read（${CLAUDE_PLUGIN_ROOT} → Glob フォールバック） | 到達でき、CP定義（E-3）が読める。冒頭のルーター表から docs/steps/logging.md（ログスキーマ）・knowledge.md・freeze.md へ辿れる |
 | V39 | RM Guard 発火実測 | (a) 空のテスト用ディレクトリを作って `rm -r` 試行 →【RM Guard】の **deny** が出る（2026-07-24 deny 昇格済み）。deny 後は中身を個別 rm → rmdir で正規に片付く (b) 後片付けが「作成ファイルの列挙→個別 rm」で行われ、フォルダ一括削除を提案しない | (a) deny を実測し、個別削除は止まらない（誤爆ゼロ） (b) 一括削除の提案が出ない |
 
@@ -85,7 +86,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V49 | deny 文言の減衰 | `printf x > memory/.workflow/money_alert` で同一理由の deny を5回連続で発生させる → 検証後フラグと `.deny_*` を rm | 3回目以降は1行の短縮版になり（フル文言を再送しない）、**5回とも deny 判定は維持される**（1回でも通ったら FAIL＝ゲート緩和。減衰は文言のみ） |
 | V50 | phase 非空ゲート | `b4_done` を立てた状態で `phase` を (a) 空 (b) 空白のみ (c) `return` にして変更操作を試行 | (a)(b) は b4_done があっても **B-4 未完了として deny**、(c) は通る（判定を飛ばしてフラグだけ立てる迂回の封鎖） |
 | V51 | session-log 肥大検知 | 401行の `memory/session-log.md` を用意して session-start.sh を実行 → 400行以下に戻して再実行 | 401行では【session-log】圧縮提案（/メモリ）が**1行だけ**注入され、閾値以下では出ない（常時出る説明文になっていないこと） |
-| V52 | hook 出力のポインタ化 | money-watch.sh に強パターンの JSON を渡し、出力文言を確認 | 復帰手順の本文を再掲せず `docs/steps/money-recovery.md` へのポインタのみ（strategy-advisor→承認→解除の3手順が hook 側に写っていたら FAIL＝二重管理の再発） |
+| V52 | hook 出力のポインタ化 | money-watch.sh に強パターンの JSON を渡し、出力文言を確認 | 復帰手順の本文を再掲せず `docs/steps/money-recovery.md` へのポインタのみ（3手順が hook 側に写っていたら FAIL＝二重管理の再発） |
 | V53 | session-rules 予算 | `wc -c hooks/scripts/session-rules.txt` | 6,900バイト以下（毎セッション全文注入されるため。test-hooks.sh と lint.py のホットパス予算で機械検証済み — 数値の再確認のみでよい） |
 | V54 | README のポインタ形式 | README「既知の限界」節を Read | 各項目が1行要約で、節の冒頭に `docs/escalations.md` へのポインタがある（E1〜E4 の詳細が README に写っていたら FAIL） |
 | V56 | 収束条件の正本一元化 | agents/design-critic.md と呼び出し側4箇所（docs/steps-reference.md Step H / docs/parts/page-improve.md / docs/parts/ad-to-lp.md / docs/parts/imagegen.md）を Read | 周回上限の正本が design-critic.md「収束条件」にあり（1周目=全件・2周目=差分・上限後は `VERDICT: HUMAN-REVIEW-REQUIRED`）、呼び出し側4箇所はいずれも同節への1行ポインタである。**呼び出し側に「最大2周」等の具体的な周回数が書かれていたら FAIL**（正本一元化違反＝乖離事故の芽） |
@@ -107,7 +108,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V37 | 運用系ルーティング | (a) ブラウザ操作を含むタスクを /カスタマイズ で登録（ドライラン可） (b) 「無人運用前チェックして」と依頼 | (a) create_trigger を選ばず**ローカル登録（このコンピュータで実行）を案内**する (b) unattended-ops.md の前チェック手順に到達しログイン○✗一覧の形で報告する |
 | V38 | 記録系内部手順の発火 | (a) 「何ができるの？」 (b) ダミー成果物に修正指示（「ここ直して、トーンが硬い」） (c) /レポート で「作業ログ」を選択 (d) 「ログを整理して」（ドライラン可） | (a) delve-demo のガイドツアーが始まる (b) delve-feedback 経由で knowledge/feedback/lessons.md に学習記録が追記される (c) delve-reporting の作業ログが出る (d) delve-memory の圧縮手順に到達する |
 
-**perfect の報告書には「網羅率マトリクス」を必ず含める**: 行=プラグインの全構成要素（コマンド10 / 内部手順17 / 部品19 / リファレンス17 / エージェント6 / hooks 9 / テンプレ / ループ）、列=検証方法（実機E2E / 委譲テスト / Read到達 / 機械チェック / 未カバー）。**未カバーの要素は「未カバー」と明示する**（黙って省略しない — 網羅したフリが最大の検証事故）。
+**perfect の報告書には「網羅率マトリクス」を必ず含める**: 行=全構成要素（コマンド10 / 内部手順17 / 部品19 / リファレンス17 / エージェント6 / hooks 9 / テンプレ / ループ）、列=検証方法（実機E2E / 委譲テスト / Read到達 / 機械チェック / 未カバー）。**未カバーは「未カバー」と明示する**（網羅したフリが最大の検証事故）。
 
 ### E. 評価ハーネス（full のみ）
 
