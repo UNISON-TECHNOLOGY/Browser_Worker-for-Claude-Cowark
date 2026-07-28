@@ -1,5 +1,7 @@
 # 部品: Claude Design 連携（DesignSync — 掃き出しの既定ルート）
 
+> **ローカルセッションでの可否は未検証**。推測で不可と決めず、`list_projects` を1回呼んで実地判定する（失敗したら design-handoff へ）。
+
 メディア素材入り HTML / デザインシステムへの反映は claude.ai/design へ流すのが正（2026-07-23 ユーザー決定）。ローカルHTML直書きはプレビュー用途のみ。
 
 **DesignSync ツールの認可が無い環境（Cowork cloud で実測 2026-07-24）**では、この API ルートは使えない → **docs/parts/design-handoff.md（UIルート — ブラウザで claude.ai/design に添付して人間編集へハンドオフ）** に切り替える。

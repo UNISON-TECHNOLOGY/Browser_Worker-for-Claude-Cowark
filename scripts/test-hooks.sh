@@ -313,11 +313,12 @@ bash "$SC/session-start.sh" >/dev/null </dev/null
 [ -f "$DELVEWORK_WF_DIR/.deny_money" ] && { echo "FAIL: session-start が減衰カウンタを消さない"; FAIL=1; } || echo "PASS: session-start が減衰カウンタをクリア"
 
 # --- session-rules.txt のホットパス予算（毎セッション全文注入されるため） ---
+# v1.11.0: 6500→6900 に引き上げ（hook 非依存の到達経路の明記と Money Watch 自己規律化の追記分。lint.py の警告線と同値）
 RULES_BYTES=$(wc -c < "$SC/session-rules.txt" | tr -dc '0-9')
-if [ "$RULES_BYTES" -le 6500 ]; then
-  echo "PASS: session-rules.txt ${RULES_BYTES}B（目標 6500B 以内）"
+if [ "$RULES_BYTES" -le 6900 ]; then
+  echo "PASS: session-rules.txt ${RULES_BYTES}B（目標 6900B 以内）"
 else
-  echo "FAIL: session-rules.txt ${RULES_BYTES}B（目標 6500B 超）"; FAIL=1
+  echo "FAIL: session-rules.txt ${RULES_BYTES}B（目標 6900B 超）"; FAIL=1
 fi
 
 rm -rf "$CLAUDE_PROJECT_DIR"

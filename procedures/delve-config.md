@@ -9,7 +9,7 @@ argument-hint: [list | on <pack> | off <pack>]（省略時は list）
 
 | pack | 含まれる機能 | 既定 |
 |---|---|---|
-| core | start / status / demo / dashboard / feedback / skillify / ゲート・Credential Guard | **常時ON（無効化不可）** |
+| core | start / status / demo / dashboard / feedback / skillify / ゲート・Credential Guard | **常時ON（無効化不可）** ※1 |
 | research | style（スタイル調査）/ audit（サイト診断）/ watch（競合ウォッチ） | ON |
 | creative | improve（ページ改善）/ adlp（広告→LP）/ adscript（動画広告台本）+ design-artisan / design-critic | ON |
 | sns | sns（SNS運用バッチ）+ sns-jp スキル | ON |
@@ -18,6 +18,8 @@ argument-hint: [list | on <pack> | off <pack>]（省略時は list）
 | writing-hr | 人材ライティング6スキル（recruit/copy/sales/logical/business/storytelling） | ON |
 | compliance | ad-compliance-jp（広告法規チェック） | ON ※OFF時はその旨を成果物に明記 |
 | slack | Slack通知・非同期承認キュー | ON（コネクタ無ければ自動フォールバック） |
+
+※1 core の「ゲート・Credential Guard」は **cloud では hooks が機械強制するが、ローカルセッションでは hooks が未配線のため不発**（docs/escalations.md E4）。ローカルでは同じ規律が自己規律としてのみ働く（正本は `hooks/scripts/session-rules.txt`、取得手順は delve-start 0.5）。
 
 ## 設定ファイル（正本）
 

@@ -4,6 +4,8 @@
 
 ## Money Watch 停止からの復帰
 
+**money_alert が立たない環境（ローカル: hooks 未配線 = E4）では、自分で金銭・契約・課金の表現に気づいた時点でこの手順に入る**（機械検知を待たない。フラグが無いだけで、止まるべき状況は同じ）。
+
 タスク中に money_alert（金銭・契約系画面の検知）が立ったら: strategy-advisor に状況を渡して助言（STOP/RESPOND/MONITOR）を得る →
 操作内容をユーザーに提示して明示承認 → 承認を得た場合のみ `rm memory/.workflow/money_alert` し、承認の事実を session-log に1行記録して再開。
 
