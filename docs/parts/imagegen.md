@@ -72,6 +72,7 @@ Gemini の動画生成（Veo 系）も画像と同じ UI 操作の型で使え�
 切り抜き・バナー化・透過WebM化・LP埋め込みまでの部品一覧と ffmpeg レシピは **docs/media-pipeline.md（正本）** を参照。
 
 **引き渡し前の審査**: この部品で作ったビジュアル成果物（バナー・カルーセル・スライド等）も design-artisan 生成物と同じ扱い — **design-critic の審査（スクショまたはHTMLを渡す）で PASS を得るまでユーザーに出さない**（docs/parts/index.md の規約。2026-07-24 のスライド見切れ事故の再発防止）。
+周回上限は agents/design-critic.md「収束条件」に従う（上限到達時は `HUMAN-REVIEW-REQUIRED` の残 FIX を添えて人間に判断を仰ぐ。無限ループ禁止）。
 
 ## 注意
 

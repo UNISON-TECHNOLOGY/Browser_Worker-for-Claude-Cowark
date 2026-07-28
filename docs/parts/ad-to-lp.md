@@ -19,7 +19,7 @@ argument-hint: [広告の出稿先媒体・ターゲットの補足（画像は�
 3. **LP構成の組み立て**: references/web-design/resources/lp-cro.md の標準骨格に、訴求タイプ別の重点を反映
    - 実績型 → 証拠セクションを前倒し / 共感型 → 課題提起を厚く / オファー型 → 期限・条件を明示
    - 本文コピーが必要な箇所は該当ライティングスキル（sales-writing等）を適用。捏造禁止（広告にない実績数値は `[要確認]`）
-4. **生成と検証**: design-artisan に委譲（広告解析JSON・抽出コピー・構成案の絶対パスを渡す）→ design-critic の審査ループ（page-improve 部品（docs/parts/page-improve.md） と同じ、最大2周）→ アーティファクト発行
+4. **生成と検証**: design-artisan に委譲（広告解析JSON・抽出コピー・構成案の絶対パスを渡す）→ design-critic の審査ループ（page-improve 部品（docs/parts/page-improve.md） と同じ。周回上限は agents/design-critic.md「収束条件」に従う）→ アーティファクト発行
 5. **メッセージ一致チェック**を最後に自己実行: 広告とモックアップを並べ、コピー・色・トーンの一致点と意図的な差異を表で報告
 6. **法規チェック（必須）**: LP本文の最終稿を references/ad-compliance-jp/SKILL.md で検査（景表法の優良/有利誤認・薬機法・打消し表示）。指摘があれば修正してから納品
 
