@@ -1,7 +1,7 @@
 # 一括送信の実行規範（正本）
 
 > スカウト・投稿・配信・入稿など**不可逆な送出をN件まとめて行うとき**に読む。ゲート（bulk_send → psv_done → ov_done）は
-> [../steps-reference.md](../steps-reference.md) の Step F/H/I が正本で、ここは**実行体の組み立て方**の正本。
+> [../steps-reference.md](../steps-reference.md) の Step F/I と [review.md](review.md)（H）が正本で、ここは**実行体の組み立て方**の正本。
 > 出典は元リポジトリの実弾スクリプト（判定ロジックのみ移植。Playwright/CDP 依存の実装は移植しない → [freeze.md](freeze.md)）。
 
 ## 1. DRY-RUN が既定
