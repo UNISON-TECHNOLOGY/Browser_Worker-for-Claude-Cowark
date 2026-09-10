@@ -390,6 +390,14 @@ echo t > "$DELVEWORK_WF_DIR/active"
 out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
 check "decay: 通過するとカウンタが消える（次はフル文言）" EMPTY "$out"
 ls "$DELVEWORK_WF_DIR"/.deny_* >/dev/null 2>&1 && { echo "FAIL: decay: 通過後もカウンタが残る"; FAIL=1; } || echo "PASS: decay: 通過でカウンタ消去"
+# 短縮文言のないゲート（RM Guard）を挟んでも、進行中の減衰は巻き戻らない（PR #5 Opus 指摘）
+rm -f "$DELVEWORK_WF_DIR"/.deny_*; printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
+for i in 1 2 3; do printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh" >/dev/null; done
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf build/"}}' | bash "$SC/rm-guard.sh")
+check "decay: rm-guard は deny" '"permissionDecision":"deny"' "$out"
+[ -f "$DELVEWORK_WF_DIR/.deny_rm" ] && { echo "FAIL: decay: rm-guard がカウンタを作った"; FAIL=1; } || echo "PASS: decay: rm-guard はカウンタに触らない"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+if printf '%s' "$out" | grep -q '復帰手順の正本'; then echo "FAIL: decay: rm-guard 後に money がフル文言へ巻き戻る"; FAIL=1; else echo "PASS: decay: rm-guard を挟んでも money は短縮のまま"; fi
 # 減衰しても deny は deny（fail-closed の維持）
 printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
 for i in 1 2 3 4 5; do

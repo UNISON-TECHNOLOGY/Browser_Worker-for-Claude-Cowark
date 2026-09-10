@@ -81,7 +81,7 @@ fi
 if [ -f "$WF_DIR/bulk_send" ] && [ ! -f "$WF_DIR/psv_done" ]; then
   deny_decay psv \
     "【Delvework Gate】一括送出タスクは pre-send-verifier の敵対的監査（VERDICT）とユーザー承認が先です。監査完了後に psv_done を立ててから実行してください（手順の正本: docs/steps-reference.md の Step H）。フラグだけ立てる迂回は禁止です。" \
-    "【Delvework Gate】psv_done 未了（pre-send-verifier 監査が先）。手順: docs/steps-reference.md の Step H "
+    "【Delvework Gate】psv_done 未了（pre-send-verifier 監査が先）。手順: docs/steps-reference.md の Step H"
 fi
 
 if [ ! -f "$WF_DIR/e_done" ]; then

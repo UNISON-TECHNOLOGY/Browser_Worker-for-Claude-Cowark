@@ -102,7 +102,10 @@ deny_decay() { # $1: 理由コード（英数_）, $2: フル文言, $3: 短縮�
   # 自己診断への導線（escalations E5: 文脈喪失後でも deny 1回で /状態確認 に自走できる）は
   # ここで一律に付ける（各ゲートの文言に書かない — 8箇所で同文を繰り返していた乖離リスクの解消）
   local reason="$1" full="$2${STATUS_HINT_FULL}" short="$3" f other cnt=1
-  [ -n "$short" ] && short="${short}${STATUS_HINT_SHORT}"
+  # 短縮文言のない理由（RM Guard 等）は減衰しないので、カウンタに一切触らない
+  # （他ゲートの減衰中に rm を挟むと money 等の減衰が巻き戻る、を防ぐ — PR #5 Opus 指摘）
+  if [ -z "$short" ]; then deny "$full"; return; fi
+  short="${short}${STATUS_HINT_SHORT}"
   mkdir -p "$WF_DIR" 2>/dev/null
   f="$WF_DIR/.deny_$reason"
   for other in "$WF_DIR"/.deny_*; do
@@ -127,7 +130,7 @@ deny_decay() { # $1: 理由コード（英数_）, $2: フル文言, $3: 短縮�
 # 3本のゲートが同型の if/else を各自持っていたのを1関数にまとめた（v1.15.2）。
 GATE_MODE="${DELVEWORK_GATE_MODE:-deny}"
 STATUS_HINT_FULL="現状が不明なら /状態確認（delve-status）で一覧できます。"
-STATUS_HINT_SHORT="／現状: /状態確認。"
+STATUS_HINT_SHORT=" ／現状: /状態確認。"  # 先頭スペースで連結（各ゲートの SHORT に末尾スペースを持たせない）
 gate_emit() { # $1: 理由コード, $2: ラベル（例: OV Gate）, $3: フル文言, $4: 短縮文言（省略可）
   if [ "$GATE_MODE" = "deny" ]; then
     deny_decay "$1" "$3" "${4:-}"
