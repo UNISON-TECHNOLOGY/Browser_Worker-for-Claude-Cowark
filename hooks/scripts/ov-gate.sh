@@ -8,9 +8,10 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
-# 1) k_done への touch を含むコマンドだけが対象
+# 1) k_done への書き込み意図（touch / リダイレクト / tee / cp）を含むコマンドだけが対象。
+#    読み取り（cat / ls / test）は対象外。touch 限定だと `echo > k_done` で素通りした（2026-09-10 PR #9 Opus 指摘）
 printf '%s' "$STDIN_TEXT" | grep -q 'k_done' || exit 0
-printf '%s' "$STDIN_TEXT" | grep -q 'touch' || exit 0
+printf '%s' "$STDIN_TEXT" | grep -qE '(touch[[:space:]][^|;&]*k_done|>[[:space:]]*[^[:space:];&|]*k_done|tee[[:space:]][^|;&]*k_done|cp[[:space:]][^|;&]*k_done)' || exit 0
 # 初期化・掃除（rm を含むコマンド）は免除 — delve-start 手順2 の
 # `rm -f memory/.workflow/{...,k_done,...}` が前タスクの bulk_send 残留時に誤爆しデッドロックするため
 printf '%s' "$STDIN_TEXT" | grep -qE '(^|[^[:alnum:]_-])rm([[:space:]]|$)' && exit 0

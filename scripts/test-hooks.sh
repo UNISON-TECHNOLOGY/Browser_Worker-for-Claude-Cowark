@@ -331,6 +331,62 @@ if [ -d "$CLAUDE_PROJECT_DIR/knowledge" ]; then
 fi
 wf_clean   # session-start は deny 減衰カウンタと弱既読を消す — 後続テストが暗黙に依存しないよう明示的に初期化
 
+# --- Flag Guard（Write/Edit でのフラグ迂回。2026-09-10 横断監査） ---
+export DELVEWORK_GATE_MODE=deny
+out=$(printf '{"tool_name":"Write","tool_input":{"file_path":"/work/memory/.workflow/k_done","content":""}}' | bash "$SC/flag-guard.sh")
+check "flag-guard: Write で k_done は deny" 'Flag Guard' "$out"
+out=$(printf '{"tool_name":"Edit","tool_input":{"file_path":"C:\\\\work\\\\memory\\\\.workflow\\\\ov_done","old_string":"a","new_string":"b"}}' | bash "$SC/flag-guard.sh")
+check "flag-guard: Windows 区切りの Edit も deny" 'Flag Guard' "$out"
+out=$(printf '{"tool_name":"Write","tool_input":{"file_path":"/work/knowledge/sites/x/index.md","content":"# x"}}' | bash "$SC/flag-guard.sh")
+check "flag-guard: knowledge への Write は素通し" EMPTY "$out"
+out=$(printf '{"tool_name":"Write","tool_input":{"file_path":"/work/memory/session-log.md","content":"- 学び"}}' | bash "$SC/flag-guard.sh")
+check "flag-guard: memory/session-log.md は素通し" EMPTY "$out"
+export DELVEWORK_GATE_MODE=warn
+out=$(printf '{"tool_name":"Write","tool_input":{"file_path":"/work/memory/.workflow/k_done","content":""}}' | bash "$SC/flag-guard.sh")
+check "flag-guard: warnモードは注入のみ" 'additionalContext.*Flag Guard' "$out"
+export DELVEWORK_GATE_MODE=deny
+
+# --- browser_network_request（任意 HTTP 送信）は変更系としてゲート、URL は denylist 照合 ---
+wf_clean; rm -f "$DELVEWORK_WF_DIR"/{active,b4_done,phase,e_done}
+out=$(printf '{"tool_name":"mcp__playwright__browser_network_request","tool_input":{"url":"https://example.com/api","method":"POST"}}' | bash "$SC/workflow-gate.sh")
+check "gate: network_request は未初期化なら deny" '"permissionDecision":"deny"' "$out"
+wf_ready
+out=$(printf '{"tool_name":"mcp__playwright__browser_network_request","tool_input":{"url":"https://ads.google.com/aw/billing","method":"GET"}}' | bash "$SC/url-guard.sh")
+check "url-guard: network_request の拒否 URL は deny" 'URL Guard' "$out"
+
+# --- hooks.json の matcher 網羅はイベント種別まで見る lint.py 2b に委ねる（grep では PreToolUse / PostToolUse を区別できない） ---
+if command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
+  PY="$(command -v python3 || command -v python)"
+  "$PY" "$SC/../../scripts/lint.py" >/dev/null 2>&1 && echo "PASS: hooks.json matcher 配線（lint 2b）" || { echo "FAIL: lint.py が hooks.json の matcher 配線で失敗"; FAIL=1; }
+fi
+
+# --- Flag Guard: \u005c エンコードされた区切りも拾う（照合は STDIN_TEXT） ---
+out=$(printf '{"tool_name":"Write","tool_input":{"file_path":"C:\\u005cwork\\u005cmemory\\u005c.workflow\\u005ck_done","content":""}}' | bash "$SC/flag-guard.sh")
+check "flag-guard: \\u005c 区切りの file_path も deny" 'Flag Guard' "$out"
+
+# --- OV Gate: echo > k_done / tee / cp も deny、読み取りは素通し ---
+wf_clean; wf_ready; touch "$DELVEWORK_WF_DIR/bulk_send"; rm -f "$DELVEWORK_WF_DIR/ov_done"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"echo done > memory/.workflow/k_done"}}' | bash "$SC/ov-gate.sh")
+check "ov: echo > k_done も deny" 'OV Gate' "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"printf x | tee memory/.workflow/k_done"}}' | bash "$SC/ov-gate.sh")
+check "ov: tee k_done も deny" 'OV Gate' "$out"
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"ls -la memory/.workflow/k_done"}}' | bash "$SC/ov-gate.sh")
+check "ov: k_done の読み取りは素通し" EMPTY "$out"
+rm -f "$DELVEWORK_WF_DIR/bulk_send"
+
+# --- network_request: GET/HEAD（body なし）は未初期化でも素通し、method 省略・POST はゲート ---
+wf_clean; rm -f "$DELVEWORK_WF_DIR"/{active,b4_done,phase,e_done}
+out=$(printf '{"tool_name":"mcp__playwright__browser_network_request","tool_input":{"url":"https://api.example.com/v1/items","method":"GET"}}' | bash "$SC/workflow-gate.sh")
+check "gate: network_request GET は未初期化でも素通し" EMPTY "$out"
+out=$(printf '{"tool_name":"mcp__playwright__browser_network_request","tool_input":{"url":"https://api.example.com/v1/items"}}' | bash "$SC/workflow-gate.sh")
+check "gate: network_request の method 省略はゲート（判定不能）" '"permissionDecision":"deny"' "$out"
+wf_ready
+out=$(printf '{"tool_name":"mcp__playwright__browser_network_request","tool_input":{"url":"https://example.com/login","method":"POST","body":"user=x&password=y"}}' | bash "$SC/workflow-gate.sh")
+check "gate: network_request POST の password は Credential Guard" 'Credential Guard' "$out"
+
+# --- navigate-warn は network_request では呼ばれない（弱 dedupe を消さない） ---
+grep -qE '"matcher": "mcp__playwright__browser_network_request"' "$SC/../hooks.json" && echo "PASS: network_request は url-guard 専用グループ" || { echo "FAIL: network_request が navigate-warn と同じグループ"; FAIL=1; }
+
 # --- RM Guard（一括・再帰削除の機械ガード） ---
 export DELVEWORK_GATE_MODE=deny
 out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
