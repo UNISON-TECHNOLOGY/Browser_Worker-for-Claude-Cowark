@@ -32,6 +32,7 @@ v1.14.0（フィードバック対応 + Opus レビュー対応）マージ直�
 
 - **v1.15.0（PR #3）**: hooks の子プロセス排除（Unicode エスケープのデコードを純 bash 化・照合を bash regex 化）。test-hooks 約5分 → 約1分。Playwright の `browser_run_code_unsafe` を matcher に追加。Opus レビュー2巡で O(n²)・行跨ぎ誤検知・フォールバック到達不能・再入展開・アンカー付きパターンの取りこぼしを潰した
 - **v1.15.1（PR #4）**: 文書削減 — TESTING.md の履歴を `TESTING-archive.md` へ分離し旧検証プロンプト3版を削除（546行 → 約80行）。references 6本の「Use this skill when / Do not use」本文再掲を削除（description が正本）。参照ゼロだった `templates/guide-template.html`（196行）を廃止し guide-design.md / dashboard-design.md の言及を更新
+- **v1.15.2（PR #5）**: hooks の共通化 — 「/状態確認」導線を deny_decay で一律付与（8箇所の手書きを廃止）、critic / ov / rm の warn/deny 分岐を gate_emit に集約。test-hooks に wf_ready / wf_clean ヘルパー
 
 ### 検証の渡し方（Cowork 最新版）
 

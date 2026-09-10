@@ -18,6 +18,14 @@ check() { # $1: テスト名, $2: 期待(grep -E パターン or "EMPTY"), $3: �
   fi
 }
 
+wf_ready() { # ゲート完備の状態にする（active / b4_done+phase / e_done）
+  echo t > "$DELVEWORK_WF_DIR/active"; touch "$DELVEWORK_WF_DIR/b4_done" "$DELVEWORK_WF_DIR/e_done"
+  echo return > "$DELVEWORK_WF_DIR/phase"   # b4_done は phase 非空も要求する（2026-07-28 整合検証）
+}
+wf_clean() { # 停止系フラグと deny 減衰カウンタを消す
+  rm -f "$DELVEWORK_WF_DIR"/.deny_* "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/bulk_send" "$DELVEWORK_WF_DIR/psv_done" "$DELVEWORK_WF_DIR/.money_weak_seen"
+}
+
 json_valid() { # stdin の JSON 妥当性
   if command -v python3 >/dev/null 2>&1; then python3 -c 'import json,sys; json.load(sys.stdin)' 2>/dev/null; else python -c 'import json,sys; json.load(sys.stdin)' 2>/dev/null; fi
 }
@@ -82,8 +90,7 @@ out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workfl
 check "gate: 未初期化で deny" '"permissionDecision":"deny"' "$out"
 
 # 2. ゲート: フラグ完備で通過
-echo t > "$DELVEWORK_WF_DIR/active"; touch "$DELVEWORK_WF_DIR/b4_done" "$DELVEWORK_WF_DIR/e_done"
-echo return > "$DELVEWORK_WF_DIR/phase"   # b4_done は phase 非空も要求する（2026-07-28 整合検証）
+wf_ready
 out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
 check "gate: フラグ完備で通過" EMPTY "$out"
 
@@ -158,8 +165,7 @@ bash "$SC/session-start.sh" >/dev/null </dev/null
 [ ! -f "$DELVEWORK_WF_DIR/money_alert" ] || { echo "FAIL: 弱 dedupe テストで money_alert が立った"; FAIL=1; }
 
 # 5d. Money Watch 操作直前判定（2026-09-10）: 操作対象の識別子に強→money_alert + deny / 弱→警告のみで通す
-rm -f "$DELVEWORK_WF_DIR"/.deny_* "$DELVEWORK_WF_DIR/money_alert"
-echo t > "$DELVEWORK_WF_DIR/active"; touch "$DELVEWORK_WF_DIR/b4_done" "$DELVEWORK_WF_DIR/e_done"; echo return > "$DELVEWORK_WF_DIR/phase"
+wf_clean; wf_ready
 out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"\\u30d7\\u30e9\\u30f3\\u5909\\u66f4 link","ref":"e12"}}' | bash "$SC/workflow-gate.sh")
 check "gate 操作直前: 弱要素は警告のみ" '操作直前' "$out"
 printf '%s' "$out" | grep -q '"permissionDecision":"deny"' && { echo "FAIL: 弱要素の操作直前で deny された（過剰ゲート）"; FAIL=1; } || echo "PASS: gate 操作直前: 弱要素は deny しない"
@@ -384,6 +390,14 @@ echo t > "$DELVEWORK_WF_DIR/active"
 out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
 check "decay: 通過するとカウンタが消える（次はフル文言）" EMPTY "$out"
 ls "$DELVEWORK_WF_DIR"/.deny_* >/dev/null 2>&1 && { echo "FAIL: decay: 通過後もカウンタが残る"; FAIL=1; } || echo "PASS: decay: 通過でカウンタ消去"
+# 短縮文言のないゲート（RM Guard）を挟んでも、進行中の減衰は巻き戻らない（PR #5 Opus 指摘）
+rm -f "$DELVEWORK_WF_DIR"/.deny_*; printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
+for i in 1 2 3; do printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh" >/dev/null; done
+out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf build/"}}' | bash "$SC/rm-guard.sh")
+check "decay: rm-guard は deny" '"permissionDecision":"deny"' "$out"
+[ -f "$DELVEWORK_WF_DIR/.deny_rm" ] && { echo "FAIL: decay: rm-guard がカウンタを作った"; FAIL=1; } || echo "PASS: decay: rm-guard はカウンタに触らない"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
+if printf '%s' "$out" | grep -q '復帰手順の正本'; then echo "FAIL: decay: rm-guard 後に money がフル文言へ巻き戻る"; FAIL=1; else echo "PASS: decay: rm-guard を挟んでも money は短縮のまま"; fi
 # 減衰しても deny は deny（fail-closed の維持）
 printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
 for i in 1 2 3 4 5; do

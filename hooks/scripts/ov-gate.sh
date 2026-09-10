@@ -8,8 +8,6 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
-GATE_MODE="${DELVEWORK_GATE_MODE:-deny}"
-
 # 1) k_done への touch を含むコマンドだけが対象
 printf '%s' "$STDIN_TEXT" | grep -q 'k_done' || exit 0
 printf '%s' "$STDIN_TEXT" | grep -q 'touch' || exit 0
@@ -25,10 +23,6 @@ printf '%s' "$STDIN_TEXT" | grep -qE '(^|[^[:alnum:]_-])rm([[:space:]]|$)' && ex
 
 # deny 時は「送出ゼロで終わった場合」の出口も書く。これが無いと、DRY-RUN だけ・中止・
 # 0件で終わったタスクが完了できず、AI が実態と違う VERIFIED を書く誘因になる（2026-07-27 過剰ゲート監査）。
-MSG="【OV Gate】不可逆送出を含むタスク（bulk_send 宣言済み）は outcome-verifier の独立検証なしに完了できません。after_state と CP証跡を outcome-verifier サブエージェントに渡して検証させ、応答の判定要約を memory/.workflow/ov_done に書き込んで（echo '<VERIFIED n/m と1行要約>' > memory/.workflow/ov_done）から k_done してください。／**実際には1件も送出せずに終わる場合**（DRY-RUN のみ・0件・中止）は検証する対象がないので、echo 'NO_SEND: <理由>' > memory/.workflow/ov_done として完了してよい。送っていないのに VERIFIED と書くことは禁止です。現状が不明なら /状態確認（delve-status）で一覧できます。"
-SHORT="【OV Gate】ov_done 未記録（outcome-verifier の検証が先。送出ゼロなら NO_SEND: 理由）。手順: docs/steps-reference.md の Step I ／現状: /状態確認。"
-if [ "$GATE_MODE" = "deny" ]; then
-  deny_decay ov "$MSG" "$SHORT"
-else
-  warn_pretool "【OV Gate・試運転(warn)】本来ここでブロックされる操作です — $MSG"
-fi
+MSG="【OV Gate】不可逆送出を含むタスク（bulk_send 宣言済み）は outcome-verifier の独立検証なしに完了できません。after_state と CP証跡を outcome-verifier サブエージェントに渡して検証させ、応答の判定要約を memory/.workflow/ov_done に書き込んで（echo '<VERIFIED n/m と1行要約>' > memory/.workflow/ov_done）から k_done してください。／**実際には1件も送出せずに終わる場合**（DRY-RUN のみ・0件・中止）は検証する対象がないので、echo 'NO_SEND: <理由>' > memory/.workflow/ov_done として完了してよい。送っていないのに VERIFIED と書くことは禁止です。"
+SHORT="【OV Gate】ov_done 未記録（outcome-verifier の検証が先。送出ゼロなら NO_SEND: 理由）。手順: docs/steps-reference.md の Step I"
+gate_emit ov "OV Gate" "$MSG" "$SHORT"
