@@ -488,12 +488,12 @@ v0.94.0 の実弾検証（27項目 + 実運用E2E + 追試2ラウンド、修正
 ## ローカル機械検証 2026-09-10（v1.14.0 → v1.14.1 / Windows Git Bash・Cowork 実機なし）
 
 **Opus ダブルチェック（PR #2）で追加検出**: workflow-gate.sh の `tr` に裸の制御文字（LF/CR）を埋めていたため Windows 編集で CR 処理が消えた → `
-` エスケープ表記に置換し、CRLF 入力の回帰テストを追加。検証プロンプト (10)(11) の手段固定・後片付け・範囲限定も同レビューで補正。
+` エスケープ表記に置換し、CRLF 入力の回帰テスト（強判定 deny + dedupe キーの CR 非残留）を追加。検証プロンプト (10)(11) の手段固定・後片付け・範囲限定も同レビューで補正。
 
 v1.14.0（フィードバック対応 + Opus レビュー対応）マージ直後に、**ローカルで機械的に検証できる項目だけ**を消化した。
 ブラウザ・サブエージェント・Cowork 実機が要る項目（V1〜V5 / V8〜V11 / V13〜V16 / V18〜V22 / V27〜V40 / V42〜V48 / LV1〜LV3）は **SKIP（環境なし）** — 次回の実機 `/検証 full` に回す（検証プロンプトに (10)(11) を追加済み）。
 
-- **PASS 19**: V6（SQLite 9テーブル）/ V17（lint 台帳突合 11+17=28）/ V24（lint OK）/ V25（test-hooks ALL PASS 91件）/ V26（banner-compose・chromakey 生成 OK、guide-anim はフレーム24枚生成・ffmpeg 不在は仕様どおり手動コマンド表示）/ V41・V49・V50・V51・V52（test-hooks の同項目で機械検証）/ V53（session-rules 7,492B ≤ 7,500）/ V55（210行ダミー md を lint が ERROR 検知）/ V12 / V23 / V54 / V57 / V58 / V59（文書整合。Explore 委譲で Read 到達・正本一元化を確認）/ 旧件数残骸ゼロ
+- **PASS 19**: V6（SQLite 9テーブル）/ V17（lint 台帳突合 11+17=28）/ V24（lint OK）/ V25（test-hooks ALL PASS 93件）/ V26（banner-compose・chromakey 生成 OK、guide-anim はフレーム24枚生成・ffmpeg 不在は仕様どおり手動コマンド表示）/ V41・V49・V50・V51・V52（test-hooks の同項目で機械検証）/ V53（session-rules 7,492B ≤ 7,500）/ V55（210行ダミー md を lint が ERROR 検知）/ V12 / V23 / V54 / V57 / V58 / V59（文書整合。Explore 委譲で Read 到達・正本一元化を確認）/ 旧件数残骸ゼロ
 - **FAIL 3 → 本 PR で修正**:
   - **V56**: 周回上限の複製が呼び出し側に2件残存（docs/parts/index.md「最大2周」/ docs/parts/page-improve.md「目視周回も最大1回」）→ 両方を design-critic.md「収束条件」へのポインタに置換し、目視モードの上限1回は design-critic 側に正本として1行追記
   - **delve-start 手順2 の注記**「ゲートに効くのは b4_done。phase は hook 非連動」が旧仕様のまま（workflow-gate は 2026-07-28 から phase 空を deny。V50 と正面矛盾）→ 現行仕様に書き換え。あわせて gate の deny 文言のフェーズ語彙を「1〜4 または first/return/remap/optimize」に統一（delve-start は数字で書く・テストは英語で書く不一致）
