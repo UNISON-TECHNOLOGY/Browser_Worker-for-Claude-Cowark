@@ -13,7 +13,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "mcp__claude-in-chrome__computer|mcp__claude-in-chrome__form_input|mcp__claude-in-chrome__javascript_tool|mcp__claude-in-chrome__shortcuts_execute|mcp__claude-in-chrome__browser_batch|mcp__claude-in-chrome__upload_image|mcp__claude-in-chrome__tabs_close_mcp|mcp__playwright__browser_click|mcp__playwright__browser_type|mcp__playwright__browser_fill_form|mcp__playwright__browser_select_option|mcp__playwright__browser_file_upload|mcp__playwright__browser_press_key|mcp__playwright__browser_drag|mcp__playwright__browser_evaluate|mcp__playwright__browser_run_code|mcp__playwright__browser_run_code_unsafe|mcp__playwright__browser_handle_dialog|mcp__playwright__browser_network_request",
+        "matcher": "mcp__claude-in-chrome__computer|mcp__claude-in-chrome__form_input|mcp__claude-in-chrome__javascript_tool|mcp__claude-in-chrome__shortcuts_execute|mcp__claude-in-chrome__browser_batch|mcp__claude-in-chrome__upload_image|mcp__claude-in-chrome__file_upload|mcp__claude-in-chrome__tabs_close_mcp|mcp__playwright__browser_click|mcp__playwright__browser_type|mcp__playwright__browser_fill_form|mcp__playwright__browser_select_option|mcp__playwright__browser_file_upload|mcp__playwright__browser_press_key|mcp__playwright__browser_drag|mcp__playwright__browser_evaluate|mcp__playwright__browser_run_code|mcp__playwright__browser_run_code_unsafe|mcp__playwright__browser_handle_dialog|mcp__playwright__browser_network_request",
         "hooks": [
           {
             "type": "command",
@@ -77,7 +77,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "mcp__claude-in-chrome__read_page|mcp__claude-in-chrome__find|mcp__claude-in-chrome__get_page_text|mcp__claude-in-chrome__read_console_messages|mcp__claude-in-chrome__read_network_requests|mcp__playwright__browser_snapshot|mcp__playwright__browser_evaluate|mcp__playwright__browser_run_code|mcp__playwright__browser_run_code_unsafe|mcp__playwright__browser_find|mcp__playwright__browser_console_messages|mcp__playwright__browser_network_requests|mcp__playwright__browser_network_request",
+        "matcher": "mcp__claude-in-chrome__read_page|mcp__claude-in-chrome__find|mcp__claude-in-chrome__get_page_text|mcp__claude-in-chrome__read_console_messages|mcp__claude-in-chrome__read_network_requests|mcp__claude-in-chrome__javascript_tool|mcp__claude-in-chrome__browser_batch|mcp__playwright__browser_snapshot|mcp__playwright__browser_evaluate|mcp__playwright__browser_run_code|mcp__playwright__browser_run_code_unsafe|mcp__playwright__browser_find|mcp__playwright__browser_console_messages|mcp__playwright__browser_network_requests|mcp__playwright__browser_network_request",
         "hooks": [
           {
             "type": "command",

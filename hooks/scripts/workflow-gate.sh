@@ -38,6 +38,7 @@ fi
 # 同じツール名で来るため、action を見て変更を伴わない操作は素通しする
 # 素通し条件: 読み取り action が含まれる「かつ」変更系 action が一切含まれないこと。
 # batch/複合ペイロードで screenshot と click が同梱された場合の誤素通しを防ぐ。
+# key（PageDown/End 等）は緩めない — text 内容で読み取り扱いにすると Credential Guard の入力系判定と二重管理になる。
 if printf '%s' "$STDIN_JSON" | grep -q 'claude-in-chrome__computer'; then
   if printf '%s' "$STDIN_JSON" | grep -qE '"action"[[:space:]]*:[[:space:]]*"(screenshot|scroll|zoom|cursor_position|wait|hover|mouse_move)"' && \
      ! printf '%s' "$STDIN_JSON" | grep -qE '"action"[[:space:]]*:[[:space:]]*"(left_click|right_click|middle_click|double_click|triple_click|click|type|key|hold_key|left_click_drag|drag|left_mouse_down|left_mouse_up)"'; then
@@ -116,7 +117,8 @@ deny_reset
 #   【弱】は tool_input 全体を見て警告のみ（additionalContext）。
 #   money-suppress.txt はページ用の誤検知チューニングなので、弱警告にだけ効かせ強判定には効かせない。
 # 複数行 JSON でも切り出せるよう先に改行を潰す。tool_input が取れない場合は識別子が無い＝強判定は
-# できないので弱警告だけを本文全体で行う（座標クリックも同様。画面読み取り側の検知が担う）。
+# できないので弱警告だけを本文全体で行う（座標クリックも同様。read_page / get_page_text / JS の戻り値側の検知が担う —
+#   screenshot だけで進む経路には画面側の検知が無いので、変更前記録にテキスト読取を必ず含める規範（delve-start 手順3）が前提）。
 ONELINE="$(printf '%s' "$STDIN_TEXT" | tr '\r\n' '  ')"
 TARGET="$(printf '%s' "$ONELINE" | sed -n 's/.*"tool_input"[[:space:]]*:[[:space:]]*//p')"
 [ "${#TARGET}" -ge 8 ] || TARGET="$ONELINE"
