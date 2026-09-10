@@ -42,5 +42,5 @@ if [ -f "$SUPPRESS" ]; then
 fi
 
 MSG="【Critic Gate】design-artisan の生成物は design-critic の PASS まで人間に送付・投稿できません。design-critic にレビューさせ、REVISE なら FIX を design-artisan に再投入し、PASS 後に memory/.workflow/critic_pass に PASS の1行要約を書き込んで（同時に critic_pending を rm）から送付してください。"
-SHORT="【Critic Gate】critic_pass 未記録（design-critic の PASS が先）。手順: docs/steps-reference.md の Step H"
+SHORT="【Critic Gate】critic_pass 未記録（design-critic の PASS が先）。手順: docs/steps/review.md"
 gate_emit critic "Critic Gate" "$MSG" "$SHORT"

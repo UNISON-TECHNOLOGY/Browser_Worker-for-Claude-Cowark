@@ -87,7 +87,7 @@
 | 執筆リファレンス 17 | `references/` 配下の内部教科書（スキル一覧には登録されない）。web-design / video-ad / sns-jp / ad-compliance-jp / content-design / seo-jp / cro-jp / recruit（求人・スカウト）/ copy / sales / logical / business / storytelling + **心理3部作**（psych-nudge-jp=訴求フレーム / psych-ux-jp=デザイン心理 / psych-target-jp=読み手別の書き分け。日本の実証研究ベース・不安の解消にのみ使用）+ **design-evidence-jp**（実証デザイン数値基準 — 何px・何色・どの順を実験/公的基準で決める）。業界を問わず使える執筆規範で、エージェントとコマンドが執筆時に Read して適用 |
 | エージェント 6 | deliverable-writer（レポート執筆）/ design-artisan（モックアップ生成）/ design-critic（デザイン審査）/ strategy-advisor（設計壁打ち・エスカレーション）/ pre-send-verifier（送信前の敵対的監査 — 較正ログ付き）/ outcome-verifier（送信後の証跡検証・効果測定） |
 | テンプレート | HTMLレポート骨格 + デザイン原則（デジタル庁ガイドブック準拠）+ ダッシュボード（浮世絵ヘッダー）+ タスクYAML雛形 + 検証タスク（verify-task — /検証 full を実タスク形式で回す）+ 画像/動画（banner-compose / chromakey / guide-anim。地図: docs/media-pipeline.md） |
-| ステップ正本 | `docs/steps-reference.md` — A〜K 手順・CP証跡の骨格（/タスク開始 が最初に Read）。詳細節は `docs/steps/` に分離し**必要なときだけ読む**（knowledge=ナレッジ構造 / freeze=凍結 / logging=ログスキーマ / money-recovery=復帰）。規則の背景・実例は `docs/rationale.md`（必読でない） |
+| ステップ正本 | `docs/steps-reference.md` — A〜K 手順の骨格（/タスク開始 がフェーズ①②③で全文 Read。④は読まない）。詳細節は `docs/steps/` に分離し**必要なときだけ読む**（cp=CP証跡・レギュレーション / review=承認・監査 / credential=認証フィールド / knowledge=ナレッジ構造 / freeze=凍結 / logging=ログスキーマ / money-recovery=復帰）。規則の背景・実例は `docs/rationale.md`（必読でない） |
 
 ## 自社カスタマイズ
 

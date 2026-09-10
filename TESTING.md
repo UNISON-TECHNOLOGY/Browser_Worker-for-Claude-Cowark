@@ -28,11 +28,12 @@ v1.14.0（フィードバック対応 + Opus レビュー対応）マージ直�
 - **任意改善**: docs/parts/site-audit.md の速度規範再説明（V58 要注意）を固有部分だけに縮約
 - 検証プロンプトに **(10) Money Watch 粒度（弱 dedupe / 操作直前判定）** と **(11) /保守作業 の入口** を追加（次回実機ランの重点回帰）
 
-## 削減リファクタ 2026-09-10（v1.15.0 → v1.15.1）
+## 削減リファクタ 2026-09-10（v1.15.0 → v1.16.0）
 
 - **v1.15.0（PR #3）**: hooks の子プロセス排除（Unicode エスケープのデコードを純 bash 化・照合を bash regex 化）。test-hooks 約5分 → 約1分。Playwright の `browser_run_code_unsafe` を matcher に追加。Opus レビュー2巡で O(n²)・行跨ぎ誤検知・フォールバック到達不能・再入展開・アンカー付きパターンの取りこぼしを潰した
 - **v1.15.1（PR #4）**: 文書削減 — TESTING.md の履歴を `TESTING-archive.md` へ分離し旧検証プロンプト3版を削除（546行 → 約80行）。references 6本の「Use this skill when / Do not use」本文再掲を削除（description が正本）。参照ゼロだった `templates/guide-template.html`（196行）を廃止し guide-design.md / dashboard-design.md の言及を更新
 - **v1.15.2（PR #5）**: hooks の共通化 — 「/状態確認」導線を deny_decay で一律付与（8箇所の手書きを廃止）、critic / ov / rm の warn/deny 分岐を gate_emit に集約。test-hooks に wf_ready / wf_clean ヘルパー
+- **v1.16.0（PR #6）**: steps-reference の必読をフェーズ④で免除（①②③は全文 Read。④は delve-start の表から節ファイルへ）。Step H → docs/steps/review.md、E-3/F-4/I-1.5/I-5 → docs/steps/cp.md、認証フィールド → docs/steps/credential.md、④再生の機械検証 → docs/steps/freeze.md に分離。hook の SHORT 導線は review.md へ。
 
 ### 検証の渡し方（Cowork 最新版）
 

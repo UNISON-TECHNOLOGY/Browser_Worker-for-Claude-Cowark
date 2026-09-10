@@ -151,13 +151,13 @@ for f in list(ROOT.glob("commands/*.md")) + list(ROOT.glob("procedures/*.md")) +
             err(f"{f.relative_to(ROOT)}: 同一行が{n}回重複（一括置換バグの疑い）: {line[:40]}…")
 
 # --- ホットパス予算（毎タスク必読ファイルの行数上限） ---
-# 全タスクが冒頭で Read するファイルは、増えた分を毎タスク払い続ける。
+# 冒頭で Read するファイル（steps-reference は①②③のタスク）は、増えた分を毎タスク払い続ける。
 # 2026-07-27: D-2 に「150行超えたら分割」と書いた当日、同じ規則を書いた本人が
 # steps-reference.md を 151→303行にした（規則の正本に根拠の散文を書いたため）。
 # 文書のルールでは止まらないと実証されたので機械強制する。
 # 根拠・実例・事故の記録は docs/rationale.md（必読でない）へ置く。
 HOT_PATH_BUDGET = {          # ファイル: 上限バイト数
-    "docs/steps-reference.md": 13000,
+    "docs/steps-reference.md": 10500,  # v1.16.0: Step H / E-3 / 認証 / ④再生を steps/ へ分離。④は読まない
     "procedures/delve-start.md": 8500,
     "docs/conventions.md": 6000,
     "hooks/scripts/session-rules.txt": 7500,  # v1.14.0: 頻出ルール F1〜F6 直書き分。test-hooks.sh の目標と同値（二重管理にしない）
