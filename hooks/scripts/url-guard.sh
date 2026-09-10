@@ -16,17 +16,8 @@ source "$SCRIPT_DIR/_common.sh"
 URLS="$(printf '%s' "$STDIN_JSON" | grep -oE '"url"[[:space:]]*:[[:space:]]*"[^"]*"' | sed -E 's/.*:[[:space:]]*"([^"]*)".*/\1/')"
 [ -z "$URLS" ] && exit 0
 
-match_list() {
-  # $1: リストファイル, $2: URL。コメント・空行を除いた各パターンで照合
-  local file="$1" url="$2" pat
-  [ -f "$file" ] || return 1
-  while IFS= read -r pat; do
-    case "$pat" in ''|'#'*) continue ;; esac
-    if printf '%s' "$url" | grep -qiE "$pat" 2>/dev/null; then
-      return 0
-    fi
-  done < "$file"
-  return 1
+match_list() { # $1: リストファイル, $2: URL（照合本体は _common.sh の list_match）
+  list_match "$2" "$1" >/dev/null
 }
 
 # 検証モード（memory/.workflow/verify_allowlist が存在する間）: リスト記載サイト以外への遷移を全て deny。

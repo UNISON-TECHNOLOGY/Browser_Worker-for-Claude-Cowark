@@ -28,6 +28,18 @@ for f in "$SC"/*.sh; do
 done
 echo "PASS: bash -n (all scripts)"
 
+# 0b. \uXXXX デコード（v1.15.0: 純 bash 実装）: 3バイト（日本語）/ 2バイト / サロゲートペア（絵文字）/ ASCII
+BS=$(printf '%s' '\' | head -c 1)   # バックスラッシュ1文字（エディタ/ハーネスがエスケープ列を勝手に展開しないよう分割して書く）
+DEC_IN="{\"t\":\"${BS}u8cfc${BS}u5165 ${BS}u00e9 ${BS}ud83d${BS}ude00 ${BS}u0041\"}"
+got=$(printf '%s' "$DEC_IN" | bash -c 'source "$0"; printf "%s" "$STDIN_TEXT"' "$SC/_common.sh" | od -An -tx1 | tr -d ' \n')
+want='7b2274223a22e8b3bce585a520c3a920f09f98802041227d'
+[ "$got" = "$want" ] && echo "PASS: \uXXXX デコード（3バイト/2バイト/サロゲート/ASCII）" || { echo "FAIL: \uXXXX デコード — got=$got want=$want"; FAIL=1; }
+
+# 0c. watchlist / denylist の全パターンが bash regex（POSIX ERE）としてコンパイルできる
+# （v1.15.0 で照合を grep -E → [[ =~ ]] に替えたため。コンパイル不能なパターンは黙って不発になる）
+bad=$(bash -c 'shopt -s nocasematch; for f in "$@"; do while IFS= read -r pat; do case "$pat" in ""|"#"*) continue;; esac; [[ "x" =~ $pat ]]; [ $? -eq 2 ] && printf "%s: %s\n" "$f" "$pat"; done < "$f"; done' _ "$SC/money-watchlist.txt" "$SC/money-watchlist-weak.txt" "$SC/url-denylist.txt")
+[ -z "$bad" ] && echo "PASS: watchlist/denylist の全パターンが bash regex でコンパイル可" || { echo "FAIL: bash regex でコンパイルできないパターン: $bad"; FAIL=1; }
+
 # 1. ゲート: フラグなしで click は deny
 out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
 check "gate: 未初期化で deny" '"permissionDecision":"deny"' "$out"

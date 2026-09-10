@@ -10,13 +10,45 @@ STDIN_JSON="$(cat 2>/dev/null || true)"
 
 # STDIN_TEXT: ツール結果JSONは日本語が \uXXXX エスケープで来ることがあり、そのままでは
 # 日本語パターン（決済/クレジットカード等）が一切マッチしない（Money Watch がサイレント無効化）。
-# 日本語照合は必ず STDIN_TEXT に対して行うこと。perl → python3 → python の順で試し、無ければ生のまま。
-if command -v perl >/dev/null 2>&1; then
-  # pack("U") で \uXXXX を UTF-8 バイト列に展開する。-CO は使わない（既存の生UTF-8バイトを二重エンコードして壊すため）
-  STDIN_TEXT="$(printf '%s' "$STDIN_JSON" | perl -pe 's/\\u([0-9a-fA-F]{4})/pack("U",hex($1))/ge' 2>/dev/null)"
-elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
-  PY="$(command -v python3 || command -v python)"
-  STDIN_TEXT="$(printf '%s' "$STDIN_JSON" | "$PY" -c 'import sys,re; sys.stdout.write(re.sub(r"\\\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1),16)), sys.stdin.read()))' 2>/dev/null)"
+# 日本語照合は必ず STDIN_TEXT に対して行うこと。
+# v1.15.0: 純 bash でデコードする（以前は perl/python を hook 呼び出しごとに子プロセス起動しており、
+# Windows の test-hooks が5分かかる主因だった。本番の hook もツールコールごとに1プロセス減る）。
+# ロケールに依存しないよう UTF-8 バイト列は自前で組む（bash printf の \u はロケール依存で不可）。
+# サロゲートペア（絵文字等）も合成する。デコードしきれない \u が残った場合だけ perl/python にフォールバック。
+json_unescape_u() { # $1: 文字列 → stdout: \uXXXX を UTF-8 に展開した文字列
+  local s="$1" lo cp ch hex re2
+  local re='\\u([0-9a-fA-F]{4})'
+  while [[ $s =~ $re ]]; do
+    hex="${BASH_REMATCH[1]}"; cp=$((16#$hex)); lo=""
+    if (( cp >= 0xD800 && cp <= 0xDBFF )); then   # 上位サロゲート → 直後の下位と合成
+      re2="\\\\u${hex}\\\\u([dD][c-fC-F][0-9a-fA-F]{2})"
+      if [[ $s =~ $re2 ]]; then
+        lo="${BASH_REMATCH[1]}"
+        cp=$(( 0x10000 + ((cp - 0xD800) << 10) + ($((16#$lo)) - 0xDC00) ))
+      fi
+    fi
+    if (( cp < 0x80 )); then
+      printf -v ch '\\x%02x' "$cp"
+    elif (( cp < 0x800 )); then
+      printf -v ch '\\x%02x\\x%02x' $((0xC0 | (cp >> 6))) $((0x80 | (cp & 0x3F)))
+    elif (( cp < 0x10000 )); then
+      printf -v ch '\\x%02x\\x%02x\\x%02x' $((0xE0 | (cp >> 12))) $((0x80 | ((cp >> 6) & 0x3F))) $((0x80 | (cp & 0x3F)))
+    else
+      printf -v ch '\\x%02x\\x%02x\\x%02x\\x%02x' $((0xF0 | (cp >> 18))) $((0x80 | ((cp >> 12) & 0x3F))) $((0x80 | ((cp >> 6) & 0x3F))) $((0x80 | (cp & 0x3F)))
+    fi
+    printf -v ch "$ch"
+    if [ -n "$lo" ]; then s="${s//\\u${hex}\\u${lo}/$ch}"; else s="${s//\\u${hex}/$ch}"; fi
+  done
+  printf '%s' "$s"
+}
+STDIN_TEXT="$(json_unescape_u "$STDIN_JSON")"
+if [[ $STDIN_TEXT =~ \\u[0-9a-fA-F]{4} ]]; then   # 取りこぼし時のみ外部ツール（従来経路）
+  if command -v perl >/dev/null 2>&1; then
+    STDIN_TEXT="$(printf '%s' "$STDIN_JSON" | perl -pe 's/\\u([0-9a-fA-F]{4})/pack("U",hex($1))/ge' 2>/dev/null)"
+  elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
+    PY="$(command -v python3 || command -v python)"
+    STDIN_TEXT="$(printf '%s' "$STDIN_JSON" | "$PY" -c 'import sys,re; sys.stdout.write(re.sub(r"\\\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1),16)), sys.stdin.read()))' 2>/dev/null)"
+  fi
 fi
 [ -n "$STDIN_TEXT" ] || STDIN_TEXT="$STDIN_JSON"
 
@@ -98,22 +130,26 @@ money_suppressed() {
   return 1
 }
 
-# money_match_lists <text> <list files...>: 最初にマッチしたパターンを stdout に返す（無ければ戻り値1）
-# 照合は \uXXXX デコード済みテキストに対して行う（生JSONだと日本語パターンが不発になる）
-money_match_lists() {
+# list_match <text> <list files...>: コメント・空行を除いた各行を大文字小文字無視の ERE として照合し、
+# 最初にマッチしたパターンを stdout に返す（無ければ戻り値1）。bash の [[ =~ ]] を使い外部プロセスを起動しない
+# （v1.15.0: 以前はパターンごとに grep を起動しており、1 hook 呼び出しで最大20プロセスだった）。
+# url-guard と Money Watch の両方がこれを使う（ワークスペース側リストとの2層構造も同じ関数で扱う）。
+list_match() {
   local text="$1" LIST pat; shift
+  local _nc; _nc="$(shopt -p nocasematch)"; shopt -s nocasematch
   for LIST in "$@"; do
     [ -f "$LIST" ] || continue
     while IFS= read -r pat; do
       case "$pat" in ''|'#'*) continue ;; esac
-      if printf '%s' "$text" | grep -qiE "$pat" 2>/dev/null; then
-        printf '%s' "$pat"
-        return 0
+      if [[ $text =~ $pat ]]; then
+        eval "$_nc"; printf '%s' "$pat"; return 0
       fi
     done < "$LIST"
   done
-  return 1
+  eval "$_nc"; return 1
 }
+# money_match_lists は後方互換の別名（照合は \uXXXX デコード済みテキストに対して行う）
+money_match_lists() { list_match "$@"; }
 money_strong() { money_match_lists "$1" "$SCRIPT_DIR/money-watchlist.txt" "$PROJECT_DIR/knowledge/config/money-watchlist.txt"; }
 money_weak()   { money_match_lists "$1" "$SCRIPT_DIR/money-watchlist-weak.txt" "$PROJECT_DIR/knowledge/config/money-watchlist-weak.txt"; }
 
