@@ -48,7 +48,7 @@ knowledge/media/registry.yaml の該当媒体と knowledge/sites/<id>/ のナレ
 | 自社サイト | /Webサイト | procedures/delve-website.md（サイト固定） | `<サイト名>` |
 | **どれにも該当しない完全別ワーク** | **「その他ワーク」= 非表示の親**（メニューコマンドは作らない） | docs/parts/index.md のタスク5型 + procedures/delve-start.md のゲート（共通フローは直書きせずポインタ） | `<ワーク名>` |
 
-registry.yaml のエントリに `parent: sns|ads|recruit|website|other` を必ず記録する（ダッシュボード・/カスタマイズ list のグルーピングに使う）。/セットアップ の媒体選択（SNS・広告・求人）も同じ表で生成する。アカウント単位で分けたい場合はアカウント名コマンド（例: /IT就活大学）でもよい。
+registry.yaml のエントリに `parent: sns|ads|recruit|website|other` を必ず記録する（/レポート の状況サマリー・/カスタマイズ list のグルーピングに使う）。/セットアップ の媒体選択（SNS・広告・求人）も同じ表で生成する。アカウント単位で分けたい場合はアカウント名コマンド（例: /IT就活大学）でもよい。
 
 ### 5. 締め
 

@@ -9,7 +9,7 @@ argument-hint: [list | on <pack> | off <pack>]（省略時は list）
 
 | pack | 含まれる機能 | 既定 |
 |---|---|---|
-| core | start / status / demo / dashboard / feedback / skillify / ゲート・Credential Guard | **常時ON（無効化不可）** ※1 |
+| core | start / status / demo / reporting / feedback / skillify / ゲート・Credential Guard | **常時ON（無効化不可）** ※1 |
 | research | style（スタイル調査）/ audit（サイト診断）/ watch（競合ウォッチ） | ON |
 | creative | improve（ページ改善）/ adlp（広告→LP）/ adscript（動画広告台本）+ design-artisan / design-critic | ON |
 | sns | sns（SNS運用バッチ）+ sns-jp スキル | ON |

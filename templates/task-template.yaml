@@ -9,7 +9,7 @@ place: baitai-b             # 対象の場所（knowledge/sites/<place>/ のキ�
 # ループ（定常実行）。単発タスクなら schedule を省略
 schedule:
   cadence: "平日 10:00"     # 自然言語でよい（Cowork のスケジュール登録文に使う）
-  close_with_dashboard: true # 締めに /delve-dashboard を実行
+  close_with_alert_check: true # 締めにアラート確認（docs/command-registry.md 原則2）
 
 # パラメータ: 実行時に変わる値
 params:

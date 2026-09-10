@@ -1,5 +1,5 @@
 ---
-description: 媒体管理 — 運用中の媒体（求人媒体・SNSアカウント・広告アカウント等）の台帳管理と横断ステータス巡回、期限・残数アラート、横断ダッシュボード生成。Use when ユーザーが「媒体を登録して」「全媒体の状況を見せて」「掲載状況をまとめて」「チケット残数を確認して」「契約期限の近い媒体は？」等、複数媒体の一元管理・棚卸しを求めたとき。
+description: 媒体管理 — 運用中の媒体（求人媒体・SNSアカウント・広告アカウント等）の台帳管理と横断ステータス巡回、期限・残数アラート、横断ステータスレポート生成。Use when ユーザーが「媒体を登録して」「全媒体の状況を見せて」「掲載状況をまとめて」「チケット残数を確認して」「契約期限の近い媒体は？」等、複数媒体の一元管理・棚卸しを求めたとき。
 argument-hint: [register <媒体名> | status | report]（省略時は status）
 ---
 
@@ -42,7 +42,7 @@ media:
 4. アラートがあれば対応の提案（例: 「チケット残 32、今週の送信予定 40 件 — 追加購入 or 送信調整が必要」）
 
 ### report
-status の履歴（knowledge/media/status/）から横断ダッシュボード HTML を生成（templates/report-template.html 準拠・deliverable-writer 委譲）:
+status の履歴（knowledge/media/status/）から横断ステータスレポート HTML を生成（templates/report-template.html 準拠・deliverable-writer 委譲）:
 - 媒体別の残数・利用ペースの推移（stat + delta + CSS横棒）
 - 契約更新カレンダー（時系列順・30日以内は warn 色）
 - 媒体別の費用対効果メモ欄（データがあれば: 送信数→返信率等）
