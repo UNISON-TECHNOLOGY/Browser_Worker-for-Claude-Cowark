@@ -31,9 +31,10 @@ v1.14.0（フィードバック対応 + Opus レビュー対応）マージ直�
 ## 削減リファクタ 2026-09-10（v1.15.0 → v1.16.0）
 
 - **v1.15.0（PR #3）**: hooks の子プロセス排除（Unicode エスケープのデコードを純 bash 化・照合を bash regex 化）。test-hooks 約5分 → 約1分。Playwright の `browser_run_code_unsafe` を matcher に追加。Opus レビュー2巡で O(n²)・行跨ぎ誤検知・フォールバック到達不能・再入展開・アンカー付きパターンの取りこぼしを潰した
-- **v1.15.1（PR #4）**: 文書削減 — TESTING.md の履歴を `TESTING-archive.md` へ分離し旧検証プロンプト3版を削除（546行 → 約80行）。references 6本の「Use this skill when / Do not use」本文再掲を削除（description が正本）。参照ゼロだった `templates/guide-template.html`（196行）を廃止し guide-design.md / dashboard-design.md の言及を更新
+- **v1.15.1（PR #4）**: 文書削減 — TESTING.md の履歴を `TESTING-archive.md` へ分離し旧検証プロンプト3版を削除（546行 → 約80行）。references 6本の「Use this skill when / Do not use」本文再掲を削除（description が正本）。参照ゼロだった templates/ 配下の `guide-template.html`（196行）を廃止し guide-design.md / dashboard-design.md の言及を更新
 - **v1.15.2（PR #5）**: hooks の共通化 — 「/状態確認」導線を deny_decay で一律付与（8箇所の手書きを廃止）、critic / ov / rm の warn/deny 分岐を gate_emit に集約。test-hooks に wf_ready / wf_clean ヘルパー
-- **v1.16.0（PR #6）**: steps-reference の必読をフェーズ④で免除（①②③は全文 Read。④は delve-start の表から節ファイルへ）。Step H → docs/steps/review.md、E-3/F-4/I-1.5/I-5 → docs/steps/cp.md、認証フィールド → docs/steps/credential.md、④再生の機械検証 → docs/steps/freeze.md に分離。hook の SHORT 導線は review.md へ。
+- **v1.16.0（PR #6）**: steps-reference の必読をフェーズ④で免除（①②③は全文 Read。④は delve-start の表から節ファイルへ）。Step H → docs/steps/review.md、E-3/F-4/I-1.5/I-5 → docs/steps/cp.md、認証フィールド → docs/steps/credential.md、④再生の機械検証 → docs/steps/freeze.md に分離。hook の SHORT 導線は critic→review.md、psv→review.md、ov→delve-start 手順6 へ。
+- **v1.16.1（PR #8）**: 横断監査の反映 — money-suppress.txt を【弱】専用にし【強】の自動停止を無効化できなくした（C-1）。ov-gate の SHORT 導線を delve-start 手順6 へ。lint の参照切れ検査を docs/** と hooks に拡張、credential.md を予算表へ。test-hooks に JS 実行系・critic warn・url-allowlist・packs.conf・永続化警告・suppress 強不干渉の回帰を追加。
 
 ### 検証の渡し方（Cowork 最新版）
 
@@ -63,9 +64,8 @@ docs/parts/design-handoff.md へ到達するか（ツール名を言わずに発
 (9) **検証の許可サイト限定（verify_allowlist）実測**: フラグ作成後にリスト外
 （例: https://www.wikipedia.org）へ navigate を試行 → 【検証モード・許可サイト限定】で deny されるか。
 V5(b) の指定テストサイトへは通過するか。
-※warn→deny 昇格の実機構: 各スクリプト先頭の `GATE_MODE="${DELVEWORK_GATE_MODE:-warn}"` の
-既定値を `deny` に書き換える（環境変数 DELVEWORK_GATE_MODE はテスト時の両モード検証用。
-切替日を本ファイルに記録すること）。
+※GATE_MODE は `hooks/scripts/_common.sh` に一元化（既定 deny。v1.15.2）。試運転で warn に落とすときは
+環境変数 `DELVEWORK_GATE_MODE=warn`（テストの両モード検証も同じ変数）。既定値を変えるなら切替日を本ファイルに記録すること。
 (10) **Money Watch 粒度（v1.14.0）実測 — ブラウザは使わず V20 と同じ手段固定**（money-watch.sh / workflow-gate.sh に
 PostToolUse / PreToolUse 形式の JSON を直接渡す。日本語は Unicode エスケープ経由。実サイト・媒体管理画面には行かない）:
 (a) 「Page URL: https://example.com/a プラン変更」を含む tool_response を2回 → 【Money Watch・注意】は**1回目だけ**。URL を /b に
@@ -76,5 +76,10 @@ PostToolUse / PreToolUse 形式の JSON を直接渡す。日本語は Unicode �
 (11) **/保守作業 の入口 — ルーティング到達の確認まで**: 「xserver と WordPress を横断で調べて」と依頼 → /保守作業
 （delve-maintenance）に振れることを確認したら**そこで止める**（実調査には入らない・ブラウザを開かない）。あわせて
 「xserver の設定を変えて」では delve-start に入る計画が提示されるか（提示まで。実行しない）
+(12) **v1.16 の到達性と抑制順序（ブラウザ不使用）**: (a) ④相当のダミー（knowledge/sites/dummy/ と成功ログ + shortcut_memo を用意）で
+/タスク開始 → docs/steps-reference.md を **Read せず**、不可逆操作の宣言時に docs/steps/cp.md、承認提示前に docs/steps/review.md、
+手順0.5 で docs/steps/credential.md へ到達するか（V23）。①で開始すると steps-reference 全文に到達するか (b) knowledge/config/money-suppress.txt に
+`.` を1行書いた状態で「購入を確定」を含む tool_response を money-watch.sh に渡す → 【Money Watch】で money_alert が立つ（抑制が【強】に効いたら FAIL）。
+「決済画面」なら沈黙する（弱には効く）。**終了後 suppress と money_alert を掃除**
 読み取り専用・外部無害の原則厳守。FAIL はエラー原文つき。報告書はアーティファクト発行。
 ```

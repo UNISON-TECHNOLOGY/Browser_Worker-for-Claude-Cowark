@@ -119,7 +119,7 @@ fi
 if ! money_suppressed "$TARGET"; then
   weak_t="$(money_weak "$TARGET")"
   if [ -n "$weak_t" ]; then
-    warn_pretool "【Money Watch・操作直前】これから操作する要素に金銭系の文言があります（パターン: $weak_t）。停止はしていません — この操作がプラン変更・課金・支払い設定そのものなら実行せず docs/steps/money-recovery.md に従い、ユーザーの承認を得てから進むこと。"
+    warn_pretool "【Money Watch・操作直前】これから操作する要素に金銭系の文言があります（パターン: $weak_t。この警告は操作ごとに出ます）。停止はしていません — この操作がプラン変更・課金・支払い設定そのものなら実行せず docs/steps/money-recovery.md に従い、ユーザーの承認を得てから進むこと。"
   fi
 fi
 exit 0

@@ -147,6 +147,20 @@ check "money-watch【弱】: 『決済』は注意喚起のみ" 'Money Watch・�
 out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
 check "gate: 弱検知の後も変更操作は通る" EMPTY "$out"
 
+# 5a2. money-suppress.txt は【強】を殺せない（2026-09-10 横断監査 C-1: AI が書けるファイル1行で自動停止が消えないこと）
+rm -f "$DELVEWORK_WF_DIR/money_alert"
+mkdir -p "$CLAUDE_PROJECT_DIR/knowledge/config"; printf '.\n' > "$CLAUDE_PROJECT_DIR/knowledge/config/money-suppress.txt"
+out=$(printf '{"tool_response":"\\u8cfc\\u5165\\u3092\\u78ba\\u5b9a"}' | bash "$SC/money-watch.sh")
+check "money-watch: suppress は【強】に効かない（警告）" 'Money Watch】' "$out"
+[ -f "$DELVEWORK_WF_DIR/money_alert" ] && echo "PASS: money-watch: suppress 下でも money_alert が立つ" || { echo "FAIL: money-watch: suppress で強判定が無効化された"; FAIL=1; }
+rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/.money_weak_seen"
+out=$(printf '{"tool_response":"\\u6c7a\\u6e08\\u753b\\u9762"}' | bash "$SC/money-watch.sh")
+check "money-watch: suppress は【弱】には効く" EMPTY "$out"
+rm -f "$CLAUDE_PROJECT_DIR/knowledge/config/money-suppress.txt" "$DELVEWORK_WF_DIR/.money_weak_seen"
+out=$(printf '{"tool_response":"\\u6c7a\\u6e08\\u753b\\u9762"}' | bash "$SC/money-watch.sh")
+check "money-watch: suppress を消せば【弱】は再び出る（対比）" 'Money Watch・注意' "$out"
+rm -f "$DELVEWORK_WF_DIR/.money_weak_seen"
+
 # 5c. Money Watch【弱】の重複抑止（2026-09-10）: 同じ「URL × 弱パターン」は1回だけ警告する（\\u エスケープ経由）
 rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/.money_weak_seen"
 WEAK_X="$(printf '{"tool_response":"Page URL: https://a.example/x \\u30d7\\u30e9\\u30f3\\u5909\\u66f4"}')"
@@ -273,8 +287,49 @@ check "ov: ov_doneありは通過" EMPTY "$out"
 export DELVEWORK_GATE_MODE=warn
 rm -f "$DELVEWORK_WF_DIR/ov_done"
 out=$(printf '{"tool_name":"Bash","tool_input":{"command":"touch memory/.workflow/k_done"}}' | bash "$SC/ov-gate.sh")
-check "ov: 既定warnモードは注入のみ（denyしない）" 'additionalContext.*OV Gate' "$out"
+check "ov: warnモードでは注入のみ（denyしない）" 'additionalContext.*OV Gate' "$out"
 rm -f "$DELVEWORK_WF_DIR/bulk_send"
+
+# --- JS 実行系の read-only 素通し / mutation はゲート対象（2026-09-10 監査 I-4） ---
+export DELVEWORK_GATE_MODE=deny
+wf_clean; rm -f "$DELVEWORK_WF_DIR"/{active,b4_done,phase,e_done}   # 未初期化状態にする
+out=$(printf '{"tool_name":"mcp__claude-in-chrome__javascript_tool","tool_input":{"code":"document.title"}}' | bash "$SC/workflow-gate.sh")
+check "gate JS: 読み取り専用コードは未初期化でも素通し" EMPTY "$out"
+out=$(printf '{"tool_name":"mcp__claude-in-chrome__javascript_tool","tool_input":{"code":"document.querySelector(\\"button\\").click()"}}' | bash "$SC/workflow-gate.sh")
+check "gate JS: .click() は未初期化なら deny" '"permissionDecision":"deny"' "$out"
+out=$(printf '{"tool_name":"mcp__playwright__browser_evaluate","tool_input":{"function":"() => fetch(\\"/api\\")"}}' | bash "$SC/workflow-gate.sh")
+check "gate JS: fetch は未初期化なら deny" '"permissionDecision":"deny"' "$out"
+wf_ready
+
+# --- Critic Gate の warn モード（gate_emit 3系統の残り1つ） ---
+export DELVEWORK_GATE_MODE=warn
+touch "$DELVEWORK_WF_DIR/critic_pending"; rm -f "$DELVEWORK_WF_DIR/critic_pass"
+out=$(printf '{"tool_name":"SendUserFile","tool_input":{"files":["banner.png"]}}' | bash "$SC/critic-gate.sh")
+check "critic: warnモードは注入のみ" 'additionalContext.*Critic Gate' "$out"
+rm -f "$DELVEWORK_WF_DIR/critic_pending"
+export DELVEWORK_GATE_MODE=deny
+
+# --- URL Guard: url-allowlist.txt による開放（README の唯一の脱出弁） ---
+mkdir -p "$CLAUDE_PROJECT_DIR/knowledge/config"
+out=$(printf '{"tool_name":"mcp__claude-in-chrome__navigate","tool_input":{"url":"https://ads.google.com/aw/campaigns"}}' | bash "$SC/url-guard.sh")
+check "url-guard: 拒否リスト該当は deny" 'URL Guard' "$out"
+printf 'ads\\.google\\.com\n' > "$CLAUDE_PROJECT_DIR/knowledge/config/url-allowlist.txt"
+out=$(printf '{"tool_name":"mcp__claude-in-chrome__navigate","tool_input":{"url":"https://ads.google.com/aw/campaigns"}}' | bash "$SC/url-guard.sh")
+check "url-guard: allowlist 該当は通過" EMPTY "$out"
+rm -f "$CLAUDE_PROJECT_DIR/knowledge/config/url-allowlist.txt"
+
+# --- session-start: packs.conf OFF 通知 / knowledge 不在の永続化警告 ---
+printf 'core=on\nsns-x=off\n' > "$CLAUDE_PROJECT_DIR/knowledge/config/packs.conf"
+out=$(bash "$SC/session-start.sh" </dev/null)
+check "session-start: packs.conf の off を通知" 'タスクPack.*sns-x' "$out"
+rm -f "$CLAUDE_PROJECT_DIR/knowledge/config/packs.conf"
+if [ -d "$CLAUDE_PROJECT_DIR/knowledge" ]; then
+  mv "$CLAUDE_PROJECT_DIR/knowledge" "$CLAUDE_PROJECT_DIR/knowledge.__bak" || { echo "FAIL: knowledge の退避に失敗"; FAIL=1; }
+  out=$(bash "$SC/session-start.sh" </dev/null)
+  check "session-start: knowledge 不在は永続化警告" '永続化警告' "$out"
+  mv "$CLAUDE_PROJECT_DIR/knowledge.__bak" "$CLAUDE_PROJECT_DIR/knowledge" || { echo "FAIL: knowledge の復元に失敗"; FAIL=1; }
+fi
+wf_clean   # session-start は deny 減衰カウンタと弱既読を消す — 後続テストが暗黙に依存しないよう明示的に初期化
 
 # --- RM Guard（一括・再帰削除の機械ガード） ---
 export DELVEWORK_GATE_MODE=deny
@@ -341,12 +396,12 @@ rm -f "$DELVEWORK_WF_DIR/bulk_send"
 # --- session-start: 残留フラグの通知（2026-07-27 過剰ゲート監査） ---
 printf 'x' > "$DELVEWORK_WF_DIR/money_alert"
 printf 'example\\.com' > "$DELVEWORK_WF_DIR/verify_allowlist"
-out=$(bash "$SC/session-start.sh")
+out=$(bash "$SC/session-start.sh" </dev/null)
 check "session-start: 残留フラグを通知" '残留フラグ' "$out"
 check "session-start: 残留通知に verify_allowlist を含む" 'verify_allowlist' "$out"
 printf '%s' "$out" | json_valid && echo "PASS: session-start 残留通知 JSON" || { echo "FAIL: session-start 残留通知 JSON が壊れる"; FAIL=1; }
 rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/verify_allowlist"
-out=$(bash "$SC/session-start.sh")
+out=$(bash "$SC/session-start.sh" </dev/null)
 printf '%s' "$out" | grep -q '残留フラグ' && { echo "FAIL: 残留なしでも通知が出る（誤爆）"; FAIL=1; } || echo "PASS: 残留なしでは通知しない"
 
 # --- phase 整合検証（2026-07-28 コンテキスト管理監査）: b4_done だけでは通さない ---
