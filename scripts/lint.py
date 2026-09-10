@@ -81,9 +81,10 @@ for p in procedures:
 
 # --- 4. md 内のプラグイン内パス参照の実在（templates/ references/ docs/ agents/） ---
 md_files = list(ROOT.glob("commands/*.md")) + list(ROOT.glob("procedures/*.md")) + \
-    list(ROOT.glob("agents/*.md")) + list(ROOT.glob("docs/*.md")) + \
-    list(ROOT.glob("references/**/*.md")) + [ROOT / "README.md"]
-pat = re.compile(r"(?<![\w/.])((?:templates|references|docs|agents)/[\w./-]+\.(?:md|html|yaml|sql|json|txt))")
+    list(ROOT.glob("agents/*.md")) + list(ROOT.glob("docs/**/*.md")) + \
+    list(ROOT.glob("references/**/*.md")) + [ROOT / "README.md"] + \
+    list(ROOT.glob("hooks/scripts/*.sh")) + [ROOT / "hooks/scripts/session-rules.txt"]  # hook の文書ポインタも検査（2026-09-10 監査 I-3）
+pat = re.compile(r"(?<![\w/.])((?:templates|references|docs|agents|procedures)/[\w./-]+\.(?:md|html|yaml|sql|json|txt))")
 for f in md_files:
     for ref in set(pat.findall(read(f))):
         if not (ROOT / ref).is_file():
@@ -162,6 +163,7 @@ HOT_PATH_BUDGET = {          # ファイル: 上限バイト数
     "docs/conventions.md": 6000,
     "hooks/scripts/session-rules.txt": 7500,  # v1.14.0: 頻出ルール F1〜F6 直書き分。test-hooks.sh の目標と同値（二重管理にしない）
     "docs/parts/index.md": 6000,
+    "docs/steps/credential.md": 1500,  # v1.16.0: 全フェーズ必読（delve-start 0.5）
 }
 _hot_total = 0
 for rel, limit in HOT_PATH_BUDGET.items():

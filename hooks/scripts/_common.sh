@@ -159,7 +159,7 @@ warn_session() {
 
 # --- Money Watch 共通照合（money-watch.sh の PostToolUse と workflow-gate.sh の操作直前判定で共用） ---
 # money_suppressed <text>: knowledge/config/money-suppress.txt のパターンに当たれば 0（検知対象外）。
-# 抑制は「ページ（読み取り結果）」に対する誤検知チューニング用。**操作直前の強判定には効かせない**
+# 抑制は【弱】専用の誤検知チューニング。**強判定には効かせない（ページ読み取り・操作直前とも）**
 # （ユーザー編集可能ファイルが硬いゲートの無効化スイッチにならないように — 2026-09-10 レビュー指摘）
 money_suppressed() {
   local text="$1" SUPPRESS="$PROJECT_DIR/knowledge/config/money-suppress.txt" pat

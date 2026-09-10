@@ -16,14 +16,15 @@ source "$SCRIPT_DIR/_common.sh"
 
 # 抑制リスト（誤検知チューニング用）: ユーザーが knowledge/config/money-suppress.txt に
 # 書いたパターンにマッチするページは検知対象から除外する（例: 日常業務で開く媒体の管理画面URL/文言）
-money_suppressed "$STDIN_TEXT" && exit 0
-
+# 抑制は【弱】にだけ効かせる。【強】に効かせると、AI が書き込めるワークスペースファイル1行で
+# 金銭ガードの自動停止が丸ごと無効化される（2026-09-10 横断監査 C-1。workflow-gate の操作直前判定と同じ順序）。
 matched="$(money_strong "$STDIN_TEXT")"
 
 # 【強】に当たらなければ【弱】を照合。弱は停止せず注意喚起のみ（フラグを立てない）。
 # 同じ「ページURL × 弱パターン」は再警告しない（.money_weak_seen。navigate-warn / session-start が全消去）—
 # 「操作直前」の本判定は workflow-gate.sh が操作対象（tool_input）に対して行う。
 if [ -z "$matched" ]; then
+  money_suppressed "$STDIN_TEXT" && exit 0
   weak="$(money_weak "$STDIN_TEXT")"
   [ -z "$weak" ] && exit 0
   key="$(money_weak_key "$weak")"
