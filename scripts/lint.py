@@ -83,7 +83,7 @@ for p in procedures:
 md_files = list(ROOT.glob("commands/*.md")) + list(ROOT.glob("procedures/*.md")) + \
     list(ROOT.glob("agents/*.md")) + list(ROOT.glob("docs/**/*.md")) + \
     list(ROOT.glob("references/**/*.md")) + [ROOT / "README.md"] + \
-    list(ROOT.glob("hooks/scripts/*.sh")) + [ROOT / "hooks/scripts/session-rules.txt"]  # hook の文書ポインタも検査（2026-09-10 監査 I-3）
+    list(ROOT.glob("hooks/scripts/*.sh")) + [ROOT / "hooks/scripts/session-rules.txt", ROOT / "TESTING.md"]  # hook・TESTING の文書ポインタも検査（2026-09-10 監査 I-3）
 pat = re.compile(r"(?<![\w/.])((?:templates|references|docs|agents|procedures)/[\w./-]+\.(?:md|html|yaml|sql|json|txt))")
 for f in md_files:
     for ref in set(pat.findall(read(f))):

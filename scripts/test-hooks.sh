@@ -156,7 +156,10 @@ check "money-watch: suppress は【強】に効かない（警告）" 'Money Wat
 rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/.money_weak_seen"
 out=$(printf '{"tool_response":"\\u6c7a\\u6e08\\u753b\\u9762"}' | bash "$SC/money-watch.sh")
 check "money-watch: suppress は【弱】には効く" EMPTY "$out"
-rm -f "$CLAUDE_PROJECT_DIR/knowledge/config/money-suppress.txt"
+rm -f "$CLAUDE_PROJECT_DIR/knowledge/config/money-suppress.txt" "$DELVEWORK_WF_DIR/.money_weak_seen"
+out=$(printf '{"tool_response":"\\u6c7a\\u6e08\\u753b\\u9762"}' | bash "$SC/money-watch.sh")
+check "money-watch: suppress を消せば【弱】は再び出る（対比）" 'Money Watch・注意' "$out"
+rm -f "$DELVEWORK_WF_DIR/.money_weak_seen"
 
 # 5c. Money Watch【弱】の重複抑止（2026-09-10）: 同じ「URL × 弱パターン」は1回だけ警告する（\\u エスケープ経由）
 rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/.money_weak_seen"
@@ -321,11 +324,12 @@ out=$(bash "$SC/session-start.sh" </dev/null)
 check "session-start: packs.conf の off を通知" 'タスクPack.*sns-x' "$out"
 rm -f "$CLAUDE_PROJECT_DIR/knowledge/config/packs.conf"
 if [ -d "$CLAUDE_PROJECT_DIR/knowledge" ]; then
-  mv "$CLAUDE_PROJECT_DIR/knowledge" "$CLAUDE_PROJECT_DIR/knowledge.__bak"
+  mv "$CLAUDE_PROJECT_DIR/knowledge" "$CLAUDE_PROJECT_DIR/knowledge.__bak" || { echo "FAIL: knowledge の退避に失敗"; FAIL=1; }
   out=$(bash "$SC/session-start.sh" </dev/null)
   check "session-start: knowledge 不在は永続化警告" '永続化警告' "$out"
-  mv "$CLAUDE_PROJECT_DIR/knowledge.__bak" "$CLAUDE_PROJECT_DIR/knowledge"
+  mv "$CLAUDE_PROJECT_DIR/knowledge.__bak" "$CLAUDE_PROJECT_DIR/knowledge" || { echo "FAIL: knowledge の復元に失敗"; FAIL=1; }
 fi
+wf_clean   # session-start は deny 減衰カウンタと弱既読を消す — 後続テストが暗黙に依存しないよう明示的に初期化
 
 # --- RM Guard（一括・再帰削除の機械ガード） ---
 export DELVEWORK_GATE_MODE=deny

@@ -27,3 +27,5 @@ tool_input 全体に弱パターンがあれば【Money Watch・操作直前】�
 **前セッションからの持ち越し**: money_alert はタスクをまたいで残る（/タスク開始 でも消さない）。
 セッション開始時に「残留フラグ」の通知が出たら、まずユーザーに「前回の金銭停止が残っています」と
 1行で伝え、指示を仰ぐこと。**自分の判断で rm しない。**
+
+**同じ画面で【強】が繰り返し停止する場合**: money-suppress.txt では止められない（【弱】専用）。パターン自体の過検知なので、該当パターンと画面を1行で報告し、knowledge/feedback/lessons.md か docs/escalations.md に起票して `hooks/scripts/money-watchlist.txt` の見直しで対処する（AI がリストを消したり抑制を書いたりしない）。
