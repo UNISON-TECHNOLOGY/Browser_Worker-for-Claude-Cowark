@@ -55,7 +55,8 @@ for event, groups in hooks["hooks"].items():
 
 # --- 2b. hooks.json matcher の必須配線（2026-09-10 横断監査: 変更系・読み取り系のツールが matcher から漏れていた） ---
 _matchers = {ev: "|".join(g.get("matcher", "") for g in groups) for ev, groups in hooks["hooks"].items()}
-for tool in ("mcp__playwright__browser_network_request", "mcp__claude-in-chrome__javascript_tool", "mcp__playwright__browser_evaluate"):
+for tool in ("mcp__playwright__browser_network_request", "mcp__claude-in-chrome__javascript_tool", "mcp__playwright__browser_evaluate",
+             "mcp__claude-in-chrome__file_upload", "mcp__claude-in-chrome__computer", "mcp__claude-in-chrome__form_input", "mcp__playwright__browser_file_upload"):
     if tool not in _matchers.get("PreToolUse", ""):
         err(f"hooks.json(PreToolUse): 変更系ツール {tool} が matcher に無い")
 for tool in ("mcp__playwright__browser_find", "mcp__playwright__browser_snapshot", "mcp__claude-in-chrome__get_page_text"):

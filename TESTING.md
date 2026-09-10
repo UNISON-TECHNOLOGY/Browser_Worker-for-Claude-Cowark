@@ -36,6 +36,7 @@ v1.14.0（フィードバック対応 + Opus レビュー対応）マージ直�
 - **v1.16.0（PR #6）**: steps-reference の必読をフェーズ④で免除（①②③は全文 Read。④は delve-start の表から節ファイルへ）。Step H → docs/steps/review.md、E-3/F-4/I-1.5/I-5 → docs/steps/cp.md、認証フィールド → docs/steps/credential.md、④再生の機械検証 → docs/steps/freeze.md に分離。hook の SHORT 導線は critic→review.md、psv→review.md、ov→delve-start 手順6 へ。
 - **v1.16.1（PR #8）**: 横断監査の反映 — money-suppress.txt を【弱】専用にし【強】の自動停止を無効化できなくした（C-1）。ov-gate の SHORT 導線を delve-start 手順6 へ。lint の参照切れ検査を docs/** と hooks に拡張、credential.md を予算表へ。test-hooks に JS 実行系・critic warn・url-allowlist・packs.conf・永続化警告・suppress 強不干渉の回帰を追加。
 - **v1.16.2（PR #9）**: hooks の配線漏れを閉じる — playwright の browser_network_request（任意 HTTP 送信）を workflow-gate と url-guard の対象に、browser_find / console_messages / network_requests を PostToolUse（injection-warn / money-watch）の対象に。Write / Edit で memory/.workflow/ のフラグを直接書く迂回を Flag Guard（新規 hook、10本目）で deny。lint に matcher の必須配線チェック、test-hooks に 7 件追加。
+- **v1.16.3（PR #10）**: Claude in Chrome の file_upload（ページへのファイル投入＝変更操作）を workflow-gate の matcher に追加（Critic Gate にはあり workflow-gate だけ抜けていた。Playwright 側は配線済み）。lint 2b の必須配線に Chrome の computer / form_input / file_upload を追加。
 
 ### 検証の渡し方（Cowork 最新版）
 
