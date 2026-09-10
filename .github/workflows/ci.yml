@@ -10,7 +10,7 @@ jobs:
     name: 参照整合・frontmatter・JSON lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run lint
         run: python3 scripts/lint.py
 
@@ -18,7 +18,7 @@ jobs:
     name: hooks スモークテスト
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: shellcheck (errors only)
         run: shellcheck --severity=error hooks/scripts/*.sh scripts/*.sh
       - name: Run hook smoke tests
