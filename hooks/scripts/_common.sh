@@ -83,3 +83,41 @@ warn_session() {
   printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}' "$msg"
   exit 0
 }
+
+# --- Money Watch 共通照合（money-watch.sh の PostToolUse と workflow-gate.sh の操作直前判定で共用） ---
+# money_suppressed: knowledge/config/money-suppress.txt のパターンに当たれば 0（検知対象外）
+money_suppressed() {
+  local SUPPRESS="$PROJECT_DIR/knowledge/config/money-suppress.txt" pat
+  [ -f "$SUPPRESS" ] || return 1
+  while IFS= read -r pat; do
+    case "$pat" in ''|'#'*) continue ;; esac
+    if printf '%s' "$STDIN_TEXT" | grep -qiE "$pat" 2>/dev/null; then return 0; fi
+  done < "$SUPPRESS"
+  return 1
+}
+
+# money_match_lists <text> <list files...>: 最初にマッチしたパターンを stdout に返す（無ければ戻り値1）
+# 照合は \uXXXX デコード済みテキストに対して行う（生JSONだと日本語パターンが不発になる）
+money_match_lists() {
+  local text="$1" LIST pat; shift
+  for LIST in "$@"; do
+    [ -f "$LIST" ] || continue
+    while IFS= read -r pat; do
+      case "$pat" in ''|'#'*) continue ;; esac
+      if printf '%s' "$text" | grep -qiE "$pat" 2>/dev/null; then
+        printf '%s' "$pat"
+        return 0
+      fi
+    done < "$LIST"
+  done
+  return 1
+}
+money_strong() { money_match_lists "$1" "$SCRIPT_DIR/money-watchlist.txt" "$PROJECT_DIR/knowledge/config/money-watchlist.txt"; }
+money_weak()   { money_match_lists "$1" "$SCRIPT_DIR/money-watchlist-weak.txt" "$PROJECT_DIR/knowledge/config/money-watchlist-weak.txt"; }
+
+# 【弱】の再警告抑止: 同じパターンはページ遷移（navigate）まで1回だけ警告する。
+# サイドメニューに「プラン変更」が常在する管理画面（xserver 等）で、読み取りのたびに同文の警告が出ると
+# 注意が薄れて実際の金銭操作と区別がつかなくなる（2026-09-10 フィードバック）。
+WEAK_SEEN="$WF_DIR/.money_weak_seen"
+money_weak_seen_reset() { rm -f "$WEAK_SEEN" 2>/dev/null; return 0; }
+

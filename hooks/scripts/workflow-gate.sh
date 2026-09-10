@@ -92,4 +92,25 @@ fi
 
 # ここまで来たら停止要因なし = 減衰カウンタを捨てる（次に止まったときは再びフル文言で伝える）
 deny_reset
+
+# --- Money Watch 操作直前判定（2026-09-10） ---
+# 画面全体ではなく「これから操作する対象」（tool_input の要素名・ref・入力文字列）を照合する。
+# 【強】（購入を確定 等）に当たれば money_alert を立てて deny（PostToolUse の検知を待たずに止める）。
+# 【弱】（プラン変更 等）に当たれば警告のみ（additionalContext）で通す — 画面に常在するナビ語では
+# 止めないが、その要素そのものを押す直前には必ず1回知らせる。
+# 座標クリック（computer の coordinate）は文字列を持たないので照合できない — その場合は PostToolUse 側が担う。
+if ! money_suppressed; then
+  TARGET="$(printf '%s' "$STDIN_TEXT" | sed -n 's/.*"tool_input"[[:space:]]*:[[:space:]]*//p')"
+  [ -n "$TARGET" ] || TARGET="$STDIN_TEXT"
+  strong_t="$(money_strong "$TARGET")"
+  if [ -n "$strong_t" ]; then
+    mkdir -p "$WF_DIR" 2>/dev/null
+    printf '%s' "$strong_t" > "$WF_DIR/money_alert"
+    deny "【Money Watch・操作直前】操作対象に金銭・契約・不可逆登録の確定表現があります（パターン: $strong_t）。memory/.workflow/money_alert を設置し停止しました。復帰手順の正本 docs/steps/money-recovery.md を Read して従うこと（ユーザーの明示承認なしの解除は禁止）。"
+  fi
+  weak_t="$(money_weak "$TARGET")"
+  if [ -n "$weak_t" ]; then
+    warn_pretool "【Money Watch・操作直前】これから操作する要素に金銭系の文言があります（パターン: $weak_t）。停止はしていません — この操作がプラン変更・課金・支払い設定そのものなら実行せず docs/steps/money-recovery.md に従い、ユーザーの承認を得てから進むこと。"
+  fi
+fi
 exit 0
