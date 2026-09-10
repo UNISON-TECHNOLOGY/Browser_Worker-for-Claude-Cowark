@@ -11,44 +11,65 @@ STDIN_JSON="$(cat 2>/dev/null || true)"
 # STDIN_TEXT: ツール結果JSONは日本語が \uXXXX エスケープで来ることがあり、そのままでは
 # 日本語パターン（決済/クレジットカード等）が一切マッチしない（Money Watch がサイレント無効化）。
 # 日本語照合は必ず STDIN_TEXT に対して行うこと。
-# v1.15.0: 純 bash でデコードする（以前は perl/python を hook 呼び出しごとに子プロセス起動しており、
-# Windows の test-hooks が5分かかる主因だった。本番の hook もツールコールごとに1プロセス減る）。
-# ロケールに依存しないよう UTF-8 バイト列は自前で組む（bash printf の \u はロケール依存で不可）。
-# サロゲートペア（絵文字等）も合成する。デコードしきれない \u が残った場合だけ perl/python にフォールバック。
+# v1.15.0: 小さな入力（PreToolUse の tool_input 等、ほぼ全ての hook 呼び出し）は純 bash でデコードし、
+# 子プロセスを起動しない（以前は毎回 perl/python を起動しており Windows の test-hooks が5分かかる主因だった）。
+# 大きな入力（read_page の結果等）は bash では文字列コピーが効いて遅くなる（実測で超線形）ので、
+# 従来どおり perl/python に渡す。外部ツールが無い環境では bash が処理する（上限付き）。
+# bash 実装は前方走査（走査済みは out に確定・再走査しない）なので、\u005c の展開結果を再びエスケープと
+# 誤認しない。JSON の `\\`（エスケープされたバックスラッシュ）は対で保持し、後続の u.... を展開しない。
+# UTF-8 バイト列は自前で組む（bash printf の \u はロケール依存で使えない）。サロゲートペアは合成する。
+JSON_BASH_DECODE_MAX="${DELVEWORK_BASH_DECODE_MAX:-2000}"   # この文字数までは bash（実測: 2,000 文字・333 エスケープで約150ms）、超えたら外部ツール
 json_unescape_u() { # $1: 文字列 → stdout: \uXXXX を UTF-8 に展開した文字列
-  local s="$1" lo cp ch hex re2
-  local re='\\u([0-9a-fA-F]{4})'
-  while [[ $s =~ $re ]]; do
-    hex="${BASH_REMATCH[1]}"; cp=$((16#$hex)); lo=""
-    if (( cp >= 0xD800 && cp <= 0xDBFF )); then   # 上位サロゲート → 直後の下位と合成
-      re2="\\\\u${hex}\\\\u([dD][c-fC-F][0-9a-fA-F]{2})"
-      if [[ $s =~ $re2 ]]; then
-        lo="${BASH_REMATCH[1]}"
+  local s="$1" out="" pre hex lo cp ch guard=0
+  while [ -n "$s" ]; do
+    pre="${s%%\\*}"                       # 次のバックスラッシュまでを確定
+    out+="$pre"; s="${s:${#pre}}"
+    [ -n "$s" ] || break
+    if [ "${s:1:1}" = "u" ] && [[ "${s:2:4}" =~ ^[0-9a-fA-F]{4}$ ]]; then
+      hex="${s:2:4}"; s="${s:6}"; cp=$((16#$hex)); lo=""
+      if (( cp >= 0xD800 && cp <= 0xDBFF )) && [ "${s:0:1}" = "\\" ] && [ "${s:1:1}" = "u" ] && [[ "${s:2:4}" =~ ^[dD][cdefCDEF][0-9a-fA-F]{2}$ ]]; then
+        lo="${s:2:4}"; s="${s:6}"
         cp=$(( 0x10000 + ((cp - 0xD800) << 10) + ($((16#$lo)) - 0xDC00) ))
       fi
-    fi
-    if (( cp < 0x80 )); then
-      printf -v ch '\\x%02x' "$cp"
-    elif (( cp < 0x800 )); then
-      printf -v ch '\\x%02x\\x%02x' $((0xC0 | (cp >> 6))) $((0x80 | (cp & 0x3F)))
-    elif (( cp < 0x10000 )); then
-      printf -v ch '\\x%02x\\x%02x\\x%02x' $((0xE0 | (cp >> 12))) $((0x80 | ((cp >> 6) & 0x3F))) $((0x80 | (cp & 0x3F)))
+      if (( cp < 0x80 )); then
+        printf -v ch '\\x%02x' "$cp"
+      elif (( cp < 0x800 )); then
+        printf -v ch '\\x%02x\\x%02x' $((0xC0 | (cp >> 6))) $((0x80 | (cp & 0x3F)))
+      elif (( cp < 0x10000 )); then
+        printf -v ch '\\x%02x\\x%02x\\x%02x' $((0xE0 | (cp >> 12))) $((0x80 | ((cp >> 6) & 0x3F))) $((0x80 | (cp & 0x3F)))
+      else
+        printf -v ch '\\x%02x\\x%02x\\x%02x\\x%02x' $((0xF0 | (cp >> 18))) $((0x80 | ((cp >> 12) & 0x3F))) $((0x80 | ((cp >> 6) & 0x3F))) $((0x80 | (cp & 0x3F)))
+      fi
+      printf -v ch "$ch"
+      out+="$ch"
+    elif [ "${s:1:1}" = "\\" ]; then         # JSON の \\ は対で保持（後続の u.... を展開しない）
+      out+="${s:0:2}"; s="${s:2}"
     else
-      printf -v ch '\\x%02x\\x%02x\\x%02x\\x%02x' $((0xF0 | (cp >> 18))) $((0x80 | ((cp >> 12) & 0x3F))) $((0x80 | ((cp >> 6) & 0x3F))) $((0x80 | (cp & 0x3F)))
+      out+="${s:0:1}"; s="${s:1}"
     fi
-    printf -v ch "$ch"
-    if [ -n "$lo" ]; then s="${s//\\u${hex}\\u${lo}/$ch}"; else s="${s//\\u${hex}/$ch}"; fi
+    guard=$((guard + 1))
+    if (( guard > 20000 )); then out+="$s"; break; fi   # 異常に長い入力は残りを生のまま返す（停止性の保証）
   done
-  printf '%s' "$s"
+  printf '%s' "$out"
 }
-STDIN_TEXT="$(json_unescape_u "$STDIN_JSON")"
-if [[ $STDIN_TEXT =~ \\u[0-9a-fA-F]{4} ]]; then   # 取りこぼし時のみ外部ツール（従来経路）
+json_unescape_external() { # 大きな入力向け（従来経路）。成功時 0、外部ツール不在時 1
   if command -v perl >/dev/null 2>&1; then
-    STDIN_TEXT="$(printf '%s' "$STDIN_JSON" | perl -pe 's/\\u([0-9a-fA-F]{4})/pack("U",hex($1))/ge' 2>/dev/null)"
+    printf '%s' "$1" | perl -CS -pe 's/\\u([dD][89abAB][0-9a-fA-F]{2})\\u([dD][c-fC-F][0-9a-fA-F]{2})/chr(0x10000+((hex($1)-0xD800)<<10)+(hex($2)-0xDC00))/ge; s/\\u([0-9a-fA-F]{4})/chr(hex($1))/ge' 2>/dev/null
   elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
-    PY="$(command -v python3 || command -v python)"
-    STDIN_TEXT="$(printf '%s' "$STDIN_JSON" | "$PY" -c 'import sys,re; sys.stdout.write(re.sub(r"\\\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1),16)), sys.stdin.read()))' 2>/dev/null)"
+    local PY; PY="$(command -v python3 || command -v python)"
+    printf '%s' "$1" | "$PY" -c 'import sys,re
+d=sys.stdin.buffer.read().decode("utf-8","surrogateescape")
+d=re.sub(r"\\u([dD][89abAB][0-9a-fA-F]{2})\\u([dD][c-fC-F][0-9a-fA-F]{2})", lambda m: chr(0x10000+((int(m.group(1),16)-0xD800)<<10)+(int(m.group(2),16)-0xDC00)), d)
+d=re.sub(r"\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1),16)), d)
+sys.stdout.buffer.write(d.encode("utf-8","surrogateescape"))' 2>/dev/null
+  else
+    return 1
   fi
+}
+if [ "${#STDIN_JSON}" -le "$JSON_BASH_DECODE_MAX" ]; then
+  STDIN_TEXT="$(json_unescape_u "$STDIN_JSON")"
+else
+  STDIN_TEXT="$(json_unescape_external "$STDIN_JSON")" || STDIN_TEXT="$(json_unescape_u "$STDIN_JSON")"
 fi
 [ -n "$STDIN_TEXT" ] || STDIN_TEXT="$STDIN_JSON"
 
@@ -133,20 +154,29 @@ money_suppressed() {
 # list_match <text> <list files...>: コメント・空行を除いた各行を大文字小文字無視の ERE として照合し、
 # 最初にマッチしたパターンを stdout に返す（無ければ戻り値1）。bash の [[ =~ ]] を使い外部プロセスを起動しない
 # （v1.15.0: 以前はパターンごとに grep を起動しており、1 hook 呼び出しで最大20プロセスだった）。
+# grep は行単位で照合するため、[^0-9]{0,10} のような否定括弧式が行を跨いで当たることはない。同じ挙動を
+# 保つため、全文で当たったパターンだけ行単位で再確認する（全文一致は行一致の上位集合なので前段フィルタになる）。
 # url-guard と Money Watch の両方がこれを使う（ワークスペース側リストとの2層構造も同じ関数で扱う）。
 list_match() {
-  local text="$1" LIST pat; shift
-  local _nc; _nc="$(shopt -p nocasematch)"; shopt -s nocasematch
+  local text="$1" LIST pat line hit; shift
+  local had_nc=0; shopt -q nocasematch && had_nc=1; shopt -s nocasematch
   for LIST in "$@"; do
     [ -f "$LIST" ] || continue
     while IFS= read -r pat; do
       case "$pat" in ''|'#'*) continue ;; esac
-      if [[ $text =~ $pat ]]; then
-        eval "$_nc"; printf '%s' "$pat"; return 0
+      [[ $text =~ $pat ]] || continue
+      hit=0
+      while IFS= read -r line; do
+        if [[ $line =~ $pat ]]; then hit=1; break; fi
+      done <<< "$text"
+      if [ "$hit" = 1 ]; then
+        (( had_nc )) || shopt -u nocasematch
+        printf '%s' "$pat"; return 0
       fi
     done < "$LIST"
   done
-  eval "$_nc"; return 1
+  (( had_nc )) || shopt -u nocasematch
+  return 1
 }
 # money_match_lists は後方互換の別名（照合は \uXXXX デコード済みテキストに対して行う）
 money_match_lists() { list_match "$@"; }

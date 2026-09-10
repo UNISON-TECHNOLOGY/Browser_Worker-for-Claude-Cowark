@@ -29,15 +29,39 @@ done
 echo "PASS: bash -n (all scripts)"
 
 # 0b. \uXXXX デコード（v1.15.0: 純 bash 実装）: 3バイト（日本語）/ 2バイト / サロゲートペア（絵文字）/ ASCII
-BS=$(printf '%s' '\' | head -c 1)   # バックスラッシュ1文字（エディタ/ハーネスがエスケープ列を勝手に展開しないよう分割して書く）
+BS='\'   # バックスラッシュ1文字（エディタ/ハーネスがエスケープ列を勝手に展開しないよう分割して書く）
 DEC_IN="{\"t\":\"${BS}u8cfc${BS}u5165 ${BS}u00e9 ${BS}ud83d${BS}ude00 ${BS}u0041\"}"
 got=$(printf '%s' "$DEC_IN" | bash -c 'source "$0"; printf "%s" "$STDIN_TEXT"' "$SC/_common.sh" | od -An -tx1 | tr -d ' \n')
 want='7b2274223a22e8b3bce585a520c3a920f09f98802041227d'
 [ "$got" = "$want" ] && echo "PASS: \uXXXX デコード（3バイト/2バイト/サロゲート/ASCII）" || { echo "FAIL: \uXXXX デコード — got=$got want=$want"; FAIL=1; }
 
+# 0b-2. 純 bash 経路を直接検証（フォールバックに拾われない）: JSON の \\ は対で保持し後続を展開しない / 再入しない
+got=$(bash -c 'source "$0" </dev/null; json_unescape_u "$1"' "$SC/_common.sh" "$DEC_IN" | od -An -tx1 | tr -d ' \n')
+[ "$got" = "$want" ] && echo "PASS: json_unescape_u 直接呼び出し" || { echo "FAIL: json_unescape_u 直接呼び出し got=$got"; FAIL=1; }
+ESC_BS="${BS}${BS}u30d7"          # JSON 上は「バックスラッシュ + u30d7」の文字列 → 展開しない
+got=$(bash -c 'source "$0" </dev/null; json_unescape_u "$1"' "$SC/_common.sh" "$ESC_BS")
+[ "$got" = "$ESC_BS" ] && echo "PASS: json_unescape_u: エスケープ済みバックスラッシュの後ろは展開しない" || { echo "FAIL: \\\\u が展開された: $got"; FAIL=1; }
+REENT="${BS}u005cu0041"           # \u005c → \ に展開した後、u0041 を再びエスケープと誤認しない
+got=$(bash -c 'source "$0" </dev/null; json_unescape_u "$1"' "$SC/_common.sh" "$REENT")
+[ "$got" = "${BS}u0041" ] && echo "PASS: json_unescape_u: 再入しない（\\u005c の後ろ）" || { echo "FAIL: 再入した: $got"; FAIL=1; }
+# サイズ上限を超えると外部経路（perl/python）に切り替わっても同じ結果になる
+BIG="$(printf '%s' "$DEC_IN"; head -c 2500 /dev/zero | tr '\0' 'x')"
+got=$(printf '%s' "$BIG" | bash -c 'source "$0"; printf "%s" "$STDIN_TEXT"' "$SC/_common.sh" | head -c 24 | od -An -tx1 | tr -d ' \n')
+[ "$got" = "$want" ] && echo "PASS: 大きな入力は外部経路でも同じデコード結果" || { echo "FAIL: 大きな入力のデコード got=$got"; FAIL=1; }
+
+# 0b-3. list_match は grep 同様に行単位（[^0-9]{0,10} が行を跨いで強判定を立てない）
+CROSS="$(printf 'ご利用金額の合計\n￥12,000')"
+if bash -c 'source "$0" </dev/null; list_match "$1" "$2"' "$SC/_common.sh" "$CROSS" "$SC/money-watchlist.txt" >/dev/null; then
+  echo "FAIL: list_match が行を跨いで強パターンに一致（grep と非互換＝過剰ゲート）"; FAIL=1
+else
+  echo "PASS: list_match: 行跨ぎでは一致しない（grep 互換）"
+fi
+SAME="$(printf 'ご利用金額の合計 ￥12,000\nfoo')"
+bash -c 'source "$0" </dev/null; list_match "$1" "$2"' "$SC/_common.sh" "$SAME" "$SC/money-watchlist.txt" >/dev/null && echo "PASS: list_match: 同一行では一致" || { echo "FAIL: list_match: 同一行の強パターンを見逃し"; FAIL=1; }
+
 # 0c. watchlist / denylist の全パターンが bash regex（POSIX ERE）としてコンパイルできる
 # （v1.15.0 で照合を grep -E → [[ =~ ]] に替えたため。コンパイル不能なパターンは黙って不発になる）
-bad=$(bash -c 'shopt -s nocasematch; for f in "$@"; do while IFS= read -r pat; do case "$pat" in ""|"#"*) continue;; esac; [[ "x" =~ $pat ]]; [ $? -eq 2 ] && printf "%s: %s\n" "$f" "$pat"; done < "$f"; done' _ "$SC/money-watchlist.txt" "$SC/money-watchlist-weak.txt" "$SC/url-denylist.txt")
+bad=$(bash -c 'shopt -s nocasematch; for f in "$@"; do while IFS= read -r pat; do case "$pat" in ""|"#"*) continue;; esac; [[ "x" =~ $pat ]]; [ $? -eq 2 ] && printf "%s: %s\n" "$f" "$pat"; done < "$f"; done' _ "$SC/money-watchlist.txt" "$SC/money-watchlist-weak.txt" "$SC/url-denylist.txt" $(ls "$CLAUDE_PROJECT_DIR"/knowledge/config/{money-watchlist,money-watchlist-weak,url-denylist,url-allowlist}.txt 2>/dev/null))
 [ -z "$bad" ] && echo "PASS: watchlist/denylist の全パターンが bash regex でコンパイル可" || { echo "FAIL: bash regex でコンパイルできないパターン: $bad"; FAIL=1; }
 
 # 1. ゲート: フラグなしで click は deny
