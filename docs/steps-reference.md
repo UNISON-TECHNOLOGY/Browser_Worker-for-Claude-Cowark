@@ -31,7 +31,7 @@
 | E | Observe | モニタリング | 変更前状態の記録（テキスト読取を必ず含める）+ 不可逆操作があるなら CP証跡定義（steps/cp.md E-3） |
 | J | Report | 差分比較 | フェーズ②③④のみ、E直後。前回 after_state と今回 before_state を比較し、外部変更/リセットを検出したらユーザーに報告 |
 | F | Plan | プランニング | 実行計画 + レギュレーション検証（steps/cp.md F-4）。**計画に不可逆な一括送出（スカウト/投稿/配信/入稿）が含まれるなら `touch memory/.workflow/bulk_send` を宣言**（以後 psv_done まで変更操作が hook でブロックされる） |
-| G | Act | アクション | 実行。生成物があれば H に遷移。**読み取りは常に1コール集約（steps/speed.md）**。**フェーズ②で読み取り凍結／④で変更も凍結スクリプト経由に移す（下記 G'）** — 1操作ごとの LLM 往復が消え、ローカル環境ではこれが主経路 |
+| G | Act | アクション | 実行。生成物があれば H に遷移。**読み取りは常に1コール集約（steps/speed.md）**。**フェーズ②で読み取り凍結／④で変更も凍結スクリプト経由に移す（steps/freeze.md）** — 1操作ごとの LLM 往復が消え、ローカル環境ではこれが主経路 |
 | H | Review | レビュー | 生成物・破壊的操作のユーザー承認。**N件は1回で一覧提示し承認は個別**。不可逆送出は pre-send-verifier 監査（VERDICT）→ 承認 → `psv_done`。ユーザーに渡すビジュアル成果物は design-critic の PASS が先（Critic Gate）。**手順・フラグ運用の正本は steps/review.md**（該当があるときだけ読む） |
 | I | Verify | チェック | CP証跡照合（steps/cp.md I-1.5）+ ログ記録（steps/logging.md）+ ナレッジ更新。**不可逆操作があったタスクに限り**（件数は問わない）**outcome-verifier**（送信後検証）に after_state と CP 証跡を渡して独立検証させ、判定要約を `memory/.workflow/ov_done` に書き込む（OV Gate hook: bulk_send 宣言タスクは ov_done なしで k_done 不可）。**読み取りだけのタスク（巡回・状況確認・調査）では起動しない** — 照合する CP 証跡が無く渡す材料がない。締めは main ループが行う。効果測定（返信率・エンゲージ集計）は別用途で、件数や期間があるときだけ |
 | K | Offer | オファー | 完了報告 → session-log 更新 → k_done |

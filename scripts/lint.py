@@ -158,7 +158,7 @@ for f in list(ROOT.glob("commands/*.md")) + list(ROOT.glob("procedures/*.md")) +
 # 根拠・実例・事故の記録は docs/rationale.md（必読でない）へ置く。
 HOT_PATH_BUDGET = {          # ファイル: 上限バイト数
     "docs/steps-reference.md": 10500,  # v1.16.0: Step H / E-3 / 認証 / ④再生を steps/ へ分離。④は読まない
-    "procedures/delve-start.md": 8500,
+    "procedures/delve-start.md": 9200,  # v1.16.0: ④の骨格（ルーター + E/J/OV 要点）を兼ねるため増枠
     "docs/conventions.md": 6000,
     "hooks/scripts/session-rules.txt": 7500,  # v1.14.0: 頻出ルール F1〜F6 直書き分。test-hooks.sh の目標と同値（二重管理にしない）
     "docs/parts/index.md": 6000,
