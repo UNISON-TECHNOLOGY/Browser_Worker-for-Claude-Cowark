@@ -20,7 +20,7 @@
 | YouTube | procedures/delve-sns-youtube.md |
 | LINE公式 | procedures/delve-sns-line.md |
 
-複数媒体まとめて（「全SNSのストック確認」等）は媒体ごとに順に実行し、締めで outcome-verifier の集計とダッシュボード更新につなぐ。
+複数媒体まとめて（「全SNSのストック確認」等）は媒体ごとに順に実行し、締めで outcome-verifier の集計とアラート確認につなぐ。
 
 ## 1b. 計画依頼（「カレンダー作って」「投稿計画」「来月のスケジュール」）
 

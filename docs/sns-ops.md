@@ -49,4 +49,4 @@
 
 ## 実績記録の検証
 
-定常運用の締め（実績記録）では outcome-verifier に投稿ログと実測数値を渡して集計・検証させ、結果を knowledge/analytics/ に記録してからダッシュボード更新につなぐ。
+定常運用の締め（実績記録）では outcome-verifier に投稿ログと実測数値を渡して集計・検証させ、結果を knowledge/analytics/ に記録してから締めのアラート確認（docs/command-registry.md 原則2）につなぐ。
