@@ -64,7 +64,7 @@ if printf '%s' "$STDIN_JSON" | grep -qE '(javascript_tool|browser_evaluate|brows
   fi
 fi
 
-# network_request の読み取り専用 GET/HEAD は workflow-init ゲートを免除（上の NR_READONLY 判定。Money/Credential/URL 判定は済み）
+# network_request の読み取り専用 GET/HEAD は workflow-init ゲートを免除（money_alert 停止中は止めたまま — 任意 URL の HTTP 取得は復帰手順に不要なので安全側）（上の NR_READONLY 判定。Money/Credential/URL 判定は済み）
 [ "$NR_READONLY" = "1" ] && exit 0
 
 # browser_batch: 同梱 invocation が全て読み取り系なら素通しする（閲覧タスクを止めない）。
