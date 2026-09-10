@@ -2,7 +2,6 @@
 
 対象環境: Claude Cowork（デスクトップ）/ フォルダ未接続のクラウド作業領域で可。現行バージョンは .claude-plugin/plugin.json を正とする
 
-
 **このファイルは「記録ルール + 直近の検証結果 + 現行の検証プロンプト」だけを持つ。** 過去ラン（v0.8〜v1.1.5）の実施記録・設計決定・旧プロンプトは `TESTING-archive.md`（履歴。lint 対象外）に分離した（2026-09-10）。設計判断の正本は docs/rationale.md、上申事項は docs/escalations.md、検証項目の正本は procedures/delve-verify.md。
 
 ## 記録ルール
@@ -27,6 +26,11 @@ v1.14.0（フィードバック対応 + Opus レビュー対応）マージ直�
   - **リポジトリ衛生**: v1.14.0 のマージに `memory/.workflow/.money_weak_seen`（hook をプラグインルートで直接実行した際の状態ファイル）が混入 → 削除し `.gitignore` に `memory/` `knowledge/` を追加
 - **任意改善**: docs/parts/site-audit.md の速度規範再説明（V58 要注意）を固有部分だけに縮約
 - 検証プロンプトに **(10) Money Watch 粒度（弱 dedupe / 操作直前判定）** と **(11) /保守作業 の入口** を追加（次回実機ランの重点回帰）
+
+## 削減リファクタ 2026-09-10（v1.15.0 → v1.15.1）
+
+- **v1.15.0（PR #3）**: hooks の子プロセス排除（Unicode エスケープのデコードを純 bash 化・照合を bash regex 化）。test-hooks 約5分 → 約1分。Playwright の `browser_run_code_unsafe` を matcher に追加。Opus レビュー2巡で O(n²)・行跨ぎ誤検知・フォールバック到達不能・再入展開・アンカー付きパターンの取りこぼしを潰した
+- **v1.15.1（PR #4）**: 文書削減 — TESTING.md の履歴を `TESTING-archive.md` へ分離し旧検証プロンプト3版を削除（546行 → 73行）。references 6本の「Use this skill when / Do not use」本文再掲を削除（description が正本）。参照ゼロだった `templates/guide-template.html`（196行）を廃止し guide-design.md / dashboard-design.md の言及を更新
 
 ### 検証の渡し方（Cowork 最新版）
 

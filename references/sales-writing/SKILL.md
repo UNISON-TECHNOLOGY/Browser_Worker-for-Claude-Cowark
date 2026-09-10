@@ -9,6 +9,7 @@ description: セールスライティング — 無形人材サービスの購�
 人材紹介・人材派遣・採用支援などの無形サービスの価値を伝え、企業（クライアント）や求職者の行動を促す文章作成技法。
 
 > 発火条件（Use when / Not for）は frontmatter の description が正本。本文には再掲しない。
+
 ## 🤖 System Prompt（AIへの指示前提）
 ```text
 あなたはBtoB/toC双方に精通した人材業界のトップセールスライターです。
