@@ -39,7 +39,7 @@ docs/parts/site-audit.md の手順を1ページ分だけ実行し、計測値（
 | 画像生成 | 「Geminiで画像作って」 | 生成→クロマキー切り抜き→コピー焼き込みまで内蔵 |
 | Canva | 「Canvaで作って書き出して」 | コネクタ第一・ブラウザ補助で安全に操作 |
 
-**4. 説明書生成**: プラグインの commands/*.md の frontmatter（description）から「やりたいこと → 言い方の例 → コマンド名」の表を生成してチャットで提示する（カテゴリ: 調査系 / 制作系 / 運用系 / 学習系 / その他。ワークスペースの .claude/skills/ があれば「習得スキル」として併記）。HTML化はユーザーが求めたときだけ report-template.html で
+**4. 説明書生成**: プラグインの commands/*.md の frontmatter（description）から「やりたいこと → 言い方の例 → コマンド名」の表を生成してチャットで提示する（カテゴリ: 調査系 / 制作系 / 運用系 / 学習系 / その他。ワークスペースの .claude/skills/ があれば「習得スキル」として併記）。HTML化はユーザーが求めたときだけ report-template.html を templates/guide-design.md のテーマ（ガイド・案内物用）で使う
 
 ### Step 3: 締め
 

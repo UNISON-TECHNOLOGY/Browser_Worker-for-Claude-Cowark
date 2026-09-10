@@ -53,6 +53,7 @@ YAML 案を確定する前に、strategy-advisor サブエージェントに (a)
 
 - 実行は従来どおり **/タスク開始** が担う: 「<タスク名>やって」→ delve-start が `tasks/<タスク名>.yaml` を読み、steps を実行計画の正として A〜K を回す（destructive ステップは H で承認）
 - /レポート の状況サマリーは `tasks/*.yaml` + `loops.yaml` を読んでタスク一覧・次回実行を反映する
+- **旧キーの互換**: `close_with_dashboard: true` は v1.17.0 で `close_with_alert_check: true` に改称（ダッシュボード廃止）。既存の tasks/*.yaml・loops.yaml に旧キーが残っていたら同義（締め＝アラート確認）として扱い、次回の register / list 実行時にキー名を書き換える。ダッシュボード生成は行わない
 
 ## list
 
