@@ -49,7 +49,7 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    ```bash
    echo "<phase>" > memory/.workflow/phase && touch memory/.workflow/b4_done
    ```
-   （ゲートに効くのは b4_done。`phase` は hook 非連動の状態メモ）
+   （ゲートは b4_done と `phase` の**両方**を見る — phase が空・空白のみだと deny。2026-07-28 の整合検証で導入）
 3. Step E（変更前記録 → ②③④なら J の差分比較 → 不可逆操作があるなら CP 宣言。→ steps-reference E-3 / J）を終えたら:
    ```bash
    touch memory/.workflow/e_done

@@ -27,7 +27,7 @@ argument-hint: <対象ページURL> [改善の目的（例: CVR向上 / 読み�
 6. **目視検証（レンダリング確認）**: コードレビューPASS後、実際の見た目を確認する
    - モックアップをアーティファクト発行し、その URL をブラウザで開いてスクリーンショットを取得（デスクトップ幅と 375px 相当の2枚）
    - スクショ取得手段: Playwright の browser_take_screenshot、または In Chrome の computer（action=screenshot は v0.34 からゲート対象外）
-   - スクショを design-critic に渡し「レンダリング上の問題（重なり・はみ出し・コントラスト・アニメの意図通り動作）」を審査。REVISE なら修正ループへ戻る（この目視周回も最大1回）
+   - スクショを design-critic に渡し「レンダリング上の問題（重なり・はみ出し・コントラスト・アニメの意図通り動作）」を審査。REVISE なら修正ループへ戻る（目視周回の上限も agents/design-critic.md「収束条件」の目視審査モードに従う）
    - 取得したスクショは knowledge/mockups/ に保存し、改善提案レポートの Before/After 比較に使う
 
 ## 出力
