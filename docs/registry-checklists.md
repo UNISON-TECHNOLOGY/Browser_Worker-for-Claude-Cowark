@@ -22,6 +22,6 @@ Cowork の配布は marketplace 同期＝**このリポジトリがそのまま�
 - [ ] `python scripts/lint.py` → `lint: OK`（双方向突合・行数上限）
 - [ ] `bash scripts/test-hooks.sh` → `ALL PASS`（防御系回帰）
 - [ ] CI（GitHub Actions）最新 run が success
-- [ ] Cowork 実機での直近の `/検証 full` 結果が TESTING.md 末尾に記録され、FAIL 0（未解消 FAIL があれば配布延期）
+- [ ] Cowork 実機での直近の `/検証 full` 結果が TESTING.md の「直近の検証結果」に記録され（過去ランは TESTING-archive.md）、FAIL 0（未解消 FAIL があれば配布延期）
 - [ ] `.claude-plugin/` の version が配布告知と一致（bump 忘れは更新反映されない）
 - [ ] `docs/escalations.md` の上申事項が最新（README はここへのポインタなので README 側の文面同期は不要）

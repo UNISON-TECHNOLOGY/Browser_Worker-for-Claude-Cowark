@@ -1,6 +1,6 @@
 ---
 name: storytelling
-description: ストーリーテリング — 共感と行動を生む物語コンテンツ。Use when 社員インタビュー記事/社員ストーリー、転職成功事例、企業の創業ストーリー/ミッション紹介、採用広報・オウンドメディアの長文記事、採用ブランディング用のナラティブ。Not for 募集要項や求人票（→recruit-writing）、データ報告（→logical-writing）。
+description: ストーリーテリング — 共感と行動を生む物語コンテンツ。Use when 社員インタビュー記事/社員ストーリー、転職成功事例、企業の創業ストーリー/ミッション紹介、採用広報・オウンドメディアの長文記事、採用ブランディング用のナラティブ。Not for 募集要項や求人票（→recruit-writing）、データ報告（→logical-writing）、短いキャッチコピー（→copywriting）、メール文面（→business-writing）。
 ---
 
 # ストーリーテリング スキル
@@ -8,17 +8,7 @@ description: ストーリーテリング — 共感と行動を生む物語コ�
 
 無形のサービスを「体験」として伝える物語の力。社員ストーリー、転職成功談、企業の想い、採用ブランディングに。
 
-## Use this skill when
-- 社員インタビュー記事・社員ストーリーを作成するとき
-- 転職成功事例のストーリーを作成するとき
-- 企業の創業ストーリー・ミッション紹介文を作成するとき
-- 採用ブランディング用のナラティブコンテンツを求められたとき
-
-## Do not use this skill when
-- 求人票の募集要項（給与・勤務地等）を書くとき（-> recruit-writing）
-- 短いキャッチコピーだけを求められたとき（-> copywriting）
-- 論理的な提案書やレポートを求められたとき（-> logical-writing / sales-writing）
-- メール文面を求められたとき（-> business-writing）
+> 発火条件（Use when / Not for）は frontmatter の description が正本。本文には再掲しない。
 
 ## 🤖 System Prompt（AIへの指示前提）
 ```text

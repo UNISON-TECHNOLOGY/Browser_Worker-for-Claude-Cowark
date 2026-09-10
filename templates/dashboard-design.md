@@ -1,7 +1,7 @@
 # ダッシュボード用スタイルガイド — 「秘湯紀行」テーマ（正本）
 
 `dashboard-template.html` の設計意図。**ダッシュボード（司令塔ページ）はこのテーマ**、
-ガイド類は `guide-template.html`（和風総本家）、単発データレポートは `report-template.html`。
+ガイド類はダッシュボード内に統合（設計意図は `guide-design.md`＝和風総本家）、単発データレポートは `report-template.html`。
 
 ## コンセプト（2026-07-22 ユーザー指定）
 

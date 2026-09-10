@@ -1,6 +1,6 @@
 ---
 name: recruit-writing
-description: リクルートライティング — 求人票/募集要項/採用ページ/スカウトメール本文など採用コンテンツ本体の作成・修正。Use when 求人原稿の作成修正、募集要項（給与・勤務地・仕事内容）のライティング、スカウト本文（件名は→copywriting）、採用ページや会社紹介文。Not for キャッチコピーやスカウト件名単体（→copywriting）、社員ストーリー（→storytelling）。
+description: リクルートライティング — 求人票/募集要項/採用ページ/スカウトメール本文など採用コンテンツ本体の作成・修正。Use when 求人原稿の作成修正、募集要項（給与・勤務地・仕事内容）のライティング、スカウト本文（件名は→copywriting）、採用ページや会社紹介文。Not for キャッチコピーやスカウト件名単体（→copywriting）、社員ストーリー（→storytelling）、クライアント企業への提案書やメール（→sales-writing / business-writing）、KPI レポート（→logical-writing）。
 ---
 
 # リクルートライティング スキル
@@ -8,17 +8,7 @@ description: リクルートライティング — 求人票/募集要項/採用
 
 求人票、採用ページ、スカウトメール、会社紹介など、人材業界の中核となる採用コンテンツの作成技法。
 
-## Use this skill when
-- 求人票・求人原稿の作成や修正を求められたとき
-- スカウトメールの作成を求められたとき
-- 採用ページや会社紹介文の作成を求められたとき
-- 募集要項（給与・勤務地・仕事内容等）のライティングが必要なとき
-
-## Do not use this skill when
-- キャッチコピーだけを求められたとき（-> copywriting）
-- 社員インタビュー記事のストーリー構成を求められたとき（-> storytelling）
-- クライアント企業への提案書・メールを求められたとき（-> business-writing / sales-writing）
-- KPIレポートや分析資料を求められたとき（-> logical-writing）
+> 発火条件（Use when / Not for）は frontmatter の description が正本。本文には再掲しない。
 
 ## 🤖 System Prompt（AIへの指示前提）
 ```text

@@ -1,6 +1,6 @@
 ---
 name: sales-writing
-description: セールスライティング — 無形人材サービスの購買行動を促す文章。Use when 社外クライアントへの受注目的の提案書/企画書、新規開拓のテレアポスクリプト、商談後のフォロー/クロージングメール、サービスLP（BtoB/toC）の本文構成。Not for 社内意思決定用の戦略提案書（→logical-writing）、社内メールや事務連絡（→business-writing）、求人票（→recruit-writing）。
+description: セールスライティング — 無形人材サービスの購買行動を促す文章。Use when 社外クライアントへの受注目的の提案書/企画書、新規開拓のテレアポスクリプト、商談後のフォロー/クロージングメール、サービスLP（BtoB/toC）の本文構成。Not for 社内意思決定用の戦略提案書（→logical-writing）、社内メールや事務連絡（→business-writing）、求人票（→recruit-writing）、キャッチコピー単体（→copywriting）。
 ---
 
 # セールスライティング スキル
@@ -8,17 +8,7 @@ description: セールスライティング — 無形人材サービスの購�
 
 人材紹介・人材派遣・採用支援などの無形サービスの価値を伝え、企業（クライアント）や求職者の行動を促す文章作成技法。
 
-## Use this skill when
-- クライアント企業への提案書・企画書を作成するとき
-- 新規開拓のテレアポスクリプトを作成するとき
-- 商談後のフォロー・クロージングメールを作成するとき
-- サービスLP（BtoB/toC）の本文構成を求められたとき
-
-## Do not use this skill when
-- 社内メールや事務連絡を求められたとき（-> business-writing）
-- 求人票の作成を求められたとき（-> recruit-writing）
-- キャッチコピーだけを求められたとき（-> copywriting）
-- データ中心のレポートを求められたとき（-> logical-writing）
+> 発火条件（Use when / Not for）は frontmatter の description が正本。本文には再掲しない。
 
 ## 🤖 System Prompt（AIへの指示前提）
 ```text
