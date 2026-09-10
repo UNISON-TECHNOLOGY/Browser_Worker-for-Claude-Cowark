@@ -90,7 +90,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V52 | hook 出力のポインタ化 | money-watch.sh に強パターンの JSON を渡し、出力文言を確認 | 復帰手順の本文を再掲せず `docs/steps/money-recovery.md` へのポインタのみ（3手順が hook 側に写っていたら FAIL＝二重管理の再発） |
 | V53 | session-rules 予算 | `wc -c hooks/scripts/session-rules.txt` | 7,500バイト以下（v1.14.0: 頻出ルール F1〜F6 直書き分で引き上げ。毎セッション全文注入されるため。test-hooks.sh と lint.py のホットパス予算で機械検証済み — 数値の再確認のみでよい） |
 | V54 | README のポインタ形式 | README「既知の限界」節を Read | 各項目が1行要約で、節の冒頭に `docs/escalations.md` へのポインタがある（E1〜E4 の詳細が README に写っていたら FAIL） |
-| V56 | 収束条件の正本一元化 | agents/design-critic.md と呼び出し側4箇所（docs/steps-reference.md Step H / docs/parts/page-improve.md / docs/parts/ad-to-lp.md / docs/parts/imagegen.md）を Read | 周回上限の正本が design-critic.md「収束条件」にあり（1周目=全件・2周目=差分・上限後は `VERDICT: HUMAN-REVIEW-REQUIRED`）、呼び出し側4箇所はいずれも同節への1行ポインタである。**呼び出し側に「最大2周」等の具体的な周回数が書かれていたら FAIL**（正本一元化違反＝乖離事故の芽） |
+| V56 | 収束条件の正本一元化 | agents/design-critic.md と呼び出し側5箇所（docs/steps-reference.md Step H / docs/parts/page-improve.md / docs/parts/ad-to-lp.md / docs/parts/imagegen.md / docs/parts/index.md）を Read | 周回上限の正本が design-critic.md「収束条件」にあり（1周目=全件・2周目=差分・上限後は `VERDICT: HUMAN-REVIEW-REQUIRED`）、呼び出し側4箇所はいずれも同節への1行ポインタである。**呼び出し側に「最大2周」等の具体的な周回数が書かれていたら FAIL**（正本一元化違反＝乖離事故の芽） |
 | V57 | 規制・実証値の正本一元化 | references/ の psych-ux-jp / psych-nudge-jp / psych-target-jp / cro-jp / ad-compliance-jp と web-design/resources/lp-cro.md・design-evidence-jp を Read | 景表法No.1表示・ステマ規制の**内容説明が ad-compliance-jp 以外に複製されていない**（他スキルは分担ヘッダ+ポインタ+心理側の注意1行のみ）。CTA原則・FV把握時間（3秒）・5秒テスト・CVR比較値の**正本が design-evidence-jp「3. LPレイアウト」**にあり、cro-jp / lp-cro.md は原則1行+ポインタである。※他ファイルに規制の内容説明や実証数値が書き戻されていたら FAIL（乖離事故の芽） |
 | V55 | 非ホットパス上限 | ダミーの 210行 md を `docs/` に置いて `python3 scripts/lint.py` → 削除 | ERROR で検知される（150行超は WARN / 200行 or 32KB 超は ERROR）。検知しなければ FAIL |
 
@@ -109,7 +109,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V37 | 運用系ルーティング | (a) ブラウザ操作を含むタスクを /カスタマイズ で登録（ドライラン可） (b) 「無人運用前チェックして」と依頼 | (a) create_trigger を選ばず**ローカル登録（このコンピュータで実行）を案内**する (b) unattended-ops.md の前チェック手順に到達しログイン○✗一覧の形で報告する |
 | V38 | 記録系内部手順の発火 | (a) 「何ができるの？」 (b) ダミー成果物に修正指示（「ここ直して、トーンが硬い」） (c) /レポート で「作業ログ」を選択 (d) 「ログを整理して」（ドライラン可） | (a) delve-demo のガイドツアーが始まる (b) delve-feedback 経由で knowledge/feedback/lessons.md に学習記録が追記される (c) delve-reporting の作業ログが出る (d) delve-memory の圧縮手順に到達する |
 
-**perfect の報告書には「網羅率マトリクス」を必ず含める**: 行=全構成要素（コマンド10 / 内部手順17 / 部品19 / リファレンス17 / エージェント6 / hooks 9 / テンプレ / ループ）、列=検証方法（実機E2E / 委譲テスト / Read到達 / 機械チェック / 未カバー）。**未カバーは「未カバー」と明示する**（網羅したフリが最大の検証事故）。
+**perfect の報告書には「網羅率マトリクス」を必ず含める**: 行=全構成要素（コマンド11 / 内部手順17 / 部品19 / リファレンス17 / エージェント6 / hooks 9 / テンプレ / ループ）、列=検証方法（実機E2E / 委譲テスト / Read到達 / 機械チェック / 未カバー）。**未カバーは「未カバー」と明示する**（網羅したフリが最大の検証事故）。
 
 ### E. 評価ハーネス（full のみ）
 

@@ -73,7 +73,7 @@ PHASE_VAL=""
 [ -f "$WF_DIR/phase" ] && PHASE_VAL="$(tr -d '[:space:]' < "$WF_DIR/phase" 2>/dev/null)"
 if [ ! -f "$WF_DIR/b4_done" ] || [ -z "$PHASE_VAL" ]; then
   deny_decay b4 \
-    "【Delvework Gate】B-4（フェーズ判定）が未完了です（b4_done またはフェーズ記録なし）。/タスク開始（procedures/delve-start.md）の手順に戻り、B-4 で判定したフェーズ（first / return / remap / optimize）を memory/.workflow/phase に記録してから変更操作を行ってください。判定せずフラグだけ立てて迂回することは禁止です。現状が不明なら /状態確認（delve-status）で一覧できます。" \
+    "【Delvework Gate】B-4（フェーズ判定）が未完了です（b4_done またはフェーズ記録なし）。/タスク開始（procedures/delve-start.md）の手順に戻り、B-4 で判定したフェーズ（1〜4、または first / return / remap / optimize）を memory/.workflow/phase に記録してから変更操作を行ってください。判定せずフラグだけ立てて迂回することは禁止です。現状が不明なら /状態確認（delve-status）で一覧できます。" \
     "【Delvework Gate】B-4未完了（b4_done または phase が空）。手順: procedures/delve-start.md ／現状: /状態確認。"
 fi
 
@@ -102,18 +102,18 @@ deny_reset
 #   money-suppress.txt はページ用の誤検知チューニングなので、弱警告にだけ効かせ強判定には効かせない。
 # 複数行 JSON でも切り出せるよう先に改行を潰す。tool_input が取れない場合は識別子が無い＝強判定は
 # できないので弱警告だけを本文全体で行う（座標クリックも同様。画面読み取り側の検知が担う）。
-ONELINE="$(printf '%s' "$STDIN_TEXT" | tr '
-' '  ')"
+ONELINE="$(printf '%s' "$STDIN_TEXT" | tr '\r\n' '  ')"
 TARGET="$(printf '%s' "$ONELINE" | sed -n 's/.*"tool_input"[[:space:]]*:[[:space:]]*//p')"
 [ "${#TARGET}" -ge 8 ] || TARGET="$ONELINE"
-TARGET_ID="$(printf '%s' "$TARGET" | grep -oE '"(element|ref|selector|name|label|aria-label|description|button|link)"[[:space:]]*:[[:space:]]*"([^"\]|\.)*"' 2>/dev/null | tr '
-' ' ')"
+TARGET_ID="$(printf '%s' "$TARGET" | grep -oE '"(element|ref|selector|name|label|aria-label|description|button|link)"[[:space:]]*:[[:space:]]*"([^"\]|\.)*"' 2>/dev/null | tr '\r\n' '  ')"
 if [ -n "$TARGET_ID" ]; then
   strong_t="$(money_strong "$TARGET_ID")"
   if [ -n "$strong_t" ]; then
     mkdir -p "$WF_DIR" 2>/dev/null
     printf '%s' "$strong_t" > "$WF_DIR/money_alert"
-    deny_decay money       "【Money Watch・操作直前】操作対象に金銭・契約・不可逆登録の確定表現があります（パターン: $strong_t）。memory/.workflow/money_alert を設置し停止しました。復帰手順の正本 docs/steps/money-recovery.md を Read して従うこと（ユーザーの明示承認なしの解除は禁止）。現状が不明なら /状態確認（delve-status）で一覧できます。"       "【Money Watch・操作直前】停止（money_alert 設置）。復帰は docs/steps/money-recovery.md を Read。現状は /状態確認。"
+    deny_decay money \
+      "【Money Watch・操作直前】操作対象に金銭・契約・不可逆登録の確定表現があります（パターン: $strong_t）。memory/.workflow/money_alert を設置し停止しました。復帰手順の正本 docs/steps/money-recovery.md を Read して従うこと（ユーザーの明示承認なしの解除は禁止）。現状が不明なら /状態確認（delve-status）で一覧できます。" \
+      "【Money Watch・操作直前】停止（money_alert 設置）。復帰は docs/steps/money-recovery.md を Read。現状は /状態確認。"
   fi
 fi
 if ! money_suppressed "$TARGET"; then

@@ -485,6 +485,22 @@ v0.94.0 の実弾検証（27項目 + 実運用E2E + 追試2ラウンド、修正
   - **アーティファクト ID 衝突未遂**: conventions の「already exists → update」を検証がなぞると本番 dashboard をダミーデータで上書きし得た（エージェントが自主回避）→ V11 に「検証は専用 ID（`<id>-verify-test`）・本番 ID を update しない」を明文化（v1.2.0）
 - **RM Guard を deny に昇格（2026-07-24・v1.2.0）**: 2ランで warn 発火実測・誤爆ゼロ。OV/Critic と同じ段階導入完了。これで hook 9本全て本稼働
 
+## ローカル機械検証 2026-09-10（v1.14.0 → v1.14.1 / Windows Git Bash・Cowork 実機なし）
+
+**Opus ダブルチェック（PR #2）で追加検出**: workflow-gate.sh の `tr` に裸の制御文字（LF/CR）を埋めていたため Windows 編集で CR 処理が消えた → `
+` エスケープ表記に置換し、CRLF 入力の回帰テスト（強判定 deny + dedupe キーの CR 非残留）を追加。検証プロンプト (10)(11) の手段固定・後片付け・範囲限定も同レビューで補正。
+
+v1.14.0（フィードバック対応 + Opus レビュー対応）マージ直後に、**ローカルで機械的に検証できる項目だけ**を消化した。
+ブラウザ・サブエージェント・Cowork 実機が要る項目（V1〜V5 / V8〜V11 / V13〜V16 / V18〜V22 / V27〜V40 / V42〜V48 / LV1〜LV3）は **SKIP（環境なし）** — 次回の実機 `/検証 full` に回す（検証プロンプトに (10)(11) を追加済み）。
+
+- **PASS 19**: V6（SQLite 9テーブル）/ V17（lint 台帳突合 11+17=28）/ V24（lint OK）/ V25（test-hooks ALL PASS 93件）/ V26（banner-compose・chromakey 生成 OK、guide-anim はフレーム24枚生成・ffmpeg 不在は仕様どおり手動コマンド表示）/ V41・V49・V50・V51・V52（test-hooks の同項目で機械検証）/ V53（session-rules 7,492B ≤ 7,500）/ V55（210行ダミー md を lint が ERROR 検知）/ V12 / V23 / V54 / V57 / V58 / V59（文書整合。Explore 委譲で Read 到達・正本一元化を確認）/ 旧件数残骸ゼロ
+- **FAIL 3 → 本 PR で修正**:
+  - **V56**: 周回上限の複製が呼び出し側に2件残存（docs/parts/index.md「最大2周」/ docs/parts/page-improve.md「目視周回も最大1回」）→ 両方を design-critic.md「収束条件」へのポインタに置換し、目視モードの上限1回は design-critic 側に正本として1行追記
+  - **delve-start 手順2 の注記**「ゲートに効くのは b4_done。phase は hook 非連動」が旧仕様のまま（workflow-gate は 2026-07-28 から phase 空を deny。V50 と正面矛盾）→ 現行仕様に書き換え。あわせて gate の deny 文言のフェーズ語彙を「1〜4 または first/return/remap/optimize」に統一（delve-start は数字で書く・テストは英語で書く不一致）
+  - **リポジトリ衛生**: v1.14.0 のマージに `memory/.workflow/.money_weak_seen`（hook をプラグインルートで直接実行した際の状態ファイル）が混入 → 削除し `.gitignore` に `memory/` `knowledge/` を追加
+- **任意改善**: docs/parts/site-audit.md の速度規範再説明（V58 要注意）を固有部分だけに縮約
+- 検証プロンプトに **(10) Money Watch 粒度（弱 dedupe / 操作直前判定）** と **(11) /保守作業 の入口** を追加（次回実機ランの重点回帰）
+
 ### 検証の渡し方（Cowork 最新版）
 
 **推奨: 実タスク形式** — `templates/verify-task.yaml` をワークスペースの `tasks/plugin-verify.yaml` にコピーし
@@ -516,5 +532,15 @@ V5(b) の指定テストサイトへは通過するか。
 ※warn→deny 昇格の実機構: 各スクリプト先頭の `GATE_MODE="${DELVEWORK_GATE_MODE:-warn}"` の
 既定値を `deny` に書き換える（環境変数 DELVEWORK_GATE_MODE はテスト時の両モード検証用。
 切替日を本ファイルに記録すること）。
+(10) **Money Watch 粒度（v1.14.0）実測 — ブラウザは使わず V20 と同じ手段固定**（money-watch.sh / workflow-gate.sh に
+PostToolUse / PreToolUse 形式の JSON を直接渡す。日本語は Unicode エスケープ経由。実サイト・媒体管理画面には行かない）:
+(a) 「Page URL: https://example.com/a プラン変更」を含む tool_response を2回 → 【Money Watch・注意】は**1回目だけ**。URL を /b に
+変えると再警告される (b) フラグ完備で tool_input.element="プラン変更 link" の click → 【Money Watch・操作直前】の注意だけで通る
+（deny なら FAIL＝過剰ゲート） (c) tool_input.text="退会手続きについて" の browser_type → deny されず money_alert も立たない
+（立ったら FAIL＝原稿入力ロック） (d) tool_input.element="購入を確定 button" の click → deny + money_alert 生成。
+**終了後 `rm -f memory/.workflow/money_alert memory/.workflow/.money_weak_seen`**（(d) は意図的に停止フラグを立てる）
+(11) **/保守作業 の入口 — ルーティング到達の確認まで**: 「xserver と WordPress を横断で調べて」と依頼 → /保守作業
+（delve-maintenance）に振れることを確認したら**そこで止める**（実調査には入らない・ブラウザを開かない）。あわせて
+「xserver の設定を変えて」では delve-start に入る計画が提示されるか（提示まで。実行しない）
 読み取り専用・外部無害の原則厳守。FAIL はエラー原文つき。報告書はアーティファクト発行。
 ```

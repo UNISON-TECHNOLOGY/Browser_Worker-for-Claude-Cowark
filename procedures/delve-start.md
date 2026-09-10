@@ -47,9 +47,9 @@ Delvework のタスク「$ARGUMENTS」を開始してください。
    `money_alert` と `verify_allowlist` は**この rm に含めない**（前者の解除は steps-reference「Money Watch 停止からの復帰」の手順だけ、後者の作成・削除は検証手順 delve-verify だけが行う）
 2. フェーズを判定して記録する（①〜④の条件 → steps-reference「フェーズ判定（B-4）」）:
    ```bash
-   echo "<phase>" > memory/.workflow/phase && touch memory/.workflow/b4_done
+   echo "2" > memory/.workflow/phase && touch memory/.workflow/b4_done   # 値は 1〜4（または first/return/remap/optimize）。丸数字は書かない
    ```
-   （ゲートに効くのは b4_done。`phase` は hook 非連動の状態メモ）
+   （ゲートは b4_done と `phase` の**両方**を見る — phase が空・空白のみだと deny。2026-07-28 の整合検証で導入。値の語彙は上の1行のとおり）
 3. Step E（変更前記録 → ②③④なら J の差分比較 → 不可逆操作があるなら CP 宣言。→ steps-reference E-3 / J）を終えたら:
    ```bash
    touch memory/.workflow/e_done
