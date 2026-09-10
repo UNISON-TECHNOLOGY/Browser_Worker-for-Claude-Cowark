@@ -64,7 +64,7 @@ fi
 if [ ! -f "$WF_DIR/active" ]; then
   deny_decay init \
     "【Delvework Gate】ワークフロー未初期化。/タスク開始（procedures/delve-start.md）でタスクを開始し、B-4（フェーズ判定）を完了してください（browser_batch は変更系を1つでも含むと一括でゲート対象になります）。" \
-    "【Delvework Gate】未初期化（active なし）。手順: procedures/delve-start.md "
+    "【Delvework Gate】未初期化（active なし）。手順: procedures/delve-start.md"
 fi
 
 # b4_done は「フラグの存在」だけでなく「phase にフェーズ判定が記録されていること」も要求する
@@ -74,7 +74,7 @@ PHASE_VAL=""
 if [ ! -f "$WF_DIR/b4_done" ] || [ -z "$PHASE_VAL" ]; then
   deny_decay b4 \
     "【Delvework Gate】B-4（フェーズ判定）が未完了です（b4_done またはフェーズ記録なし）。/タスク開始（procedures/delve-start.md）の手順に戻り、B-4 で判定したフェーズ（1〜4、または first / return / remap / optimize）を memory/.workflow/phase に記録してから変更操作を行ってください。判定せずフラグだけ立てて迂回することは禁止です。" \
-    "【Delvework Gate】B-4未完了（b4_done または phase が空）。手順: procedures/delve-start.md "
+    "【Delvework Gate】B-4未完了（b4_done または phase が空）。手順: procedures/delve-start.md"
 fi
 
 # 一括送出タスク（Step F で bulk_send 宣言）は pre-send-verifier 監査完了（psv_done）まで変更操作を止める
@@ -87,7 +87,7 @@ fi
 if [ ! -f "$WF_DIR/e_done" ]; then
   deny_decay e \
     "【Delvework Gate】Step E（変更前記録）が未完了です。read_page（Claude in Chrome）または browser_snapshot（Playwright）で変更前の状態を記録・保存してから進んでください（手順の正本: procedures/delve-start.md）。記録せずフラグだけ立てる迂回は禁止です。" \
-    "【Delvework Gate】Step E（変更前記録）未完了。手順: procedures/delve-start.md "
+    "【Delvework Gate】Step E（変更前記録）未完了。手順: procedures/delve-start.md"
 fi
 
 # ここまで来たら停止要因なし = 減衰カウンタを捨てる（次に止まったときは再びフル文言で伝える）
