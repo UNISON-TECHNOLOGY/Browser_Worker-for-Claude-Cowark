@@ -54,16 +54,40 @@ for event, groups in hooks["hooks"].items():
                 err(f"hooks.json({event}): スクリプト不在 {m.group(1)}")
 
 # --- 2b. hooks.json matcher の必須配線（2026-09-10 横断監査: 変更系・読み取り系のツールが matcher から漏れていた） ---
-_matchers = {ev: "|".join(g.get("matcher", "") for g in groups) for ev, groups in hooks["hooks"].items()}
-for tool in ("mcp__playwright__browser_network_request", "mcp__claude-in-chrome__javascript_tool", "mcp__playwright__browser_evaluate",
-             "mcp__claude-in-chrome__file_upload", "mcp__claude-in-chrome__computer", "mcp__claude-in-chrome__form_input", "mcp__playwright__browser_file_upload"):
-    if tool not in _matchers.get("PreToolUse", ""):
-        err(f"hooks.json(PreToolUse): 変更系ツール {tool} が matcher に無い")
-for tool in ("mcp__playwright__browser_find", "mcp__playwright__browser_snapshot", "mcp__claude-in-chrome__get_page_text"):
-    if tool not in _matchers.get("PostToolUse", ""):
-        err(f"hooks.json(PostToolUse): 読み取り系ツール {tool} が matcher に無い（injection-warn / money-watch の対象外になる）")
-if not any("flag-guard.sh" in h["command"] for g in hooks["hooks"].get("PreToolUse", []) for h in g["hooks"]):
-    err("hooks.json(PreToolUse): flag-guard.sh（Write/Edit のフラグ迂回ガード）が配線されていない")
+# 「どのスクリプトに繋がる matcher に居るか」まで見る（イベント全体の join では、critic-gate にだけある
+# file_upload が workflow-gate に無い、という PR #10 の穴を検出できなかった — Opus 指摘）。
+_wired = {}  # script basename -> "|"-joined matchers of the groups that call it
+for ev, groups in hooks["hooks"].items():
+    for g in groups:
+        for h in g["hooks"]:
+            name = h["command"].rsplit("/", 1)[-1].rstrip('"')
+            _wired[name] = _wired.get(name, "") + "|" + g.get("matcher", "")
+_REQUIRED_WIRING = [
+    # 変更操作ゲート
+    ("workflow-gate.sh", "mcp__claude-in-chrome__computer"), ("workflow-gate.sh", "mcp__claude-in-chrome__form_input"),
+    ("workflow-gate.sh", "mcp__claude-in-chrome__javascript_tool"), ("workflow-gate.sh", "mcp__claude-in-chrome__browser_batch"),
+    ("workflow-gate.sh", "mcp__claude-in-chrome__upload_image"), ("workflow-gate.sh", "mcp__claude-in-chrome__file_upload"),
+    ("workflow-gate.sh", "mcp__playwright__browser_click"), ("workflow-gate.sh", "mcp__playwright__browser_evaluate"),
+    ("workflow-gate.sh", "mcp__playwright__browser_file_upload"), ("workflow-gate.sh", "mcp__playwright__browser_network_request"),
+    # URL ガード
+    ("url-guard.sh", "mcp__claude-in-chrome__navigate"), ("url-guard.sh", "mcp__claude-in-chrome__tabs_create_mcp"),
+    ("url-guard.sh", "mcp__playwright__browser_navigate"), ("url-guard.sh", "mcp__playwright__browser_network_request"),
+    # 送付出口
+    ("critic-gate.sh", "SendUserFile"), ("critic-gate.sh", "mcp__claude-in-chrome__upload_image"), ("critic-gate.sh", "mcp__cowork__present_files"),
+    # 読み取り結果（インジェクション検知 / Money Watch）— Chrome の JS / batch の戻り値も対象
+    ("injection-warn.sh", "mcp__claude-in-chrome__read_page"), ("injection-warn.sh", "mcp__claude-in-chrome__get_page_text"),
+    ("injection-warn.sh", "mcp__claude-in-chrome__find"), ("injection-warn.sh", "mcp__claude-in-chrome__javascript_tool"),
+    ("injection-warn.sh", "mcp__claude-in-chrome__browser_batch"), ("injection-warn.sh", "mcp__playwright__browser_snapshot"),
+    ("money-watch.sh", "mcp__claude-in-chrome__read_page"), ("money-watch.sh", "mcp__claude-in-chrome__javascript_tool"),
+    ("money-watch.sh", "mcp__playwright__browser_find"),
+    # フラグ迂回 / 削除 / 完了
+    ("flag-guard.sh", "Write"), ("flag-guard.sh", "Edit"), ("rm-guard.sh", "Bash"), ("ov-gate.sh", "Bash"),
+]
+for script, tool in _REQUIRED_WIRING:
+    if script not in _wired:
+        err(f"hooks.json: {script} がどのイベントにも配線されていない")
+    elif tool not in _wired[script].split("|"):
+        err(f"hooks.json: {script} の matcher に {tool} が無い")
 
 # --- 2c. hook 文言にバッククォートを含めない（bash の "..." 内でコマンド置換され、hook 自身が touch 等を実行してしまう。2026-09-10 PR #9 で実際に起きた） ---
 for sh in sorted((ROOT / "hooks/scripts").glob("*.sh")):
