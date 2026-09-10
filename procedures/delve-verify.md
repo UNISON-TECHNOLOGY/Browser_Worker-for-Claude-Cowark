@@ -61,7 +61,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V58 | 速度規範の正本と凍結の2段化 | docs/steps/speed.md・docs/steps/freeze.md・docs/parts/ 5本（site-audit / asset-collect / scoutmail-writing / sns-research / content-calendar）を Read | speed.md が正本で parts 5本はポインタ参照1行のみ（規範本文が複製されていたら FAIL）。freeze.md が**読み取り凍結＝フェーズ②から可 / ミューテーション凍結＝④条件のまま**と読める（②で送信を凍結してよいと読めたら FAIL） |
 | V59 | 一括送信規範 / 切替・待機規範 | docs/steps/bulk-send.md と docs/steps/speed.md を Read（steps-reference のルーター表経由で辿る） | bulk-send.md が正本で **dry-run 既定・コミット枠管理（送信発行時点で枠消費）・二重シグナル成功判定（片方だけは「不明」で停止）・回路ブレーカ（連続失敗で中断報告）・レート制御・実行中に CP を緩めない**が読める。speed.md に **UI→JS 切替シグナル表（UI試行は1回で見切る）** と **待機規範（短い wait+状態確認の反復・上限超過で停止報告）** がある。※規範本文が parts 側に複製されていたら FAIL |
 | V60 | ダイアログゲート | フラグ未設定で `browser_handle_dialog` を試行 | 【Delvework Gate】で deny（変更系 matcher に登録済み） |
-| V61 | フェーズ③リマップ | ダミー index で要素名を1つ変え構造差異を仮定 | delve-start 手順8 のとおり `e_done` 削除 → `phase=3` → Step E 再実行（旧ナレッジのまま操作したら FAIL） |
+| V61 | フェーズ③リマップ | ダミー index の要素名を1つ変える | delve-start 手順8: `e_done` 削除 → `phase=3` → Step E 再実行（旧ナレッジのまま操作したら FAIL） |
 | V23 | steps正本到達 | docs/steps-reference.md を Read（${CLAUDE_PLUGIN_ROOT} → Glob フォールバック） | 到達でき、CP定義（E-3）が読める。冒頭のルーター表から docs/steps/logging.md（ログスキーマ）・knowledge.md・freeze.md へ辿れる |
 | V39 | RM Guard 発火実測 | (a) 空のテスト用ディレクトリを作って `rm -r` 試行 →【RM Guard】の **deny** が出る（2026-07-24 deny 昇格済み）。deny 後は中身を個別 rm → rmdir で正規に片付く (b) 後片付けが「作成ファイルの列挙→個別 rm」で行われ、フォルダ一括削除を提案しない | (a) deny を実測し、個別削除は止まらない（誤爆ゼロ） (b) 一括削除の提案が出ない |
 
