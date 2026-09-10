@@ -15,9 +15,9 @@
 | 1 | **アラート** | knowledge/media/registry.yaml + status/ 最新 / knowledge/sns/*/queue.md + strategy.md / knowledge/watch/ 最新差分 / memory/.workflow/ | 媒体残数警告・契約更新30日前・SNSストック目標割れ・競合の重要変更・未完了タスク。ゼロなら「アラートなし ✅」の1行 |
 | 2 | 進行中タスク | memory/.workflow/ + memory/session-log.md 末尾 | タスク名・フェーズ・引き継ぎ事項 |
 | 3 | 登録タスク | tasks/*.yaml + knowledge/config/loops.yaml | タスク / 周期 / 最終実行（knowledge/logs/）/ 次回 |
-| 4 | 学習記録 | knowledge/feedback/lessons.md | 直近に追加された OK/NG（3件まで） |
-| 5 | 生成物 | knowledge/artifacts-index.md | 直近の発行物リンク（5件まで） |
-| 6 | 学習・蓄積 | .claude/skills/ + knowledge/tacit/ + knowledge/sites/ | 習得スキル数・暗黙知トピック数・攻略済みサイト数（前回サマリーからの増分を1行。増分ゼロなら省く） |
+| 4 | 学習記録（OK/NG） | knowledge/feedback/lessons.md | 直近に追加された OK/NG（3件まで） |
+| 5 | 成長（増分） | .claude/skills/ + knowledge/tacit/ + knowledge/sites/ | 習得スキル数・暗黙知トピック数・攻略済みサイト数（前回サマリーからの増分を1行。増分ゼロなら省く） |
+| 6 | 生成物 | knowledge/artifacts-index.md | 直近の発行物リンク（5件まで） |
 
 - 各アラートに「次の一手」を1行添える（例: 「ストック残1日分 → 『Xの投稿ストック埋めて』」）
 - 全体で20行程度に収める。推移・比較が必要なら 2（運用レポート）へ誘導する
