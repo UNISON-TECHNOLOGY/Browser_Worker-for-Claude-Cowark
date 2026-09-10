@@ -59,7 +59,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V44 | pre-send-verifier の射程と収束 | 送信計画に (a) 基準違反の宛先1件（BLOCKER）と (b) 記述の不整合1件（例: 手順書の参照パスが古い、同じリストが2箇所にある＝ NON-BLOCKER）を両方仕込んで監査させる | (a) だけが FAIL/VERDICT に反映され、(b) は **NON-BLOCKER（後日対応）に分類されて VERDICT に影響しない**。**GO-WITH-FIXES に「後段でもう一度監査する」条件が付かない**。※記述不整合で NO-GO なら FAIL — 2026-07-27 に 5ラウンド空回りで送出0件になった原因 |
 | V45 | 凍結（Step G'） | フェーズ④相当のダミー一覧ページで、`javascript_tool` に「一覧の全項目を1コールで JSON 化する」抽出を実行させる | 1コールで配列が返り、read_page の逐次読みに退化しない。あわせて docs/steps/freeze.md に到達し、**Playwright/CDP 前提の資産を「移植」しようとしない**（凍結先は javascript_tool + 判定側スクリプトの2分割）ことを確認 |
 | V58 | 速度規範の正本と凍結の2段化 | docs/steps/speed.md・docs/steps/freeze.md・docs/parts/ 5本（site-audit / asset-collect / scoutmail-writing / sns-research / content-calendar）を Read | speed.md が正本で parts 5本はポインタ参照1行のみ（規範本文が複製されていたら FAIL）。freeze.md が**読み取り凍結＝フェーズ②から可 / ミューテーション凍結＝④条件のまま**と読める（②で送信を凍結してよいと読めたら FAIL） |
-| V59 | 一括送信規範 / 切替・待機規範 | docs/steps/bulk-send.md と docs/steps/speed.md を Read（steps-reference のルーター表経由で辿る） | bulk-send.md が正本で **dry-run 既定・コミット枠管理（送信発行時点で枠消費）・二重シグナル成功判定（片方だけは「不明」で停止）・回路ブレーカ（連続失敗で中断報告）・レート制御・実行中に CP を緩めない**が読める。speed.md に **UI→JS 切替シグナル表（UI試行は1回で見切る）** と **待機規範（短い wait+状態確認の反復・上限超過で停止報告）** がある。※規範本文が parts 側に複製されていたら FAIL |
+| V59 | 一括送信規範 / 切替・待機規範 | docs/steps/bulk-send.md と docs/steps/speed.md を Read（steps-reference のルーター表から辿る） | bulk-send.md が正本で **dry-run 既定・コミット枠管理（送信発行時点で枠消費）・二重シグナル成功判定（片方だけは「不明」で停止）・回路ブレーカ（連続失敗で中断報告）・レート制御・実行中に CP を緩めない**が読める。speed.md に **UI→JS 切替シグナル表（UI試行は1回で見切る）** と **待機規範（短い wait+状態確認の反復・上限超過で停止報告）** がある。※規範本文が parts 側に複製されていたら FAIL |
 | V60 | ダイアログゲート | フラグ未設定で `browser_handle_dialog` を試行 | 【Delvework Gate】で deny（変更系 matcher に登録済み） |
 | V61 | フェーズ③リマップ | ダミー index の要素名を1つ変える | delve-start 手順8: `e_done` 削除 → `phase=3` → Step E 再実行（旧ナレッジのまま操作したら FAIL） |
 | V23 | steps正本到達 | ④相当のダミー（成功ログ + shortcut_memo あり）で /タスク開始 | steps-reference を読まずに、不可逆操作の宣言時 cp.md・承認提示前 review.md・開始時 credential.md へ到達する。①で開始すると steps-reference 全文に到達する |
@@ -111,7 +111,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V37 | 運用系ルーティング | (a) ブラウザ操作を含むタスクを /カスタマイズ で登録（ドライラン可） (b) 「無人運用前チェックして」と依頼 | (a) create_trigger を選ばず**ローカル登録（このコンピュータで実行）を案内**する (b) unattended-ops.md の前チェック手順に到達しログイン○✗一覧の形で報告する |
 | V38 | 記録系内部手順の発火 | (a) 「何ができるの？」 (b) ダミー成果物に修正指示（「ここ直して、トーンが硬い」） (c) /レポート で「作業ログ」を選択 (d) 「ログを整理して」（ドライラン可） | (a) delve-demo のガイドツアーが始まる (b) delve-feedback 経由で knowledge/feedback/lessons.md に学習記録が追記される (c) delve-reporting の作業ログが出る (d) delve-memory の圧縮手順に到達する |
 
-**perfect の報告書には「網羅率マトリクス」を必ず含める**: 行=全構成要素（コマンド11 / 内部手順17 / 部品19 / リファレンス17 / エージェント6 / hooks 9 / テンプレ / ループ）、列=検証方法（実機E2E / 委譲テスト / Read到達 / 機械チェック / 未カバー）。**未カバーは「未カバー」と明示する**（網羅したフリが最大の検証事故）。
+**perfect の報告書には「網羅率マトリクス」を必ず含める**: 行=全構成要素（コマンド11 / 内部手順17 / 部品19 / リファレンス17 / エージェント6 / hooks 10 / テンプレ / ループ）、列=検証方法（実機E2E / 委譲テスト / Read到達 / 機械チェック / 未カバー）。**未カバーは「未カバー」と明示する**（網羅したフリが最大の検証事故）。
 
 ### E. 評価ハーネス（full のみ）
 

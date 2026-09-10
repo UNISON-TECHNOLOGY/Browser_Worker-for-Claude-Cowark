@@ -162,3 +162,7 @@ hook は毎ツールコール走るので、1回あたりの子プロセス数�
 ## ゲートの共通出口と導線の一律付与（v1.15.2）
 
 「現状が不明なら /状態確認」の導線（E5 の緩和策）を 8 箇所の deny 文言に手書きしていたため、文言を直すたびに乖離した。deny_decay が一律に付与する形にし、段階導入ゲート（critic / ov / rm）の warn/deny 分岐も gate_emit に集約した。RM Guard も同じ出口を通して導線を付けるが、短縮文言のない理由は減衰カウンタに触らない（進行中の他ゲートの減衰を巻き戻さない。deny 判定自体は変えない）。
+
+## network_request の GET 素通し（v1.16.2）
+
+任意 HTTP 送信（playwright browser_network_request）を変更系としてゲートに載せたが、調査タスクの GET まで「未初期化 deny」にすると API 参照が全面不能になりゲート回避へ誘導する。method 明示の GET/HEAD で body 系キーが無いものだけ素通し、省略は判定不能としてゲート（フェイルクローズ）。GET でも状態変更する API（?action=unsubscribe 等）は残存リスクで、url-guard と Money Watch が別途止める。送信を伴う HTTP は Credential Guard の対象。

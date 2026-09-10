@@ -53,6 +53,26 @@ for event, groups in hooks["hooks"].items():
             elif not (ROOT / m.group(1)).is_file():
                 err(f"hooks.json({event}): スクリプト不在 {m.group(1)}")
 
+# --- 2b. hooks.json matcher の必須配線（2026-09-10 横断監査: 変更系・読み取り系のツールが matcher から漏れていた） ---
+_matchers = {ev: "|".join(g.get("matcher", "") for g in groups) for ev, groups in hooks["hooks"].items()}
+for tool in ("mcp__playwright__browser_network_request", "mcp__claude-in-chrome__javascript_tool", "mcp__playwright__browser_evaluate"):
+    if tool not in _matchers.get("PreToolUse", ""):
+        err(f"hooks.json(PreToolUse): 変更系ツール {tool} が matcher に無い")
+for tool in ("mcp__playwright__browser_find", "mcp__playwright__browser_snapshot", "mcp__claude-in-chrome__get_page_text"):
+    if tool not in _matchers.get("PostToolUse", ""):
+        err(f"hooks.json(PostToolUse): 読み取り系ツール {tool} が matcher に無い（injection-warn / money-watch の対象外になる）")
+if not any("flag-guard.sh" in h["command"] for g in hooks["hooks"].get("PreToolUse", []) for h in g["hooks"]):
+    err("hooks.json(PreToolUse): flag-guard.sh（Write/Edit のフラグ迂回ガード）が配線されていない")
+
+# --- 2c. hook 文言にバッククォートを含めない（bash の "..." 内でコマンド置換され、hook 自身が touch 等を実行してしまう。2026-09-10 PR #9 で実際に起きた） ---
+for sh in sorted((ROOT / "hooks/scripts").glob("*.sh")):
+    for ln, line in enumerate(read(sh).splitlines(), 1):
+        st = line.lstrip()
+        if st.startswith("#"):
+            continue
+        if re.match(r'(MSG|SHORT|[A-Z_]*MSG)=|deny |deny_decay |warn_(pretool|posttool|session) |gate_emit ', st) and "`" in line:
+            err(f"{sh.relative_to(ROOT)}:{ln}: hook 文言にバッククォートが含まれる（\"...\" 内でコマンド置換される）")
+
 # --- 3. commands ↔ procedures の1対1 ---
 commands = sorted((ROOT / "commands").glob("*.md"))
 procedures = sorted((ROOT / "procedures").glob("delve-*.md"))

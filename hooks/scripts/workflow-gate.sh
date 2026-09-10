@@ -10,6 +10,18 @@ source "$SCRIPT_DIR/_common.sh"
 # 対象は入力系操作のみ（form_input / playwright type・fill / computer の type・key）。
 # クリックやスクショは対象外（「パスワードをお忘れですか」リンクのクリック等を誤爆させない）
 IS_INPUT_OP=0
+# browser_network_request（任意 HTTP 送信）: method が明示の GET/HEAD で body 系キーが無いものだけ読み取りと見なす。
+# method 省略（既定 GET）は判定不能としてゲートを通す（省略で抜けられる穴を作らない）。GET でも状態変更する API
+# （?action=unsubscribe 等）は残存リスク — url-guard と Money Watch が別途止める（2026-09-10 PR #9）。
+NR_READONLY=0
+if printf '%s' "$STDIN_JSON" | grep -q 'browser_network_request'; then
+  if printf '%s' "$STDIN_JSON" | grep -qE '"method"[[:space:]]*:[[:space:]]*"(GET|HEAD|get|head)"' && \
+     ! printf '%s' "$STDIN_JSON" | grep -qE '"(body|data|postData|json|form)"[[:space:]]*:'; then
+    NR_READONLY=1
+  else
+    IS_INPUT_OP=1   # 送信を伴う HTTP は入力系として Credential Guard の対象にする
+  fi
+fi
 if printf '%s' "$STDIN_JSON" | grep -qE '(form_input|browser_type|browser_fill_form)'; then
   IS_INPUT_OP=1
 elif printf '%s' "$STDIN_JSON" | grep -q 'claude-in-chrome__computer' && \
@@ -51,6 +63,9 @@ if printf '%s' "$STDIN_JSON" | grep -qE '(javascript_tool|browser_evaluate|brows
     exit 0
   fi
 fi
+
+# network_request の読み取り専用 GET/HEAD は workflow-init ゲートを免除（上の NR_READONLY 判定。Money/Credential/URL 判定は済み）
+[ "$NR_READONLY" = "1" ] && exit 0
 
 # browser_batch: 同梱 invocation が全て読み取り系なら素通しする（閲覧タスクを止めない）。
 # 変更系ツール名（computer/form_input/JS実行/navigate）・変更系 action が1つでも含まれる、
