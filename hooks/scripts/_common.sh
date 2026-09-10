@@ -98,8 +98,11 @@ deny_reset() {
   return 0
 }
 
-deny_decay() { # $1: 理由コード（英数_）, $2: フル文言, $3: 短縮文言（1行）
-  local reason="$1" full="$2" short="$3" f other cnt=1
+deny_decay() { # $1: 理由コード（英数_）, $2: フル文言, $3: 短縮文言（1行・省略可）
+  # 自己診断への導線（escalations E5: 文脈喪失後でも deny 1回で /状態確認 に自走できる）は
+  # ここで一律に付ける（各ゲートの文言に書かない — 8箇所で同文を繰り返していた乖離リスクの解消）
+  local reason="$1" full="$2${STATUS_HINT_FULL}" short="$3" f other cnt=1
+  [ -n "$short" ] && short="${short}${STATUS_HINT_SHORT}"
   mkdir -p "$WF_DIR" 2>/dev/null
   f="$WF_DIR/.deny_$reason"
   for other in "$WF_DIR"/.deny_*; do
@@ -116,6 +119,20 @@ deny_decay() { # $1: 理由コード（英数_）, $2: フル文言, $3: 短縮�
     deny "$short"
   else
     deny "$full"
+  fi
+}
+
+# --- 段階導入ゲート（critic / ov / rm）の共通出口 ---
+# GATE_MODE=deny（既定）なら deny_decay、warn なら additionalContext で「本来ブロック」を注入して通す。
+# 3本のゲートが同型の if/else を各自持っていたのを1関数にまとめた（v1.15.2）。
+GATE_MODE="${DELVEWORK_GATE_MODE:-deny}"
+STATUS_HINT_FULL="現状が不明なら /状態確認（delve-status）で一覧できます。"
+STATUS_HINT_SHORT="／現状: /状態確認。"
+gate_emit() { # $1: 理由コード, $2: ラベル（例: OV Gate）, $3: フル文言, $4: 短縮文言（省略可）
+  if [ "$GATE_MODE" = "deny" ]; then
+    deny_decay "$1" "$3" "${4:-}"
+  else
+    warn_pretool "【$2・試運転(warn)】本来ここでブロックされる操作です — $3${STATUS_HINT_FULL}"
   fi
 }
 
