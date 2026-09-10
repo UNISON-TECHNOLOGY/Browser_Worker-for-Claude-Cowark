@@ -59,6 +59,19 @@ fi
 SAME="$(printf 'ご利用金額の合計 ￥12,000\nfoo')"
 bash -c 'source "$0" </dev/null; list_match "$1" "$2"' "$SC/_common.sh" "$SAME" "$SC/money-watchlist.txt" >/dev/null && echo "PASS: list_match: 同一行では一致" || { echo "FAIL: list_match: 同一行の強パターンを見逃し"; FAIL=1; }
 
+# 0b-4. アンカー付きパターンは前段フィルタを飛ばし、複数行テキストの行頭・行末に当たる（grep 互換。fail-open 回帰）
+ANCH_LIST="$CLAUDE_PROJECT_DIR/anchored.txt"; printf '%s\n' '/billing(/|\?|$)' '^https://evil' > "$ANCH_LIST"
+MULTI="$(printf 'https://x.com/billing
+https://y.com/safe')"
+bash -c 'source "$0" </dev/null; list_match "$1" "$2"' "$SC/_common.sh" "$MULTI" "$ANCH_LIST" >/dev/null && echo "PASS: list_match: 行末アンカー付きパターンが複数行の1行目に当たる" || { echo "FAIL: 行末アンカー付きパターンを取りこぼし（fail-open）"; FAIL=1; }
+MULTI2="$(printf 'safe
+https://evil.com')"
+bash -c 'source "$0" </dev/null; list_match "$1" "$2"' "$SC/_common.sh" "$MULTI2" "$ANCH_LIST" >/dev/null && echo "PASS: list_match: 行頭アンカー付きパターンが2行目に当たる" || { echo "FAIL: 行頭アンカー付きパターンを取りこぼし"; FAIL=1; }
+rm -f "$ANCH_LIST"
+# 0b-5. 外部経路（perl/python）も JSON の \ を対で保持する（bash 経路とのパリティ）
+got=$(bash -c 'source "$0" </dev/null; json_unescape_external "$1"' "$SC/_common.sh" "$ESC_BS")
+[ "$got" = "$ESC_BS" ] && echo "PASS: json_unescape_external: エスケープ済みバックスラッシュの後ろは展開しない" || { echo "FAIL: 外部経路で \\u が展開された: $got"; FAIL=1; }
+
 # 0c. watchlist / denylist の全パターンが bash regex（POSIX ERE）としてコンパイルできる
 # （v1.15.0 で照合を grep -E → [[ =~ ]] に替えたため。コンパイル不能なパターンは黙って不発になる）
 bad=$(bash -c 'shopt -s nocasematch; for f in "$@"; do while IFS= read -r pat; do case "$pat" in ""|"#"*) continue;; esac; [[ "x" =~ $pat ]]; [ $? -eq 2 ] && printf "%s: %s\n" "$f" "$pat"; done < "$f"; done' _ "$SC/money-watchlist.txt" "$SC/money-watchlist-weak.txt" "$SC/url-denylist.txt" $(ls "$CLAUDE_PROJECT_DIR"/knowledge/config/{money-watchlist,money-watchlist-weak,url-denylist,url-allowlist}.txt 2>/dev/null))

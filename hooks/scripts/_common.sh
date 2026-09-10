@@ -52,16 +52,16 @@ json_unescape_u() { # $1: 文字列 → stdout: \uXXXX を UTF-8 に展開した
   done
   printf '%s' "$out"
 }
-json_unescape_external() { # 大きな入力向け（従来経路）。成功時 0、外部ツール不在時 1
+json_unescape_external() { # 大きな入力向け（従来経路）。成功時 0、外部ツール不在時 1。bash 経路と同じく JSON の \ は対で保持する
   if command -v perl >/dev/null 2>&1; then
-    printf '%s' "$1" | perl -CS -pe 's/\\u([dD][89abAB][0-9a-fA-F]{2})\\u([dD][c-fC-F][0-9a-fA-F]{2})/chr(0x10000+((hex($1)-0xD800)<<10)+(hex($2)-0xDC00))/ge; s/\\u([0-9a-fA-F]{4})/chr(hex($1))/ge' 2>/dev/null
+    printf '%s' "$1" | perl -CS -pe 's/\\\\/\x00/g; s/\\u([dD][89abAB][0-9a-fA-F]{2})\\u([dD][cdefCDEF][0-9a-fA-F]{2})/chr(0x10000+((hex($1)-0xD800)<<10)+(hex($2)-0xDC00))/ge; s/\\u([0-9a-fA-F]{4})/chr(hex($1))/ge; s/\x00/\\\\/g' 2>/dev/null
   elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
     local PY; PY="$(command -v python3 || command -v python)"
     printf '%s' "$1" | "$PY" -c 'import sys,re
-d=sys.stdin.buffer.read().decode("utf-8","surrogateescape")
-d=re.sub(r"\\u([dD][89abAB][0-9a-fA-F]{2})\\u([dD][c-fC-F][0-9a-fA-F]{2})", lambda m: chr(0x10000+((int(m.group(1),16)-0xD800)<<10)+(int(m.group(2),16)-0xDC00)), d)
+d=sys.stdin.buffer.read().decode("utf-8","surrogateescape").replace("\\\\","\x00")
+d=re.sub(r"\\u([dD][89abAB][0-9a-fA-F]{2})\\u([dD][cdefCDEF][0-9a-fA-F]{2})", lambda m: chr(0x10000+((int(m.group(1),16)-0xD800)<<10)+(int(m.group(2),16)-0xDC00)), d)
 d=re.sub(r"\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1),16)), d)
-sys.stdout.buffer.write(d.encode("utf-8","surrogateescape"))' 2>/dev/null
+sys.stdout.buffer.write(d.replace("\x00","\\\\").encode("utf-8","surrogateescape"))' 2>/dev/null
   else
     return 1
   fi
@@ -155,16 +155,29 @@ money_suppressed() {
 # 最初にマッチしたパターンを stdout に返す（無ければ戻り値1）。bash の [[ =~ ]] を使い外部プロセスを起動しない
 # （v1.15.0: 以前はパターンごとに grep を起動しており、1 hook 呼び出しで最大20プロセスだった）。
 # grep は行単位で照合するため、[^0-9]{0,10} のような否定括弧式が行を跨いで当たることはない。同じ挙動を
-# 保つため、全文で当たったパターンだけ行単位で再確認する（全文一致は行一致の上位集合なので前段フィルタになる）。
+# 保つため、全文で当たったパターンだけ行単位で再確認する（アンカーを含まないパターンでは全文一致が行一致の
+# 上位集合なので前段フィルタになる。^ / $ を含むパターンはフィルタせず行単位のみ）。不正な正規表現は grep 版と
+# 同じく「不一致」扱いだが、気付けるよう stderr に1回だけ警告する。
 # url-guard と Money Watch の両方がこれを使う（ワークスペース側リストとの2層構造も同じ関数で扱う）。
 list_match() {
-  local text="$1" LIST pat line hit; shift
+  local text="$1" LIST pat line hit rc; shift
   local had_nc=0; shopt -q nocasematch && had_nc=1; shopt -s nocasematch
   for LIST in "$@"; do
     [ -f "$LIST" ] || continue
     while IFS= read -r pat; do
       case "$pat" in ''|'#'*) continue ;; esac
-      [[ $text =~ $pat ]] || continue
+      # 前段フィルタ（全文一致）は「アンカーを含まないパターンに限り」行一致の上位集合。
+      # ^ / $ を含むパターンは全文では行頭・行末に当たらないので、フィルタを飛ばして行単位のみで判定する
+      case "$pat" in
+        *'^'*|*'$'*) ;;
+        *) [[ $text =~ $pat ]]; rc=$?
+           if [ "$rc" -eq 2 ]; then
+             [ -n "${LIST_MATCH_WARNED:-}" ] || { printf 'Delvework: 正規表現として不正なパターンを無視しました（%s: %s）
+' "$LIST" "$pat" >&2; LIST_MATCH_WARNED=1; }
+             continue
+           fi
+           [ "$rc" -eq 0 ] || continue ;;
+      esac
       hit=0
       while IFS= read -r line; do
         if [[ $line =~ $pat ]]; then hit=1; break; fi
