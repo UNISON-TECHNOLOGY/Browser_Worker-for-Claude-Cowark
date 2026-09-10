@@ -82,7 +82,10 @@ _REQUIRED_WIRING = [
     ("money-watch.sh", "mcp__playwright__browser_find"),
     # フラグ迂回 / 削除 / 完了
     ("flag-guard.sh", "Write"), ("flag-guard.sh", "Edit"), ("rm-guard.sh", "Bash"), ("ov-gate.sh", "Bash"),
+    # ローカル Cowork の bash 名（E4）と、送付出口側の file_upload
+    ("rm-guard.sh", "mcp__workspace__bash"), ("ov-gate.sh", "mcp__workspace__bash"), ("critic-gate.sh", "mcp__claude-in-chrome__file_upload"),
 ]
+# 注: matcher はツール名の "|" 連結のみ（正規表現のグルーピング禁止 — 上の split("|") 完全一致が前提）
 for script, tool in _REQUIRED_WIRING:
     if script not in _wired:
         err(f"hooks.json: {script} がどのイベントにも配線されていない")
