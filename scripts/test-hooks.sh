@@ -91,32 +91,49 @@ check "money-watch【弱】: 『決済』は注意喚起のみ" 'Money Watch・�
 out=$(printf '{"tool_name":"mcp__playwright__browser_click"}' | bash "$SC/workflow-gate.sh")
 check "gate: 弱検知の後も変更操作は通る" EMPTY "$out"
 
-# 5c. Money Watch【弱】の重複抑止（2026-09-10）: 同じ弱パターンはページ遷移まで1回だけ警告する
+# 5c. Money Watch【弱】の重複抑止（2026-09-10）: 同じ「URL × 弱パターン」は1回だけ警告する（\\u エスケープ経由）
 rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR/.money_weak_seen"
-out=$(printf '{"tool_response":"\u30d7\u30e9\u30f3\u5909\u66f4"}' | bash "$SC/money-watch.sh")
+WEAK_X="$(printf '{"tool_response":"Page URL: https://a.example/x \\u30d7\\u30e9\\u30f3\\u5909\\u66f4"}')"
+WEAK_Y="$(printf '{"tool_response":"Page URL: https://a.example/y \\u30d7\\u30e9\\u30f3\\u5909\\u66f4"}')"
+out=$(printf '%s' "$WEAK_X" | bash "$SC/money-watch.sh")
 check "money-watch【弱】dedupe: 1回目は注意" 'Money Watch・注意' "$out"
-out=$(printf '{"tool_response":"\u30d7\u30e9\u30f3\u5909\u66f4"}' | bash "$SC/money-watch.sh")
-check "money-watch【弱】dedupe: 同一ページ2回目は沈黙" EMPTY "$out"
+out=$(printf '%s' "$WEAK_X" | bash "$SC/money-watch.sh")
+check "money-watch【弱】dedupe: 同一URL 2回目は沈黙" EMPTY "$out"
+out=$(printf '%s' "$WEAK_Y" | bash "$SC/money-watch.sh")
+check "money-watch【弱】dedupe: 別URL（サイドメニュー遷移）は再警告" 'Money Watch・注意' "$out"
 printf '{"url":"https://example.com/next"}' | bash "$SC/navigate-warn.sh" >/dev/null
-out=$(printf '{"tool_response":"\u30d7\u30e9\u30f3\u5909\u66f4"}' | bash "$SC/money-watch.sh")
+out=$(printf '%s' "$WEAK_X" | bash "$SC/money-watch.sh")
 check "money-watch【弱】dedupe: navigate 後は再警告" 'Money Watch・注意' "$out"
-bash "$SC/session-start.sh" >/dev/null
+bash "$SC/session-start.sh" >/dev/null </dev/null
 [ ! -f "$DELVEWORK_WF_DIR/.money_weak_seen" ] && echo "PASS: session-start で弱の既読をリセット" || { echo "FAIL: session-start が .money_weak_seen を消さない"; FAIL=1; }
 [ ! -f "$DELVEWORK_WF_DIR/money_alert" ] || { echo "FAIL: 弱 dedupe テストで money_alert が立った"; FAIL=1; }
 
-# 5d. Money Watch 操作直前判定（2026-09-10）: 操作対象（tool_input）に弱→警告のみで通す / 強→money_alert + deny
+# 5d. Money Watch 操作直前判定（2026-09-10）: 操作対象の識別子に強→money_alert + deny / 弱→警告のみで通す
 rm -f "$DELVEWORK_WF_DIR"/.deny_* "$DELVEWORK_WF_DIR/money_alert"
 echo t > "$DELVEWORK_WF_DIR/active"; touch "$DELVEWORK_WF_DIR/b4_done" "$DELVEWORK_WF_DIR/e_done"; echo return > "$DELVEWORK_WF_DIR/phase"
-out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"\u30d7\u30e9\u30f3\u5909\u66f4 link","ref":"e12"}}' | bash "$SC/workflow-gate.sh")
+out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"\\u30d7\\u30e9\\u30f3\\u5909\\u66f4 link","ref":"e12"}}' | bash "$SC/workflow-gate.sh")
 check "gate 操作直前: 弱要素は警告のみ" '操作直前' "$out"
 printf '%s' "$out" | grep -q '"permissionDecision":"deny"' && { echo "FAIL: 弱要素の操作直前で deny された（過剰ゲート）"; FAIL=1; } || echo "PASS: gate 操作直前: 弱要素は deny しない"
 [ ! -f "$DELVEWORK_WF_DIR/money_alert" ] || { echo "FAIL: 弱要素で money_alert が立った"; FAIL=1; }
-out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"\u8cfc\u5165\u3092\u78ba\u5b9a button"}}' | bash "$SC/workflow-gate.sh")
+out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"\\u8cfc\\u5165\\u3092\\u78ba\\u5b9a button"}}' | bash "$SC/workflow-gate.sh")
 check "gate 操作直前: 強要素は deny" 'Money Watch・操作直前' "$out"
 check "gate 操作直前: 強要素の deny は permissionDecision" '"permissionDecision":"deny"' "$out"
 [ -f "$DELVEWORK_WF_DIR/money_alert" ] && echo "PASS: 強要素で money_alert 生成" || { echo "FAIL: 強要素で money_alert 未生成"; FAIL=1; }
 printf '%s' "$out" | json_valid && echo "PASS: 操作直前 deny JSON" || { echo "FAIL: 操作直前 deny JSON が壊れる"; FAIL=1; }
 rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR"/.deny_*
+# 複数行（pretty-print）JSON でも切り出せる（以前は TARGET="{" で無言素通しだった）
+out=$(printf '{\n "tool_name": "mcp__playwright__browser_click",\n "tool_input": {\n  "element": "\\u8cfc\\u5165\\u3092\\u78ba\\u5b9a button"\n }\n}' | bash "$SC/workflow-gate.sh")
+check "gate 操作直前: 複数行 JSON でも強要素は deny" '"permissionDecision":"deny"' "$out"
+rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR"/.deny_*
+# 入力本文に強パターンがあっても止めない（原稿入力でセッションがロックする誤爆の回帰）
+out=$(printf '{"tool_name":"mcp__playwright__browser_type","tool_input":{"element":"post body","ref":"e9","text":"\\u9000\\u4f1a\\u624b\\u7d9a\\u304d\\u306b\\u3064\\u3044\\u3066\\u89e3\\u8aac"}}' | bash "$SC/workflow-gate.sh")
+printf '%s' "$out" | grep -q '"permissionDecision":"deny"' && { echo "FAIL: 入力本文の『退会手続き』で deny された（原稿入力ロック）"; FAIL=1; } || echo "PASS: gate 操作直前: 入力本文の強パターンでは止めない"
+[ ! -f "$DELVEWORK_WF_DIR/money_alert" ] || { echo "FAIL: 入力本文で money_alert が立った"; FAIL=1; }
+# money-suppress.txt は強判定を殺せない（ユーザー編集ファイルがゲート無効化スイッチにならない）
+mkdir -p "$CLAUDE_PROJECT_DIR/knowledge/config"; printf 'browser_click\n' > "$CLAUDE_PROJECT_DIR/knowledge/config/money-suppress.txt"
+out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"\\u8cfc\\u5165\\u3092\\u78ba\\u5b9a"}}' | bash "$SC/workflow-gate.sh")
+check "gate 操作直前: suppress は強判定に効かない" '"permissionDecision":"deny"' "$out"
+rm -f "$CLAUDE_PROJECT_DIR/knowledge/config/money-suppress.txt" "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR"/.deny_*
 out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"save button"}}' | bash "$SC/workflow-gate.sh")
 check "gate 操作直前: 無害要素は無言で通過" EMPTY "$out"
 
@@ -344,7 +361,7 @@ bash "$SC/session-start.sh" >/dev/null </dev/null
 # --- session-rules.txt のホットパス予算（毎セッション全文注入されるため） ---
 # v1.11.0: 6500→6900 に引き上げ（hook 非依存の到達経路の明記と Money Watch 自己規律化の追記分）
 # v1.14.0: 6900→7500 に引き上げ（頻出ルール F1〜F6 の直書き分。毎タスクの logging.md / steps-reference の
-#   Read を置き換えるための意図的な投資 — 直書きした分だけ他項目を圧縮し、lint.py の警告線（7500×0.92）と同値に揃える）
+#   Read を置き換えるための意図的な投資 — 直書きした分だけ他項目を圧縮する。lint.py のホットパス上限と同値）
 RULES_BYTES=$(wc -c < "$SC/session-rules.txt" | tr -dc '0-9')
 if [ "$RULES_BYTES" -le 7500 ]; then
   echo "PASS: session-rules.txt ${RULES_BYTES}B（目標 7500B 以内）"

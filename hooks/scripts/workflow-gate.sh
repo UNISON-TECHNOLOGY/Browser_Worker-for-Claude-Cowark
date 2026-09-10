@@ -94,20 +94,29 @@ fi
 deny_reset
 
 # --- Money Watch 操作直前判定（2026-09-10） ---
-# 画面全体ではなく「これから操作する対象」（tool_input の要素名・ref・入力文字列）を照合する。
-# 【強】（購入を確定 等）に当たれば money_alert を立てて deny（PostToolUse の検知を待たずに止める）。
-# 【弱】（プラン変更 等）に当たれば警告のみ（additionalContext）で通す — 画面に常在するナビ語では
-# 止めないが、その要素そのものを押す直前には必ず1回知らせる。
-# 座標クリック（computer の coordinate）は文字列を持たないので照合できない — その場合は PostToolUse 側が担う。
-if ! money_suppressed; then
-  TARGET="$(printf '%s' "$STDIN_TEXT" | sed -n 's/.*"tool_input"[[:space:]]*:[[:space:]]*//p')"
-  [ -n "$TARGET" ] || TARGET="$STDIN_TEXT"
-  strong_t="$(money_strong "$TARGET")"
+# 画面全体ではなく「これから操作する対象」を照合する。
+#   【強】は操作先の識別子（element / ref / selector / name / label / aria-label / description / text の
+#        うち識別子キー）だけを見る。入力本文（text / value / fields）は見ない — 「退会手続きについて解説します」
+#        のような原稿入力で money_alert が立って session がロックする誤爆を防ぐ（2026-09-10 レビュー指摘）。
+#   【弱】は tool_input 全体を見て警告のみ（additionalContext）。
+#   money-suppress.txt はページ用の誤検知チューニングなので、弱警告にだけ効かせ強判定には効かせない。
+# 複数行 JSON でも切り出せるよう先に改行を潰す。tool_input が取れない場合は識別子が無い＝強判定は
+# できないので弱警告だけを本文全体で行う（座標クリックも同様。画面読み取り側の検知が担う）。
+ONELINE="$(printf '%s' "$STDIN_TEXT" | tr '
+' '  ')"
+TARGET="$(printf '%s' "$ONELINE" | sed -n 's/.*"tool_input"[[:space:]]*:[[:space:]]*//p')"
+[ "${#TARGET}" -ge 8 ] || TARGET="$ONELINE"
+TARGET_ID="$(printf '%s' "$TARGET" | grep -oE '"(element|ref|selector|name|label|aria-label|description|button|link)"[[:space:]]*:[[:space:]]*"([^"\]|\.)*"' 2>/dev/null | tr '
+' ' ')"
+if [ -n "$TARGET_ID" ]; then
+  strong_t="$(money_strong "$TARGET_ID")"
   if [ -n "$strong_t" ]; then
     mkdir -p "$WF_DIR" 2>/dev/null
     printf '%s' "$strong_t" > "$WF_DIR/money_alert"
-    deny "【Money Watch・操作直前】操作対象に金銭・契約・不可逆登録の確定表現があります（パターン: $strong_t）。memory/.workflow/money_alert を設置し停止しました。復帰手順の正本 docs/steps/money-recovery.md を Read して従うこと（ユーザーの明示承認なしの解除は禁止）。"
+    deny_decay money       "【Money Watch・操作直前】操作対象に金銭・契約・不可逆登録の確定表現があります（パターン: $strong_t）。memory/.workflow/money_alert を設置し停止しました。復帰手順の正本 docs/steps/money-recovery.md を Read して従うこと（ユーザーの明示承認なしの解除は禁止）。現状が不明なら /状態確認（delve-status）で一覧できます。"       "【Money Watch・操作直前】停止（money_alert 設置）。復帰は docs/steps/money-recovery.md を Read。現状は /状態確認。"
   fi
+fi
+if ! money_suppressed "$TARGET"; then
   weak_t="$(money_weak "$TARGET")"
   if [ -n "$weak_t" ]; then
     warn_pretool "【Money Watch・操作直前】これから操作する要素に金銭系の文言があります（パターン: $weak_t）。停止はしていません — この操作がプラン変更・課金・支払い設定そのものなら実行せず docs/steps/money-recovery.md に従い、ユーザーの承認を得てから進むこと。"

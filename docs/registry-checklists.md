@@ -10,6 +10,8 @@
 - [ ] 新しい能力 → `docs/parts/<name>.md`（部品）+ parts/index.md に行追加。**コマンドは増やさない**
 - [ ] 新しい執筆リファレンス（references/）→ session-rules(3) と **該当サブエージェント（deliverable-writer / design-artisan / design-critic / pre-send-verifier）の参照表にも配線**（エージェントは自分でルールを読まないため、定義ファイルに書かないと届かない）
 - [ ] command-registry の該当台帳に1行追加（カテゴリー + Pack）。定常実行するものはループ台帳にも追加
+- [ ] 登録コマンドを増やしたら **session-rules.txt のルーティング（F6 / (0)）に配線**し、`procedures/delve-verify.md` の件数（V17 / V34）を更新
+- [ ] 設計判断があれば `docs/rationale.md` に節を追加（フック内コメントや手順書に根拠を散らさない）
 - [ ] README の同梱物の件数を更新（コマンド数・手順書数・エージェント数。README の「既知の限界」は escalations.md へのポインタなので同期不要）
 - [ ] 両 version ファイルを bump（`scripts/bump-version.sh <ver>`）
 

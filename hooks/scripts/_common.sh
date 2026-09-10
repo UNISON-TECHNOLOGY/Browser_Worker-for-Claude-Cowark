@@ -85,13 +85,15 @@ warn_session() {
 }
 
 # --- Money Watch 共通照合（money-watch.sh の PostToolUse と workflow-gate.sh の操作直前判定で共用） ---
-# money_suppressed: knowledge/config/money-suppress.txt のパターンに当たれば 0（検知対象外）
+# money_suppressed <text>: knowledge/config/money-suppress.txt のパターンに当たれば 0（検知対象外）。
+# 抑制は「ページ（読み取り結果）」に対する誤検知チューニング用。**操作直前の強判定には効かせない**
+# （ユーザー編集可能ファイルが硬いゲートの無効化スイッチにならないように — 2026-09-10 レビュー指摘）
 money_suppressed() {
-  local SUPPRESS="$PROJECT_DIR/knowledge/config/money-suppress.txt" pat
+  local text="$1" SUPPRESS="$PROJECT_DIR/knowledge/config/money-suppress.txt" pat
   [ -f "$SUPPRESS" ] || return 1
   while IFS= read -r pat; do
     case "$pat" in ''|'#'*) continue ;; esac
-    if printf '%s' "$STDIN_TEXT" | grep -qiE "$pat" 2>/dev/null; then return 0; fi
+    if printf '%s' "$text" | grep -qiE "$pat" 2>/dev/null; then return 0; fi
   done < "$SUPPRESS"
   return 1
 }
@@ -115,9 +117,26 @@ money_match_lists() {
 money_strong() { money_match_lists "$1" "$SCRIPT_DIR/money-watchlist.txt" "$PROJECT_DIR/knowledge/config/money-watchlist.txt"; }
 money_weak()   { money_match_lists "$1" "$SCRIPT_DIR/money-watchlist-weak.txt" "$PROJECT_DIR/knowledge/config/money-watchlist-weak.txt"; }
 
-# 【弱】の再警告抑止: 同じパターンはページ遷移（navigate）まで1回だけ警告する。
+# 【弱】の再警告抑止: 同じ「ページURL × パターン」は1回だけ警告する。
 # サイドメニューに「プラン変更」が常在する管理画面（xserver 等）で、読み取りのたびに同文の警告が出ると
 # 注意が薄れて実際の金銭操作と区別がつかなくなる（2026-09-10 フィードバック）。
+# キーは読み取り結果から拾った最初の URL（無ければパターンのみ）。サイドメニュークリック等の
+# navigate を通らない遷移でも URL が変われば再警告される。navigate / SessionStart では全消去。
+# ファイルは末尾 50 行に刈り取る（追記のみで肥大しないように）。
 WEAK_SEEN="$WF_DIR/.money_weak_seen"
 money_weak_seen_reset() { rm -f "$WEAK_SEEN" 2>/dev/null; return 0; }
+money_weak_key() { # $1: パターン。stdout: "<url>	<pattern>"
+  local url; url="$(printf '%s' "$STDIN_TEXT" | grep -oE 'https?://[^"[:space:]\]+' 2>/dev/null | head -n 1)"
+  printf '%s	%s' "$url" "$1"
+}
+money_weak_seen() { [ -f "$WEAK_SEEN" ] && grep -qxF -- "$1" "$WEAK_SEEN" 2>/dev/null; }
+money_weak_mark() {
+  mkdir -p "$WF_DIR" 2>/dev/null
+  printf '%s
+' "$1" >> "$WEAK_SEEN" 2>/dev/null
+  if [ "$(wc -l < "$WEAK_SEEN" 2>/dev/null | tr -dc '0-9')" -gt 50 ] 2>/dev/null; then
+    tail -n 50 "$WEAK_SEEN" > "$WEAK_SEEN.tmp" 2>/dev/null && mv -f "$WEAK_SEEN.tmp" "$WEAK_SEEN" 2>/dev/null
+  fi
+  return 0
+}
 

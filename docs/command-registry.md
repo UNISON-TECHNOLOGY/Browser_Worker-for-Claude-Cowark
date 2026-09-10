@@ -137,6 +137,7 @@ SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `do
 | 求人媒体 | knowledge/media/・approvals/・drafts/ |
 | 自社・広告 | knowledge/audits/・styles/・mockups/・assets/・drafts/ |
 | 基盤・記録（横断） | knowledge/sites/・logs/・reports/・tacit/・feedback/・data/・config/・artifacts-index.md |
+| 横断（パック外・保守作業） | knowledge/maintenance/（横断調査の結論と根拠）・sites/ |
 
 ## チェックリスト
 

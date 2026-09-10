@@ -16,22 +16,20 @@ source "$SCRIPT_DIR/_common.sh"
 
 # 抑制リスト（誤検知チューニング用）: ユーザーが knowledge/config/money-suppress.txt に
 # 書いたパターンにマッチするページは検知対象から除外する（例: 日常業務で開く媒体の管理画面URL/文言）
-money_suppressed && exit 0
+money_suppressed "$STDIN_TEXT" && exit 0
 
 matched="$(money_strong "$STDIN_TEXT")"
 
 # 【強】に当たらなければ【弱】を照合。弱は停止せず注意喚起のみ（フラグを立てない）。
-# 同じ弱パターンはページ遷移（navigate-warn が .money_weak_seen を消す）まで再警告しない —
+# 同じ「ページURL × 弱パターン」は再警告しない（.money_weak_seen。navigate-warn / session-start が全消去）—
 # 「操作直前」の本判定は workflow-gate.sh が操作対象（tool_input）に対して行う。
 if [ -z "$matched" ]; then
   weak="$(money_weak "$STDIN_TEXT")"
   [ -z "$weak" ] && exit 0
-  if [ -f "$WEAK_SEEN" ] && grep -qxF -- "$weak" "$WEAK_SEEN" 2>/dev/null; then
-    exit 0
-  fi
-  mkdir -p "$WF_DIR" 2>/dev/null
-  printf '%s\n' "$weak" >> "$WEAK_SEEN" 2>/dev/null
-  warn_posttool "【Money Watch・注意】この画面に金銭系の表示があります（パターン: $weak）。停止はしていません — このページで同じ警告は繰り返しません。操作対象の要素に金銭系文言があれば操作直前にゲートが改めて知らせます。触れる場合は自己判断で進めず docs/steps/money-recovery.md に従うこと。"
+  key="$(money_weak_key "$weak")"
+  money_weak_seen "$key" && exit 0
+  money_weak_mark "$key"
+  warn_posttool "【Money Watch・注意】この画面に金銭系の表示があります（パターン: $weak）。停止はしていません — 同じページ（URL）ではこの警告を繰り返しません。操作対象の要素に金銭系文言があれば操作直前にゲートが改めて知らせます。触れる場合は自己判断で進めず docs/steps/money-recovery.md に従うこと。"
 fi
 
 mkdir -p "$WF_DIR" 2>/dev/null
