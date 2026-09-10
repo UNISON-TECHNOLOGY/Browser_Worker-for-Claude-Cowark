@@ -1,6 +1,6 @@
 ---
 name: recruit-writing
-description: リクルートライティング — 求人票/募集要項/採用ページ/スカウトメール本文など採用コンテンツ本体の作成・修正。Use when 求人原稿の作成修正、募集要項（給与・勤務地・仕事内容）のライティング、スカウト本文（件名は→copywriting）、採用ページや会社紹介文。Not for キャッチコピーやスカウト件名単体（→copywriting）、社員ストーリー（→storytelling）。
+description: リクルートライティング — 求人票/募集要項/採用ページ/スカウトメール本文など採用コンテンツ本体の作成・修正。Use when 求人原稿の作成修正、募集要項（給与・勤務地・仕事内容）のライティング、スカウト本文（件名は→copywriting）、採用ページや会社紹介文。Not for キャッチコピーやスカウト件名単体（→copywriting）、社員ストーリー（→storytelling）、クライアント企業への提案書やメール（→sales-writing / business-writing）、KPI レポート（→logical-writing）。
 ---
 
 # リクルートライティング スキル

@@ -134,5 +134,5 @@
   - **URL denylist は部分一致**のため無関係なページを誤ブロックしうる → `knowledge/config/url-allowlist.txt` で開放
   - **ゲートはフラグファイルなので Bash から直接 touch/rm すれば技術的に迂回できる**（Log Gate も自己規律）。「うっかり・手順飛ばし」への防御であって意図的迂回への防御ではない
   - **Money Watch はテキスト読取の内容に反応する** — スクショだけで進むと検知面を素通りするため、変更前記録（Step E）はテキスト読取必須
-- 検証状況・既知の制約は [TESTING.md](TESTING.md) を参照
+- 検証状況・既知の制約は [TESTING.md](TESTING.md) を参照（過去ランの記録は TESTING-archive.md）
 - CI（GitHub Actions）が push ごとに参照整合 lint（scripts/lint.py）と hooks スモークテスト（scripts/test-hooks.sh）を実行。ローカルでも同コマンドで実行可

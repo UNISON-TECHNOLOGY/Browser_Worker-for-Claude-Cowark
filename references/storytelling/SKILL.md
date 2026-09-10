@@ -1,6 +1,6 @@
 ---
 name: storytelling
-description: ストーリーテリング — 共感と行動を生む物語コンテンツ。Use when 社員インタビュー記事/社員ストーリー、転職成功事例、企業の創業ストーリー/ミッション紹介、採用広報・オウンドメディアの長文記事、採用ブランディング用のナラティブ。Not for 募集要項や求人票（→recruit-writing）、データ報告（→logical-writing）。
+description: ストーリーテリング — 共感と行動を生む物語コンテンツ。Use when 社員インタビュー記事/社員ストーリー、転職成功事例、企業の創業ストーリー/ミッション紹介、採用広報・オウンドメディアの長文記事、採用ブランディング用のナラティブ。Not for 募集要項や求人票（→recruit-writing）、データ報告（→logical-writing）、短いキャッチコピー（→copywriting）、メール文面（→business-writing）。
 ---
 
 # ストーリーテリング スキル

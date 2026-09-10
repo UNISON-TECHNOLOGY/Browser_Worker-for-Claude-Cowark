@@ -1,6 +1,6 @@
 ---
 name: sales-writing
-description: セールスライティング — 無形人材サービスの購買行動を促す文章。Use when 社外クライアントへの受注目的の提案書/企画書、新規開拓のテレアポスクリプト、商談後のフォロー/クロージングメール、サービスLP（BtoB/toC）の本文構成。Not for 社内意思決定用の戦略提案書（→logical-writing）、社内メールや事務連絡（→business-writing）、求人票（→recruit-writing）。
+description: セールスライティング — 無形人材サービスの購買行動を促す文章。Use when 社外クライアントへの受注目的の提案書/企画書、新規開拓のテレアポスクリプト、商談後のフォロー/クロージングメール、サービスLP（BtoB/toC）の本文構成。Not for 社内意思決定用の戦略提案書（→logical-writing）、社内メールや事務連絡（→business-writing）、求人票（→recruit-writing）、キャッチコピー単体（→copywriting）。
 ---
 
 # セールスライティング スキル
