@@ -129,6 +129,15 @@ rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR"/.deny_*
 out=$(printf '{"tool_name":"mcp__playwright__browser_type","tool_input":{"element":"post body","ref":"e9","text":"\\u9000\\u4f1a\\u624b\\u7d9a\\u304d\\u306b\\u3064\\u3044\\u3066\\u89e3\\u8aac"}}' | bash "$SC/workflow-gate.sh")
 printf '%s' "$out" | grep -q '"permissionDecision":"deny"' && { echo "FAIL: 入力本文の『退会手続き』で deny された（原稿入力ロック）"; FAIL=1; } || echo "PASS: gate 操作直前: 入力本文の強パターンでは止めない"
 [ ! -f "$DELVEWORK_WF_DIR/money_alert" ] || { echo "FAIL: 入力本文で money_alert が立った"; FAIL=1; }
+# CRLF 入力でも切り出せる（tr の制御文字がソース上で化けて CR 処理が消えた回帰 — 2026-09-10 Opus レビュー）
+out=$(printf '{
+ "tool_name": "mcp__playwright__browser_click",
+ "tool_input": {
+  "element": "\u8cfc\u5165\u3092\u78ba\u5b9a button"
+ }
+}' | bash "$SC/workflow-gate.sh")
+check "gate 操作直前: CRLF JSON でも強要素は deny" '"permissionDecision":"deny"' "$out"
+rm -f "$DELVEWORK_WF_DIR/money_alert" "$DELVEWORK_WF_DIR"/.deny_*
 # money-suppress.txt は強判定を殺せない（ユーザー編集ファイルがゲート無効化スイッチにならない）
 mkdir -p "$CLAUDE_PROJECT_DIR/knowledge/config"; printf 'browser_click\n' > "$CLAUDE_PROJECT_DIR/knowledge/config/money-suppress.txt"
 out=$(printf '{"tool_name":"mcp__playwright__browser_click","tool_input":{"element":"\\u8cfc\\u5165\\u3092\\u78ba\\u5b9a"}}' | bash "$SC/workflow-gate.sh")
