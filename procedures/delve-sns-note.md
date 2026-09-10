@@ -10,5 +10,5 @@
 
 ## 固有ルール
 
-- 記事執筆は storytelling / logical-writing 規範を用途で使い分け、本格執筆は deliverable-writer へ委譲
+- 記事執筆は storytelling / logical-writing 規範を用途で使い分け、本格執筆（記事本文）は deliverable-writer へ委譲
 - ナレッジ置き場: knowledge/sns/note/（ネタ帳は queue.md）

@@ -14,8 +14,8 @@ HTML成果物（レポート・モックアップ・ガイド）の作成・発�
 
 - 骨格は `templates/report-template.html`、判断基準は `templates/design-principles.md`
 - CSS の改変は `--accent` のみ可。テーブルは `.tbl` コンテナで横スクロール封じ込め、画像は max-width 100%
-- **執筆は deliverable-writer エージェントに委譲**する。委譲プロンプトには入力データと出力先の**絶対パス**を明記（相対パスは誤解決される）
-- **Agent ツールが無い環境**（Cowork チャット等）では委譲プロンプトをユーザーに手渡さず、main ループが該当エージェント定義（agents/*.md）を Read してその作法で執筆し、成果物に「委譲不可のため直執筆」と1行記録する
+- **HTML レポートは main ループが直接書く**（v1.18.0: deliverable-writer への委譲は廃止。材料を集めた本人が書くのが最短で、委譲で買える独立性が無い — §1.5）。書く前に `templates/design-principles.md` を Read し、サマリー・分析文は references/logical-writing/（結論先行・根拠→示唆）に従う。書き終えたら即 §2 で発行する
+- deliverable-writer は**テキスト成果物**（求人票・スカウト本文・提案書・LP本文・記事）専用。HTML レポートを委譲しない
 - 保存先: `knowledge/reports/`（モックアップは `knowledge/mockups/`）。自己完結HTML（外部読み込みなし）
 
 ## 1.5. サブエージェント委譲の下限（呼ばない条件）
@@ -33,7 +33,7 @@ HTML成果物（レポート・モックアップ・ガイド）の作成・発�
 - **不可逆操作の前後**（pre-send-verifier / outcome-verifier）— 独立性そのものが目的
 - **ユーザーに渡すビジュアル成果物の審査**（design-critic）— 作った本人には見えない欠点を拾う
 - **長く効く設計判断**（strategy-advisor）— 後から戻せない分岐
-- **本格的な執筆**（deliverable-writer）— 分量と作法の一貫性
+- **本格的なテキスト成果物の執筆**（deliverable-writer: 求人票・スカウト・提案書・記事）— 分量と作法の一貫性。HTML レポートは対象外（main が直接書く）
 
 判断に迷ったら「**この委譲は何の独立性を買っているか**」を1行で言えるか試す。言えないなら呼ばない。
 

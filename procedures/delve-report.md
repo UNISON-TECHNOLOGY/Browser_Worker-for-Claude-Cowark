@@ -12,7 +12,7 @@ Delvework タスク「$ARGUMENTS」（未指定なら `memory/.workflow/active` 
    - `knowledge/logs/` の該当タスクのログ
    - `memory/session-log.md` の該当セクション
    - セッション中に取得したスクリーンショット（あれば）
-2. `knowledge/reports/<task-name>-<date>.html` として書き出す（templates/report-template.html を骨格に使用・自己完結）
+2. `knowledge/reports/<task-name>-<date>.html` として書き出す（templates/report-template.html を骨格に使用・自己完結）→ アーティファクト発行（docs/conventions.md §2）
 
 ## レポートに含める内容
 
@@ -37,6 +37,6 @@ Delvework タスク「$ARGUMENTS」（未指定なら `memory/.workflow/active` 
 
 生成後、ファイルパスを報告し、可能な環境ならブラウザで開いて見せること。
 
-## モデル最適化
+## 執筆
 
-材料集め（ログ・フラグ・スクショの収集）まではメインループで行い、**HTML の執筆は `deliverable-writer` エージェント（Agent ツール）に委譲する**こと。委譲時は材料ファイルの絶対パスと出力先パスをプロンプトに明記する。サマリー・分析の文章は logical-writing スキル（結論先行・根拠→示唆）を適用する。
+材料集めから HTML の執筆・発行まで**メインループが一貫して行う**（v1.18.0: deliverable-writer への委譲は廃止 — 材料を集めた本人が書くのが最短）。書く前に templates/design-principles.md を Read。サマリー・分析の文章は references/logical-writing/（結論先行・根拠→示唆）を適用する。書き終えたら docs/conventions.md §2 でアーティファクト発行し URL を報告する。

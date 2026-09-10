@@ -37,7 +37,7 @@ argument-hint: <URL...>（スペース区切りで複数可）
 
 ## モデル最適化
 
-巡回・計測（navigate / evaluate / screenshot）とトークン JSON の書き出しはメインループで行い、**比較 HTML レポートの執筆は `deliverable-writer` エージェント（Agent ツール）に委譲する**こと。委譲時はトークン JSON・スクショの絶対パスと出力先パスをプロンプトに明記する。
+巡回・計測（navigate / evaluate / screenshot）からトークン JSON の書き出し・比較 HTML レポートの執筆・発行まで**メインループが一貫して行う**（v1.18.0: deliverable-writer への委譲は廃止。docs/conventions.md §1）。
 
 ## 注意
 

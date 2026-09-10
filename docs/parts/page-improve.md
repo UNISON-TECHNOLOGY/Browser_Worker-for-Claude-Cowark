@@ -15,7 +15,7 @@ argument-hint: <対象ページURL> [改善の目的（例: CVR向上 / 読み�
    - 速度・品質（audit結果の閾値超え項目）
    - 一貫性（色数過多、フォント混在、余白のリズム）
 4. **成果物の生成（役割分担）**:
-   - **改善提案レポート** → `deliverable-writer` に委譲（templates/report-template.html 準拠）: 課題→改善案→期待効果の対応表、Before/After の構成比較
+   - **改善提案レポート** → main ループが直接書く（templates/report-template.html 準拠。docs/conventions.md §1）: 課題→改善案→期待効果の対応表、Before/After の構成比較
    - **改善版モックアップHTML** → `design-artisan` に委譲（最上位モデル）: 対象サイトのデザイントークンを維持しつつ課題を解消したレイアウト案。実コンテンツ使用。委譲プロンプトにはトークンJSON・課題診断・抽出コンテンツの絶対パスと出力先を明記
    - design-artisan の fable 指定がこの環境で使えない場合は、**design-artisan をモデル sonnet で起動する**（エージェントの専門化された指示が品質の本体であり、モデルは代替可。deliverable-writer への代行はしない）
 
