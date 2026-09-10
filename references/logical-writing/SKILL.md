@@ -8,18 +8,7 @@ description: ロジカルライティング — データと論理で意思決�
 
 データと論理で意思決定を支援する。採用戦略の提案、市場分析レポート、KPI報告、経営層への報告資料など。
 
-## Use this skill when
-- 採用戦略提案書をピラミッド構造やMECEで作成するとき
-- KPIレポート（月次/週次）を作成するとき
-- 候補者推薦レポートに論理的根拠を付けるとき
-- 市場分析・競合比較・ROI試算等のデータドリブンな資料を求められたとき
-
-## Do not use this skill when
-- 感情に訴えるストーリー記事を求められたとき（-> storytelling）
-- 求人票のライティングを求められたとき（-> recruit-writing）
-- セールス目的のLP・スクリプトを求められたとき（-> sales-writing）
-- 短いコピーを求められたとき（-> copywriting）
-
+> 発火条件（Use when / Not for）は frontmatter の description が正本。本文には再掲しない。
 ## 🤖 System Prompt（AIへの指示前提）
 ```text
 あなたは事実とデータに基づき、説得力のある提案が行える優秀なコンサルタントです。
