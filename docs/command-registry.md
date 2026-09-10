@@ -14,7 +14,7 @@
 
 | 層 | 概念 | 実体 |
 |---|---|---|
-| **コマンド** | カテゴリーレベル（媒体・対象のタスクパック）。要望は引数に自由に書かせる | `commands/`（登録10本・日本語名）+ `procedures/delve-*.md`（内部手順含め27本） |
+| **コマンド** | カテゴリーレベル（媒体・対象のタスクパック）。要望は引数に自由に書かせる | `commands/`（登録11本・日本語名）+ `procedures/delve-*.md`（内部手順含め28本） |
 | **ワークフロー** | 進め方 = タスクの連なり。A〜K 実行チェーン + タスク5型の連結 | `docs/steps-reference.md` + hooks のゲート + フェーズ①〜④ |
 | **タスク** | 単一の仕事。動詞レベル: **リサーチ / 収集 / クリエイティブ / 分析 / 掃き出し** | `tasks/*.yaml`（/カスタマイズ のタスク登録 = delve-task が生成）+ `docs/parts/`（部品） |
 | **サブエージェント** | 専門作業の職人。タスクから呼ばれる | `agents/`（6体: writer / artisan / critic / advisor / pre-send-verifier / outcome-verifier） |
@@ -27,12 +27,12 @@
 
 ## 命名ルール
 
-1. **登録コマンド（`commands/`）は日本語名が本体** — メニューに並ぶのはこの10本のみ。description には自動発火用の「Use when」を日本語で書く
+1. **登録コマンド（`commands/`）は日本語名が本体** — メニューに並ぶのはこの11本のみ。description には自動発火用の「Use when」を日本語で書く
 2. **手順の正本は `procedures/delve-*.md`（英語ケバブケース、登録対象外）** — 日本語コマンドは薄いラッパー（procedures を Read + Glob フォールバック）。1対1で、片方だけの追加は禁止
 3. 部品（docs/parts/）はコマンド登録しない。パックのタスクが Read して使う
 4. `/スキル化` が生成するワークスペーススキルも同ルール: name は英語ケバブ、description の発火例は日本語の言い方で書く
 
-## コマンド台帳（登録10本）
+## コマンド台帳（登録11本）
 
 | 手順書（procedures/） | コマンド名（登録） | カテゴリー | Pack | 代表的な言い方 |
 |---|---|---|---|---|
@@ -46,8 +46,9 @@
 | delve-customize | カスタマイズ | 基盤 | core | 「毎朝これやって」「これ覚えて」（タスク登録/スキル化/好み記憶/機能ON-OFF を選択式で） |
 | delve-reporting | レポート | 記録 | core | 「今どうなってる？」「今日の作業まとめて」（トップ=ダッシュボード + 作業ログ/運用レポートを選択） |
 | delve-verify | 検証 | 記録 | core | 「プラグインを検証して」※セルフテスト。品質保証機能として同梱（導入直後は quick、更新後・不調時は full） |
+| delve-maintenance | 保守作業 | 横断（パック外） | core | 「xserverとWordPressを横断で調べて」「Zohoの連携設定を確認して」— サーバー/ドメイン/CMS/SaaS 管理画面の調査・保守の受け皿。調査のみはゲート不要、変更は delve-start へ。2回目からは /ワーク追加 で専用コマンド化 |
 
-**計: 登録コマンド 10 / 内部手順 17 / 手順書 27（procedures/）**
+**計: 登録コマンド 11 / 内部手順 17 / 手順書 28（procedures/）**
 
 ## 内部手順台帳（メニュー非表示 — 自然文・ルール発火で動く。手順書は procedures/ に残す）
 
@@ -136,6 +137,7 @@ SNS 共通運用フローは `docs/sns-ops.md`、メディア技術地図は `do
 | 求人媒体 | knowledge/media/・approvals/・drafts/ |
 | 自社・広告 | knowledge/audits/・styles/・mockups/・assets/・drafts/ |
 | 基盤・記録（横断） | knowledge/sites/・logs/・reports/・tacit/・feedback/・data/・config/・artifacts-index.md |
+| 横断（パック外・保守作業） | knowledge/maintenance/（横断調査の結論と根拠）・sites/ |
 
 ## チェックリスト
 

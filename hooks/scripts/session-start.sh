@@ -10,6 +10,7 @@ source "$SCRIPT_DIR/_common.sh"
 
 # deny 減衰カウンタはセッションをまたいで持ち越さない（新セッションでは1回はフル文言で伝える）
 deny_reset
+money_weak_seen_reset
 
 # 注意: warn_session は exit するため、呼べるのは1回だけ。メッセージは PREFIX に集約する
 PREFIX=""

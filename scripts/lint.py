@@ -160,7 +160,7 @@ HOT_PATH_BUDGET = {          # ファイル: 上限バイト数
     "docs/steps-reference.md": 13000,
     "procedures/delve-start.md": 8500,
     "docs/conventions.md": 6000,
-    "hooks/scripts/session-rules.txt": 7500,
+    "hooks/scripts/session-rules.txt": 7500,  # v1.14.0: 頻出ルール F1〜F6 直書き分。test-hooks.sh の目標と同値（二重管理にしない）
     "docs/parts/index.md": 6000,
 }
 _hot_total = 0
