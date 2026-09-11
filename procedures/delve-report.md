@@ -39,4 +39,4 @@ Delvework タスク「$ARGUMENTS」（未指定なら `memory/.workflow/active` 
 
 ## 執筆
 
-材料集めから HTML の執筆・発行まで**メインループが一貫して行う**（v1.18.0: deliverable-writer への委譲は廃止 — 材料を集めた本人が書くのが最短）。書く前に templates/design-principles.md を Read。サマリー・分析の文章は references/logical-writing/（結論先行・根拠→示唆）を適用する。書き終えたら docs/conventions.md §2 でアーティファクト発行し URL を報告する。
+材料集めから HTML の執筆・発行まで**メインループが一貫して行う**（v1.18.0: deliverable-writer への委譲は廃止 — 材料を集めた本人が書くのが最短）。書く前に templates/design-principles.md を Read。サマリー・分析の文章は references/logical-writing/（結論先行・根拠→示唆）を適用する。執筆規範（lessons.md・[要確認]・未確認明記）は docs/conventions.md §1、書き終えたら §2 でアーティファクト発行し URL を報告する。
