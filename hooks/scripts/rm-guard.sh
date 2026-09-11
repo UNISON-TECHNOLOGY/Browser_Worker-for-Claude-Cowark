@@ -49,7 +49,7 @@ rm_guard_scan() { # $1: text|mask|strip、stdin → stdout。閉じていない�
     BEGIN { q = sprintf("%c", 39); s = "" }
     { s = s $0 "\n" }
     END {
-      n = length(s); out = ""; npend = 0; hd = 0; nbuf = 0; i = 1
+      n = length(s); out = ""; npend = 0; hd = 0; nbuf = 0; i = 1; wb = 1   # wb: 語境界（# をコメントと見るか）
       while (i <= n) {
         if (hd) {                                            # ヒアドキュメント本文: 1行ずつ終端と比較
           j = index(substr(s, i), "\n"); if (j == 0) j = n - i + 2
@@ -61,24 +61,27 @@ rm_guard_scan() { # $1: text|mask|strip、stdin → stdout。閉じていない�
           continue
         }
         c = substr(s, i, 1)
-        if (c == "\n") { out = out c; i++; if (npend) { hd = 1; hi = 0; nbuf = 0 }; continue }
-        if (c == "\\") {                                     # \x は次の1文字をリテラル化
-          d = substr(s, i + 1, 1); i += 2
+        if (c == "\n") { out = out c; i++; wb = 1; if (npend) { hd = 1; hi = 0; nbuf = 0 }; continue }
+        if (c == "\\") {                                     # \x は次の1文字をリテラル化（\+改行は行継続 = 何も出さない）
+          d = substr(s, i + 1, 1); i += 2; wb = 0
+          if (d == "\n") continue
           if (mode == "mask") out = out "  "; else if (d ~ /[A-Za-z0-9]/) out = out d; else out = out c d
           continue
         }
-        if (c == q || c == "\"") {                           # クォート span（複数行可、" 内の \ はエスケープ）
+        if (c == q || c == "\"") {                           # クォート span（複数行可。" と $'…' の中では \ がエスケープ）
+          esc = (c == "\"" || substr(s, i - 1, 1) == "$")
           j = i + 1
-          while (j <= n) { e = substr(s, j, 1); if (e == c) break; if (c == "\"" && e == "\\") j++; j++ }
+          while (j <= n) { e = substr(s, j, 1); if (e == c) break; if (esc && e == "\\") j++; j++ }
           if (j > n) exit 1                                  # 閉じていない = 解析失敗（fail-closed）
-          span = substr(s, i, j - i + 1); body = substr(s, i + 1, j - i - 1); i = j + 1
+          span = substr(s, i, j - i + 1); body = substr(s, i + 1, j - i - 1); i = j + 1; wb = 0
+          if (c == q && mode == "text") { gsub(/\$\(/, "$ ", span); gsub(/`/, " ", span); gsub(/\$\(/, "$ ", body); gsub(/`/, " ", body) }   # シングルクォート内は展開されない
           if (mode == "mask") { g = span; gsub(/[^\n]/, " ", g); out = out g }
           else if (mode == "strip") out = out " "
           else if (body ~ /[ \t\n]/) out = out span
           else out = out body                                # 空白を含まないクォートは記号だけ外す
           continue
         }
-        if (c == "#" && (i == 1 || substr(s, i - 1, 1) ~ /[ \t\n;&|(]/)) {   # コメントは改行まで捨てる
+        if (c == "#" && wb) {                                # 語境界の # はコメント: 改行まで捨てる（foo\ #x の # は語の一部）
           j = index(substr(s, i), "\n"); if (j == 0) j = n - i + 2
           i += j - 1; continue
         }
@@ -90,10 +93,13 @@ rm_guard_scan() { # $1: text|mask|strip、stdin → stdout。閉じていない�
           if (match(substr(s, j), /^[A-Za-z_][A-Za-z0-9_]*/)) {
             delim = substr(s, j, RLENGTH); j += RLENGTH
             if (qc != "" && substr(s, j, 1) == qc) j++
-            hdelim[npend] = delim; hquoted[npend] = quoted; hdash[npend] = dash; npend++
-            out = out substr(s, i, j - i); i = j; continue
+            if (j > n || substr(s, j, 1) ~ /[ \t\n;&|<>]/) {   # 直後が語の終わりのときだけヒアドキュメント（$((1 << x)) は除外）
+              hdelim[npend] = delim; hquoted[npend] = quoted; hdash[npend] = dash; npend++
+              out = out substr(s, i, j - i); i = j; wb = 0; continue
+            }
           }
         }
+        wb = (c ~ /[ \t;&|(]/)
         out = out c; i++
       }
       if (hd) for (k = 0; k < nbuf; k++) out = out buf[k] "\n"   # 終端が来なかった本文は全部戻す
@@ -104,8 +110,7 @@ rm_guard_output_only() { # $1: 生コマンド → 0 なら全セグメントの
   # allowlist の条件は「引数文字列をコマンドとして再実行しない語」であること（tee は引数ファイルを切り詰めるが再実行はしない）。
   # 追加時は -exec / -c / sh -c 相当のオプションを持たない語に限る（find / env / watch / xargs は不可）。
   # 分類は mask 写し（クォート span を空白に潰したもの）で行う。走査失敗（未閉クォート）は出力系でない扱い
-  local seg first probe
-  printf '%s' "$1" | grep -qE '\$\(|`|[<>]\(' && return 1
+  local seg first probe                                       # $( ) / ` / プロセス置換の有無は呼び出し側が text 写しで判定済み
   probe="$(printf '%s\n' "$1" | rm_guard_scan mask)" || return 1
   probe="$(printf '%s' "$probe" | tr ';|&(){}' '\n\n\n\n\n\n\n')"
   while IFS= read -r seg; do
@@ -121,7 +126,7 @@ rm_guard_output_only() { # $1: 生コマンド → 0 なら全セグメントの
 EXTRACTED=1
 RAW_CMD="$(rm_guard_extract_command)" || { RAW_CMD="$STDIN_TEXT"; EXTRACTED=0; }   # 取れなければ全文を未加工で照合
 CMD_TEXT="$RAW_CMD"
-if [ "$EXTRACTED" = 1 ] && command -v awk >/dev/null 2>&1; then
+if [ "$EXTRACTED" = 1 ] && [ "${#RAW_CMD}" -le 100000 ] && command -v awk >/dev/null 2>&1; then   # 長大なコマンドは走査せず未加工で照合
   # 3写しはすべて生コマンド RAW_CMD から作る（加工済みテキストを再走査するとクォートのペアリングがずれる）
   if t="$(printf '%s\n' "$RAW_CMD" | rm_guard_scan text)" && [ -n "$t" ]; then
     CMD_TEXT="$t"

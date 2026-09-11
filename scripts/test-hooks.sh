@@ -488,6 +488,63 @@ out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat <<'"'"'A'"'"' > x; ca
 check "rm-guard: 同一行2本のクォート付きヒアドキュメントは両本文とも通過" EMPTY "$out"
 out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat <<'"'"'A'"'"' > x; cat <<'"'"'B'"'"' > y\nfoo\nA\nbar\nB\nrm -rf outputs/"}}')
 check "rm-guard: 同一行2本のヒアドキュメントの終端後の rm -rf は deny" 'RM Guard' "$out"
+# Opus 4回目レビュー C-C: $'…' 内の \'、エスケープ空白直後の #、算術式の << で bash と字句解釈がずれていた
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo $'"'"'a\\'"'"'b'"'"' ; rm -rf outputs/ ; echo a\\'"'"'b"}}')
+check "rm-guard: ANSI-C クォート \$'a\\'b' の \\' を閉じと誤認せず rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo foo\\ #x; rm -rf outputs/"}}')
+check "rm-guard: エスケープ空白直後の # はコメントでなく rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo foo\\\t#x; rm -rf outputs/"}}')
+check "rm-guard: エスケープタブ直後の # はコメントでなく rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo $((1 << x))\nrm -rf outputs/\nx"}}')
+check "rm-guard: 算術式の << はヒアドキュメントでなく後続の rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'a#b'"'"' >> notes.md"}}')
+check "rm-guard: クォート内の # を含む文書化は通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat > v.md <<'"'"'EOF'"'"' ; ls\nrm -rf outputs/\nEOF"}}')
+check "rm-guard: ヒアドキュメント開始行に ; ls が続いても本文は通過" EMPTY "$out"
+# Opus 4回目レビュー Minor: 行継続・シングルクォート内の $( )
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"r\\\nm -rf outputs/"}}')
+check "rm-guard: 行継続で分割した r\\<改行>m -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'メモ: $(rm -rf x) は危険'"'"' >> notes.md"}}')
+check "rm-guard: シングルクォート内の \$( ) は展開されないので文書化は通過" EMPTY "$out"
+# --- 差分ハーネス（Opus 4回目レビュー I-B）: bash が実際に rm/find/git を危険な引数で呼ぶコマンドは rm-guard が deny していなければならない ---
+# rm/find/git を「argv を記録するだけのシム」に差し替えて実行し、字句解釈のずれ（スキャナが実コマンドを落とす経路）を機械的に検出する
+SHIM="$CLAUDE_PROJECT_DIR/shim"; mkdir -p "$SHIM/bin" "$SHIM/wd"
+for c in rm find git; do printf '#!/bin/bash\nprintf "%%s\\n" "${0##*/} $*" >> "%s/log"\n' "$SHIM" > "$SHIM/bin/$c"; chmod +x "$SHIM/bin/$c"; done
+rg_json() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\t/\\t/g' | awk 'NR>1{printf "\\n"} {printf "%s", $0}'; }
+rg_diff() { # $1: 生の bash コマンド文字列。シム実行で危険 argv が記録されたら rm-guard の deny を要求
+  : > "$SHIM/log"
+  (cd "$SHIM/wd" && PATH="$SHIM/bin:$PATH" timeout 10 bash -c "$1" >/dev/null 2>&1 </dev/null)
+  if grep -qE '^rm .*(-[[:alnum:]]*[rR]|--recursive)|^rm .*\*|^find .*-delete|^git clean' "$SHIM/log"; then
+    out=$(rg "{\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"$(rg_json "$1")\"}}")
+    check "rm-guard(差分): bash が危険削除を実行 → deny: $(printf '%s' "$1" | head -c 60 | tr '\n' ' ')" 'RM Guard' "$out"
+  else
+    out=$(rg "{\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"$(rg_json "$1")\"}}")
+    [ -z "$out" ] || echo "  info rm-guard(差分): 削除なしだが deny（誤爆候補）: $(printf '%s' "$1" | head -c 60 | tr '\n' ' ')"
+  fi
+}
+rg_diff 'rm -rf outputs/'
+rg_diff 'echo "it'"'"'s fine" ; rm -rf outputs/ ; echo "don'"'"'t"'
+rg_diff 'echo it\'"'"'s ; rm -rf outputs/ ; echo don\'"'"'t'
+rg_diff 'echo $'"'"'a\'"'"'b'"'"' ; rm -rf outputs/ ; echo a\'"'"'b'
+rg_diff 'echo foo\ #x; rm -rf outputs/'
+rg_diff $'echo $((1 << x))\nrm -rf outputs/\nx'
+rg_diff $'cat <<\'A\' > x; cat <<\'B\' > y\nfoo\nA\nbar\nB\nrm -rf outputs/'
+rg_diff $'echo "see <<EOF"\nls && rm -rf outputs/\nEOF'
+rg_diff $'r\\\nm -rf outputs/'
+rg_diff "'rm' -rf outputs/"
+rg_diff "rm' '-rf outputs/"
+rg_diff '\rm -rf outputs/'
+rg_diff "bash -c 'rm -rf outputs/'"
+rg_diff "eval 'rm -rf outputs/'"
+rg_diff "echo 'rm -rf outputs/' | bash"
+rg_diff 'echo "$(rm -rf outputs/)"'
+rg_diff $'cat > x.md <<EOF\n$(rm -rf outputs/)\nEOF'
+rg_diff 'find outputs -name "*.tmp" -delete'
+rg_diff 'git clean -fd'
+rg_diff 'rm outputs/*.png'
+rg_diff "echo 'rm -rf outputs/ は deny' >> notes.md"
+rg_diff $'cat > v.md <<\'EOF\'\nrm -rf outputs/ が deny された\nEOF'
+rg_diff 'echo "don'"'"'t run rm -rf outputs/" >> notes.md'
 export DELVEWORK_GATE_MODE=warn
 out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
 check "rm-guard: warnモードは注入のみ" 'additionalContext.*RM Guard' "$out"
