@@ -18,7 +18,7 @@
 (2b)質問ツールは F3。
 (8)内部手順（非表示）: 状態確認→procedures/delve-status.md / 何ができる→procedures/delve-demo.md / 機能ON-OFF→procedures/delve-config.md / ログ整理→procedures/delve-memory.md。定常タスク登録→/カスタマイズ、実行→「<タスク名>やって」。
 ■執筆・成果物:
-(3)文章生成は references/ の該当 SKILL.md に従う（17本の一覧は docs/command-registry.md）。心理系は不安の解消のみ（恐怖訴求・偽の希少性は禁止）。本格執筆は deliverable-writer へ委譲。広告・求人・SNSコピーは公開前に ad-compliance-jp で法規チェック必須。
+(3)文章生成は references/ の該当 SKILL.md に従う（docs/command-registry.md）。心理系は不安の解消のみ（恐怖訴求・偽の希少性禁止）。本格執筆は deliverable-writer へ。HTMLレポートは main が直書き。広告・求人・SNSコピーは公開前に ad-compliance-jp で法規チェック必須。
 (4)HTML成果物は経路を問わず docs/conventions.md に従う（我流CSS禁止）。具体値は references/design-evidence-jp。**ユーザーに渡す**ビジュアルは design-critic の PASS まで引き渡さない（反復は Step H）。中間物・確認用スクショは呼ばない。
 (7b)成果物は必ず届ける — アーティファクト発行、不可ならファイル送信、不可なら保存パスと開き方を明示。
 (3b)評価・修正指示は knowledge/feedback/lessons.md へ学習記録（手順: procedures/delve-feedback.md）。

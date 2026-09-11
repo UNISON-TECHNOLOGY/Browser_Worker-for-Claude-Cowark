@@ -19,7 +19,7 @@ argument-hint: [OK/NG + 対象 + 理由（自然文でよい）]
 ```markdown
 # 成果物フィードバック学習記録
 
-生成系エージェント（deliverable-writer / design-artisan / design-critic）は作業前にこのファイルを必ず読むこと。
+成果物を作る者（**メインループを含む** / deliverable-writer / design-artisan / design-critic）は作業前にこのファイルを必ず読むこと。
 NG は禁止事項として、OK は優先パターンとして扱う。矛盾時は日付の新しい方が正。
 
 ## デザイン（レイアウト・色・モーション）

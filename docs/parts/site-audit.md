@@ -36,7 +36,7 @@ performance.getEntriesByType('navigation')[0]
 
 1. **計測データ JSON**: knowledge/data/delvework.db の audit_pages（DBが無ければ templates/db-schema.sql で初期化。detail_json に全計測値）
    - 過去の JSON があれば読み込み、**前回比**を算出する（改善/悪化の差分）
-2. **診断 HTML レポート**: `knowledge/reports/site-audit-<date>.html`（templates/report-template.html を骨格に使用・自己完結）
+2. **診断 HTML レポート**: `knowledge/reports/site-audit-<date>.html`（templates/report-template.html を骨格に使用・自己完結。main ループが直接書く。docs/conventions.md §1・§2）
    - サマリー: サイト全体のスコア感（速度/品質/リンク健全性の3軸）と最重要指摘 Top3
    - ページ別テーブル: TTFB / LCP / CLS / 転送量 / 品質チェック結果（閾値超えは色分け: LCP 2.5s・CLS 0.1 目安）
    - リソース内訳チャート（重いページの原因分析）

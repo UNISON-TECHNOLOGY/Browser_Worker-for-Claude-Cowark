@@ -42,7 +42,7 @@ media:
 4. アラートがあれば対応の提案（例: 「チケット残 32、今週の送信予定 40 件 — 追加購入 or 送信調整が必要」）
 
 ### report
-status の履歴（knowledge/media/status/）から横断ステータスレポート HTML を生成（templates/report-template.html 準拠・deliverable-writer 委譲）:
+status の履歴（knowledge/media/status/）から横断ステータスレポート HTML を main ループが生成・発行（templates/report-template.html 準拠。docs/conventions.md §1・§2）:
 - 媒体別の残数・利用ペースの推移（stat + delta + CSS横棒）
 - 契約更新カレンダー（時系列順・30日以内は warn 色）
 - 媒体別の費用対効果メモ欄（データがあれば: 送信数→返信率等）

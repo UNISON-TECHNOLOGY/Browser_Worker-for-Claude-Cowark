@@ -36,7 +36,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | # | 項目 | 手順 | PASS基準 |
 |---|---|---|---|
 | V8 | 自然文発火 | このセッションのここまでで、delve コマンドがコマンド名なしの依頼から発火したか振り返り | 事例があれば PASS、なければ「未観測」 |
-| V9 | サブエージェント | deliverable-writer に小さな執筆（3行のテスト文書）を委譲 | 起動し成果が返る。使用モデルも記録 |
+| V9 | サブエージェント | deliverable-writer に小さな執筆（3行のテスト文書）を委譲（委譲経路の疎通確認が目的。conventions §1.5 の例外） | 起動し成果が返る。使用モデルも記録 |
 | V10 | design-artisan モデル | design-artisan を最小タスクで起動 | fable で起動できたか、sonnet フォールバックか記録 |
 | V11 | 状況サマリー | /レポート を引数なしで実行 | チャットにアラート（媒体残数/契約期限/SNSストック/競合変更/未完了タスク。ゼロなら「アラートなし」）→ 進行中タスク → 登録タスクと次回実行 の順で実データが出る。HTML やアーティファクトは生成しない（作業ログ/運用レポートを選んだときだけ生成） |
 | V12 | 部品庫到達 | docs/parts/index.md を Read し、表の部品から3つ（imagegen / design-sync / design-handoff）を Read | 部品に到達でき、実行粒度3段の原則が読める。design-sync 冒頭に認可なし時の design-handoff フォールバックポインタがあり、design-handoff に経路選択（list_projects を1回だけ試す）・消費確認・回収フローの節がある |
@@ -53,7 +53,7 @@ argument-hint: [quick（普段の簡易点検） | full（全項目） | perfect
 | V43 | Critic Gate スコープ | `echo "banner-v2" > memory/.workflow/critic_pending` の状態で (a) `banner-v2.png` (b) 無関係な `debug-shot.png` の送付を試行 | (a) は【Critic Gate】で deny、(b) は**通る**。※(b) が止まるとデバッグ用スクショすら渡せず詰む（v1.3.0 で導入したスコープの回帰） |
 | V46 | `requires:` 照合 | ダミーのサイトナレッジを2本置く: (a) `requires: [claude-in-chrome]`（満たす） (b) `requires: [playwright, cdp-9222]`（Cowork では満たさない）。そのサイトのタスクを開始させる | (a) は読まれ、**(b) は「現環境では実行不能」として読まれず、代替手段の探索も移植の試みも起きない**。※(b) の手順を実行しようとしたら FAIL（2026-07-27 の実運用事故＝移植を試みて手動チェックリストに退化・送出0件の再現） |
 | V47 | index のルーター | ルーター表（タスク別・読むファイル）を持つサイトナレッジで1タスク実行 | 表の該当行のファイルだけを Read し、`_archive/` と `logs/` を読まない。無関係なタスクのファイルまで読み込まない |
-| V48 | 無駄な委譲をしない | (a) 読み取りだけの定常タスク（example.com の巡回等）を1本完走させる (b) 作業確認用のスクリーンショットを1枚撮る | (a) 締めで **outcome-verifier を起動しない**（照合する CP 証跡が無い。起動したら FAIL） (b) 中間物に **design-critic を呼ばない**。※逆に不可逆操作を含むタスクでは両方が起動すること（削りすぎの検知。conventions 1.5「呼ばない条件／必ず委譲する」の両側を見る） |
+| V48 | 無駄な委譲をしない | (a) 読み取りだけの定常タスク（example.com の巡回等）を1本完走させる (b) 作業確認用のスクリーンショットを1枚撮る (c) /レポート で作業ログを生成 | (a) 締めで **outcome-verifier を起動しない**（照合する CP 証跡が無い。起動したら FAIL） (b) 中間物に **design-critic を呼ばない**。※逆に不可逆操作を含むタスクでは両方が起動すること（削りすぎの検知。conventions 1.5「呼ばない条件／必ず委譲する」の両側を見る） (c) deliverable-writer を起動しない（起動したら FAIL）・design-principles.md を Read している |
 | V21 | strategy-advisor | ダミーのタスクYAML案を渡して壁打ち | VERDICT（GO/GO-WITH-CHANGES/RETHINK）形式で助言が返る |
 | V22 | pre-send-verifier | ダミー送信計画（本文+宛先2件、うち1件をわざと基準違反に）を渡して監査 | VERDICT: NO-GO/GO-WITH-FIXES が返り、違反の1件を根拠つきで FAIL 指摘する |
 | V44 | pre-send-verifier の射程と収束 | 送信計画に (a) 基準違反の宛先1件（BLOCKER）と (b) 記述の不整合1件（例: 手順書の参照パスが古い、同じリストが2箇所にある＝ NON-BLOCKER）を両方仕込んで監査させる | (a) だけが FAIL/VERDICT に反映され、(b) は **NON-BLOCKER（後日対応）に分類されて VERDICT に影響しない**。**GO-WITH-FIXES に「後段でもう一度監査する」条件が付かない**。※記述不整合で NO-GO なら FAIL — 2026-07-27 に 5ラウンド空回りで送出0件になった原因 |
