@@ -406,27 +406,46 @@ check "rm-guard: .workflow内グロブは通過" EMPTY "$out"
 out=$(printf '{"tool_name":"Bash","tool_input":{"command":"ls outputs/"}}' | bash "$SC/rm-guard.sh")
 check "rm-guard: rmなしコマンドは通過" EMPTY "$out"
 # v1.17.1: 照合対象をコマンド位置に限定（V39(b) 誤爆 — 削除手順を書いた文書の生成が deny された）
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"cat > knowledge/reports/verify.md <<'"'"'EOF'"'"'\n## V39\n再帰削除（rm -rf outputs/）が deny された。find -delete も deny。\nEOF"}}' | bash "$SC/rm-guard.sh")
-check "rm-guard: クォート付きヒアドキュメント本文の rm -rf 記述は通過" EMPTY "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"cat > x.ps1 <<'"'"'EOF'"'"'\nRemove-Item -Recurse -Force build\nEOF"}}' | bash "$SC/rm-guard.sh")
+# ペイロードは実形式（改行は \n の2文字・JSON エスケープ済み）で叩く。printf '%s' で文字列をそのまま渡す
+# （printf の書式引数に入れると \n が実改行に変換され、非 JSON をテストしてしまう — Opus レビュー I-3）
+rg() { printf '%s' "$1" | bash "$SC/rm-guard.sh"; }
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat > knowledge/reports/verify.md <<'"'"'EOF'"'"'\n## V39\n再帰削除（rm -rf outputs/）が deny された。find -delete も deny。\nEOF\n"}}')
+check "rm-guard: クォート付きヒアドキュメント本文の rm -rf 記述は通過（実形式 \\n）" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat > x.ps1 <<'"'"'EOF'"'"'\nRemove-Item -Recurse -Force build\nEOF"}}')
 check "rm-guard: ヒアドキュメント本文の Remove-Item -Recurse 記述は通過" EMPTY "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"cat > x.md <<EOF\n結果: $(rm -rf outputs/)\nEOF"}}' | bash "$SC/rm-guard.sh")
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"printf '"'"'a\tb'"'"' > x.txt","description":"rm -rf outputs/ の件"}}')
+check "rm-guard: \\t を含む command でも description は照合対象外（抽出が失敗しない）" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat > x.md <<EOF\n結果: $(rm -rf outputs/)\nEOF"}}')
 check "rm-guard: 未クォートのヒアドキュメント内 \$(rm -rf) は deny" 'RM Guard' "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"cat > x.md <<EOF\nrm -rf outputs/ は deny された\nEOF\nrm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat > x.md <<EOF\nrm -rf outputs/ は deny された\nEOF\nrm -rf outputs/"}}')
 check "rm-guard: ヒアドキュメント終端の後の rm -rf は deny" 'RM Guard' "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'rm -rf outputs/'"'"' >> notes.md"}}' | bash "$SC/rm-guard.sh")
-check "rm-guard: シングルクォート内の rm -rf 文字列は通過" EMPTY "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'rm -rf outputs/'"'"' | bash"}}' | bash "$SC/rm-guard.sh")
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat > v.md <<-'"'"'EOF'"'"'\n\thi\n\tEOF\nrm -rf outputs/"}}')
+check "rm-guard: <<- のタブ字下げ終端を認識し後続の rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo \"see <<EOF block\"\nrm -rf outputs/"}}')
+check "rm-guard: 終端の無いヒアドキュメント（解析失敗）は本文を戻して deny（fail-closed）" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat > x.md <<EOF\r\nrm -rf outputs/ は deny\r\nEOF\r\n"}}')
+check "rm-guard: CRLF 終端のヒアドキュメント本文は通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'rm -rf outputs/'"'"' >> notes.md"}}')
+check "rm-guard: 出力系コマンドのシングルクォート内 rm -rf 文字列は通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'rm -rf outputs/'"'"' | bash"}}')
 check "rm-guard: クォート文字列を bash に流すのは deny" 'RM Guard' "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"bash -c '"'"'rm -rf outputs/'"'"'"}}' | bash "$SC/rm-guard.sh")
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"bash -c '"'"'rm -rf outputs/'"'"'"}}')
 check "rm-guard: bash -c のクォート内 rm -rf は deny" 'RM Guard' "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"eval '"'"'rm -rf outputs/'"'"'"}}' | bash "$SC/rm-guard.sh")
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"eval '"'"'rm -rf outputs/'"'"'"}}')
 check "rm-guard: eval のクォート内 rm -rf は deny" 'RM Guard' "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf '"'"'out dir/'"'"'"}}' | bash "$SC/rm-guard.sh")
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"awk '"'"'BEGIN{system(\"rm -rf outputs/\")}'"'"'"}}')
+check "rm-guard: awk system() 内の rm -rf は deny（allowlist 外はクォートを落とさない）" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"'"'"'rm'"'"' -rf outputs/"}}')
+check "rm-guard: クォート分割 '"'"'rm'"'"' -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"\\rm -rf outputs/"}}')
+check "rm-guard: バックスラッシュ付き \\rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"rm -rf '"'"'out dir/'"'"'"}}')
 check "rm-guard: クォート付きパスの rm -rf は deny" 'RM Guard' "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"command":"ls","description":"rm -rf outputs/ の説明"}}' | bash "$SC/rm-guard.sh")
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"rm -f memory\/.workflow\/{b4_done,e_done}"}}')
+check "rm-guard: \\/ エスケープされた .workflow パスの掃除は通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"ls","description":"rm -rf outputs/ の説明"}}')
 check "rm-guard: command 以外のフィールド（description）の rm -rf は通過" EMPTY "$out"
-out=$(printf '{"tool_name":"Bash","tool_input":{"cmd":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
+out=$(rg '{"tool_name":"Bash","tool_input":{"cmd":"rm -rf outputs/"}}')
 check "rm-guard: command フィールドが取れない入力は全文照合（fail-closed）" 'RM Guard' "$out"
 export DELVEWORK_GATE_MODE=warn
 out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")

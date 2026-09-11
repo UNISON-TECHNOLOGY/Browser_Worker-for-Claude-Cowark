@@ -10,46 +10,86 @@
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$SCRIPT_DIR/_common.sh"
 
-# --- 照合対象の絞り込み（v1.17.1: V39(b) 誤爆の修正） ---
+# --- 照合対象の絞り込み（v1.17.1: V39(b) 誤爆の修正。Opus レビュー C-1〜C-3 / I-1〜I-2 反映） ---
 # 旧実装は hook ペイロード JSON 全文を照合していたため、「再帰削除が deny された」等の説明文を
 # ヒアドキュメントで文書に書き出す Bash が、削除を一切していないのに deny された。
-# 実行されるコマンド位置とデータとして渡される文章を分ける:
+# 実行されるコマンド位置とデータとして渡される文章を分ける（単一 command 前提）:
 #   1. tool_input.command だけを取り出す（取れなければ全文 = fail-closed）
 #   2. クォート付きデリミタのヒアドキュメント本文（<<'EOF' / <<"EOF"）は展開されないので落とす。
-#      クォート無しデリミタの本文は $(...) / ` が実行されるため、それを含む行だけ残す
-#   3. シングルクォート内の文字列はシェルが展開しないので落とす — ただし bash -c / eval / xargs /
-#      パイプ先のシェル等、文字列を再びコマンドとして実行し得る語が1つでもあれば落とさない
-rm_guard_extract_command() { # STDIN_TEXT → stdout: command フィールド（JSON エスケープ解除済み）。無ければ戻り値1
-  local pat='"command":"((\.|[^"\])*)"' c
+#      クォート無しデリミタの本文は $(...) / ` が実行されるため、それを含む行だけ残す。
+#      終端行が見つからない（解析失敗）場合は落とした本文を全部戻す（fail-closed）
+#   3. シングルクォート内の文字列は、コマンドが「出力系のみ」（echo / printf / cat / tee / true / : の
+#      連結）で構成され、$( ) / ` / プロセス置換を含まないときだけ落とす。それ以外（bash -c / eval /
+#      awk / find -exec / 未知の実行語）は文字列を再実行し得るので落とさない（allowlist 方式）。
+#      空白を含まないクォート（'rm' -rf 等の分割）はクォート記号だけ外して中身を残す
+rm_guard_json_unescape() { # $1: JSON 文字列本体（\uXXXX は _common.sh で展開済み）→ stdout。左から1回走査なので「エスケープ済み \ + n」を改行に誤展開しない
+  local s="$1" out="" pre
+  while [ -n "$s" ]; do
+    pre="${s%%\\*}"; out+="$pre"; s="${s:${#pre}}"
+    [ -n "$s" ] || break
+    case "${s:1:1}" in
+      n) out+=$'\n' ;; t) out+=$'\t' ;; r) ;; '"') out+='"' ;; /) out+='/' ;; \\) out+='\' ;;
+      *) out+="${s:0:2}" ;;
+    esac
+    s="${s:2}"
+  done
+  printf '%s' "$out"
+}
+rm_guard_extract_command() { # STDIN_TEXT → stdout: command フィールド。無ければ戻り値1
+  local pat='"command":"((\\.|[^"\\])*)"'
   [[ $STDIN_TEXT =~ $pat ]] || return 1
-  c="${BASH_REMATCH[1]}"
-  c="${c//\\\"/\"}"          # \" → "
-  c="${c//\\//\/}"          # \/ → /
-  printf '%b' "$c"           # \n \t \ を展開
+  rm_guard_json_unescape "${BASH_REMATCH[1]}"
 }
 rm_guard_strip_heredoc() { # stdin → stdout
   awk '
+    BEGIN { q = sprintf("%c", 39); inh = 0; nbuf = 0 }
     inh == 1 {
-      if ($0 == delim) { inh = 0; next }
-      if (!quoted && ($0 ~ /\$\(/ || $0 ~ /`/)) print   # 未クォートの本文は展開が走る行だけ残す
+      line = $0; sub(/\r$/, "", line)
+      if (dash) sub(/^[ \t]+/, "", line)
+      if (line == delim) { inh = 0; nbuf = 0; next }
+      buf[nbuf++] = $0                                  # 終端が来なければ END で戻す
+      if (!quoted && ($0 ~ /\$\(/ || index($0, "`"))) print   # 未クォートの本文は展開が走る行だけ残す
       next
     }
     {
       print
-      if (match($0, /<<-?[ \t]*["\047]?[A-Za-z_][A-Za-z0-9_]*["\047]?/)) {
+      if (match($0, /<<-?[ \t]*["'"'"']?[A-Za-z_][A-Za-z0-9_]*["'"'"']?/)) {
         tok = substr($0, RSTART, RLENGTH)
+        dash = (tok ~ /^<<-/)
         sub(/^<<-?[ \t]*/, "", tok)
-        quoted = (tok ~ /^["\047]/)
-        gsub(/["\047]/, "", tok)
-        delim = tok; inh = 1
+        quoted = (substr(tok, 1, 1) == "\"" || substr(tok, 1, 1) == q)
+        gsub(/["'"'"']/, "", tok)
+        delim = tok; inh = 1; nbuf = 0
       }
-    }'
+    }
+    END { if (inh == 1) for (i = 0; i < nbuf; i++) print buf[i] }'
 }
-RUNNER_RE='(^|[^[:alnum:]_./-])(bash|sh|zsh|dash|ksh|eval|exec|xargs|source|su|sudo|ssh|pwsh|powershell|cmd|node|python[0-9.]*|perl|ruby)([[:space:]]|$|\))|\$\(|`'
-CMD_TEXT="$(rm_guard_extract_command)" || CMD_TEXT="$STDIN_TEXT"
-CMD_TEXT="$(printf '%s\n' "$CMD_TEXT" | rm_guard_strip_heredoc)"
-if ! printf '%s' "$CMD_TEXT" | grep -qE "$RUNNER_RE"; then
-  CMD_TEXT="$(printf '%s' "$CMD_TEXT" | sed "s/'[^']*'//g")"
+rm_guard_output_only() { # $1: コマンド → 0 なら全セグメントの先頭語が出力系のみ
+  local seg first
+  printf '%s' "$1" | grep -qE '\$\(|`|[<>]\(' && return 1
+  while IFS= read -r seg; do
+    seg="${seg#"${seg%%[![:space:]]*}"}"
+    [ -n "$seg" ] || continue
+    while [[ $seg =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+ ]]; do seg="${seg:${#BASH_REMATCH[0]}}"; done
+    first="${seg%%[[:space:]]*}"
+    case "$first" in echo|printf|cat|tee|true|:) ;; *) return 1 ;; esac
+  done < <(printf '%s\n' "$1" | tr ';|&(){}' '\n\n\n\n\n\n\n\n')
+  return 0
+}
+RAW_CMD="$(rm_guard_extract_command)" || RAW_CMD="$STDIN_TEXT"
+CMD_TEXT="$RAW_CMD"
+if command -v awk >/dev/null 2>&1; then
+  t="$(printf '%s\n' "$CMD_TEXT" | rm_guard_strip_heredoc)"
+  [ -n "$t" ] && CMD_TEXT="$t"       # awk 異常終了（空）なら未加工のまま（fail-closed）
+fi
+# 空白を含まないクォート（'rm' "-rf" 等の分割）と英数字前のバックスラッシュ（\rm）は常に外して中身を照合に出す
+# （内容を隠す方向には働かないので無条件。旧実装から抜けていた経路 — Opus レビュー C-2）
+t="$(printf '%s' "$CMD_TEXT" | sed -e "s/'\([^'[:space:]]*\)'/\1/g" -e 's/"\([^"[:space:]]*\)"/\1/g' -e 's/\\\([[:alnum:]]\)/\1/g')"
+[ -n "$t" ] && CMD_TEXT="$t"
+if rm_guard_output_only "$CMD_TEXT"; then
+  # 出力系のみのコマンドに限り、空白を含むシングルクォート文字列（文章）を落とす
+  t="$(printf '%s' "$CMD_TEXT" | sed -e "s/'[^']*'//g")"
+  [ -n "$t" ] && CMD_TEXT="$t"
 fi
 
 # 対象コマンド判定（該当しなければ即通過）
@@ -82,5 +122,5 @@ fi
 
 # deny 時は「実行可能な出口」まで書く。承認を求めるだけの文言だと、ユーザーが承認しても
 # hook は依然 deny のため AI が「承認 → やはり実行できない」を往復して進まない（2026-07-27 過剰ゲート監査）。
-MSG="【RM Guard】一括・再帰削除は機械ガード対象です。出口は2つ: (1) 自分が作成したファイルのパスを列挙し、個別に rm する（推奨。1コマンドに複数パスを並べるのは可、グロブ・-r は不可）。(2) どうしてもフォルダごと・グロブで消す必要がある場合は、実行しようとしたコマンドをそのままユーザーに提示し、ユーザー自身の手で実行してもらう。**AI 側で再試行・分割・別手段での回避を試みないこと**。削除できないまま終わる場合は、残置したパスを報告して完了してよい（削除の失敗はタスクの失敗ではない）。削除手順を**文書として**書き出したいだけなら、クォート付きヒアドキュメント（<<'"'"'EOF'"'"'）の本文は照合対象外。"
+MSG="【RM Guard】一括・再帰削除は機械ガード対象です。出口は2つ: (1) 自分が作成したファイルのパスを列挙し、個別に rm する（推奨。1コマンドに複数パスを並べるのは可、グロブ・-r は不可）。(2) どうしてもフォルダごと・グロブで消す必要がある場合は、実行しようとしたコマンドをそのままユーザーに提示し、ユーザー自身の手で実行してもらう。**AI 側で再試行・分割・別手段での回避を試みないこと**。削除できないまま終わる場合は、残置したパスを報告して完了してよい（削除の失敗はタスクの失敗ではない）。削除手順の**文書化**が目的ならクォート付きヒアドキュメントで書けます。"
 gate_emit rm "RM Guard" "$MSG"
