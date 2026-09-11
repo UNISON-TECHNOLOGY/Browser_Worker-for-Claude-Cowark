@@ -468,6 +468,26 @@ check "rm-guard: && ls を続けた文書化コマンドは通過" EMPTY "$out"
 # Opus 再レビュー Minor: 空白入りクォートでの分割
 out=$(rg '{"tool_name":"Bash","tool_input":{"command":"rm'"'"' '"'"'-rf outputs/"}}')
 check "rm-guard: 空白入りクォートで rm と -rf を分割しても deny（クォート全削除の写しで照合）" 'RM Guard' "$out"
+# Opus 3回目レビュー C-B: sed のクォート潰しが bash の字句規則とずれ、" 内や \' のアポストロフィが対になって実コマンドが消えていた
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo \"it'"'"'s fine\" ; rm -rf outputs/ ; echo \"don'"'"'t\""}}')
+check "rm-guard: ダブルクォート内のアポストロフィで挟んだ rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo it\\'"'"'s ; rm -rf outputs/ ; echo don\\'"'"'t"}}')
+check "rm-guard: エスケープしたアポストロフィで挟んだ rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo \"it'"'"'s\"\nrm -rf outputs/\necho \"don'"'"'t\""}}')
+check "rm-guard: アポストロフィ入り echo に改行で挟んだ rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo \"don'"'"'t\" >> notes.md"}}')
+check "rm-guard: アポストロフィを含むダブルクォート文章の単独 echo は通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo \"don'"'"'t\nrm -rf outputs/"}}')
+check "rm-guard: 閉じていないクォートは走査失敗として未加工で照合し deny（fail-closed）" 'RM Guard' "$out"
+# Opus 3回目レビュー M-1 / M-2 / M-5: クォート付きパスの後のヒアドキュメント・ダブルクォート文章・同一行2本のヒアドキュメント
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat > '"'"'out dir/v.md'"'"' <<'"'"'EOF'"'"'\nrm -rf outputs/ が deny された\nEOF"}}')
+check "rm-guard: クォート付きパスの後の <<'"'"'EOF'"'"' も開始として認識し本文は通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo \"rm -rf outputs/ が deny された\" >> notes.md"}}')
+check "rm-guard: 出力系コマンドのダブルクォート内 rm -rf 文字列は通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat <<'"'"'A'"'"' > x; cat <<'"'"'B'"'"' > y\nrm -rf outputs/\nA\nrm -rf outputs/\nB"}}')
+check "rm-guard: 同一行2本のクォート付きヒアドキュメントは両本文とも通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"cat <<'"'"'A'"'"' > x; cat <<'"'"'B'"'"' > y\nfoo\nA\nbar\nB\nrm -rf outputs/"}}')
+check "rm-guard: 同一行2本のヒアドキュメントの終端後の rm -rf は deny" 'RM Guard' "$out"
 export DELVEWORK_GATE_MODE=warn
 out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
 check "rm-guard: warnモードは注入のみ" 'additionalContext.*RM Guard' "$out"

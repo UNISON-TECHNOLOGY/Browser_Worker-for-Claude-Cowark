@@ -15,13 +15,17 @@ source "$SCRIPT_DIR/_common.sh"
 # ヒアドキュメントで文書に書き出す Bash が、削除を一切していないのに deny された。
 # 実行されるコマンド位置とデータとして渡される文章を分ける（単一 command 前提）:
 #   1. tool_input.command だけを取り出す（取れなければ全文 = fail-closed）
-#   2. クォート付きデリミタのヒアドキュメント本文（<<'EOF' / <<"EOF"）は展開されないので落とす。
-#      クォート無しデリミタの本文は $(...) / ` が実行されるため、それを含む行だけ残す。
-#      終端行が見つからない（解析失敗）場合は落とした本文を全部戻す（fail-closed）
-#   3. シングルクォート内の文字列は、コマンドが「出力系のみ」（echo / printf / cat / tee / true / : の
-#      連結）で構成され、$( ) / ` / プロセス置換を含まないときだけ落とす。それ以外（bash -c / eval /
-#      awk / find -exec / 未知の実行語）は文字列を再実行し得るので落とさない（allowlist 方式）。
-#      空白を含まないクォート（'rm' -rf 等の分割）はクォート記号だけ外して中身を残す
+#   2. bash の字句規則（' / " / \ / # / <<）を1本の走査（rm_guard_scan）で追い、3通りの写しを作る:
+#      text  = 照合用。クォート付きデリミタのヒアドキュメント本文（<<'EOF'）は展開されないので落とし、
+#              クォート無しの本文は $(...) / ` を含む行だけ残す。空白を含まないクォート（'rm' -rf 等の
+#              分割）と英数字前の \（\rm）は外して中身を照合に出す。コメントは捨てる
+#      mask  = 分類用。クォート span とエスケープを空白に潰した写し（クォート内の ; や改行で段落が割れない）
+#      strip = 出力系コマンド限定の照合用。クォート span（文章）を丸ごと落とす
+#      終端行が無いヒアドキュメント・閉じていないクォートは解析失敗として本文を戻す／写しを使わない（fail-closed）。
+#      3写しは同じ走査から作るので、クォートのペアリングが食い違って実コマンドが消えることはない（Opus 再レビュー C-B）
+#   3. strip は、コマンドが「出力系のみ」（echo / printf / cat / tee / true / : 等の連結）で構成され、
+#      $( ) / ` / プロセス置換を含まないときだけ使う。それ以外（bash -c / eval / awk / find -exec /
+#      未知の実行語）は文字列を再実行し得るので text で照合する（allowlist 方式）
 rm_guard_json_unescape() { # $1: JSON 文字列本体（\uXXXX は _common.sh で展開済み）→ stdout。左から1回走査なので「エスケープ済み \ + n」を改行に誤展開しない
   local s="$1" out="" pre
   while [ -n "$s" ]; do
@@ -40,39 +44,70 @@ rm_guard_extract_command() { # STDIN_TEXT → stdout: command フィールド。
   [[ $STDIN_TEXT =~ $pat ]] || return 1
   rm_guard_json_unescape "${BASH_REMATCH[1]}"
 }
-rm_guard_strip_heredoc() { # stdin → stdout
-  awk '
-    BEGIN { q = sprintf("%c", 39); inh = 0; nbuf = 0 }
-    inh == 1 {
-      line = $0; sub(/\r$/, "", line)
-      if (dash) sub(/^[ \t]+/, "", line)
-      if (line == delim) { inh = 0; nbuf = 0; next }
-      buf[nbuf++] = $0                                  # 終端が来なければ END で戻す
-      if (!quoted && ($0 ~ /\$\(/ || index($0, "`"))) print   # 未クォートの本文は展開が走る行だけ残す
-      next
-    }
-    {
-      print
-      if (match($0, /<<-?[ \t]*["'"'"']?[A-Za-z_][A-Za-z0-9_]*["'"'"']?/)) {
-        pre = substr($0, 1, RSTART - 1)
-        if (index(pre, "\"") || index(pre, q) || index(pre, "#")) next   # クォート内・コメント内の << は開始扱いしない（本文を落とさない＝安全側。Opus 再レビュー C-A）
-        tok = substr($0, RSTART, RLENGTH)
-        dash = (tok ~ /^<<-/)
-        sub(/^<<-?[ \t]*/, "", tok)
-        quoted = (substr(tok, 1, 1) == "\"" || substr(tok, 1, 1) == q)
-        gsub(/["'"'"']/, "", tok)
-        delim = tok; inh = 1; nbuf = 0
+rm_guard_scan() { # $1: text|mask|strip、stdin → stdout。閉じていないクォートは戻り値1（出力なし）
+  awk -v mode="$1" '
+    BEGIN { q = sprintf("%c", 39); s = "" }
+    { s = s $0 "\n" }
+    END {
+      n = length(s); out = ""; npend = 0; hd = 0; nbuf = 0; i = 1
+      while (i <= n) {
+        if (hd) {                                            # ヒアドキュメント本文: 1行ずつ終端と比較
+          j = index(substr(s, i), "\n"); if (j == 0) j = n - i + 2
+          line = substr(s, i, j - 1); i += j
+          cmp = line; sub(/\r$/, "", cmp); if (hdash[hi]) sub(/^[ \t]+/, "", cmp)
+          if (cmp == hdelim[hi]) { hi++; if (hi >= npend) { hd = 0; npend = 0 }; continue }
+          buf[nbuf++] = line                                 # 終端が来なければ末尾で戻す
+          if (!hquoted[hi] && mode != "mask" && (line ~ /\$\(/ || index(line, "`"))) out = out line "\n"
+          continue
+        }
+        c = substr(s, i, 1)
+        if (c == "\n") { out = out c; i++; if (npend) { hd = 1; hi = 0; nbuf = 0 }; continue }
+        if (c == "\\") {                                     # \x は次の1文字をリテラル化
+          d = substr(s, i + 1, 1); i += 2
+          if (mode == "mask") out = out "  "; else if (d ~ /[A-Za-z0-9]/) out = out d; else out = out c d
+          continue
+        }
+        if (c == q || c == "\"") {                           # クォート span（複数行可、" 内の \ はエスケープ）
+          j = i + 1
+          while (j <= n) { e = substr(s, j, 1); if (e == c) break; if (c == "\"" && e == "\\") j++; j++ }
+          if (j > n) exit 1                                  # 閉じていない = 解析失敗（fail-closed）
+          span = substr(s, i, j - i + 1); body = substr(s, i + 1, j - i - 1); i = j + 1
+          if (mode == "mask") { g = span; gsub(/[^\n]/, " ", g); out = out g }
+          else if (mode == "strip") out = out " "
+          else if (body ~ /[ \t\n]/) out = out span
+          else out = out body                                # 空白を含まないクォートは記号だけ外す
+          continue
+        }
+        if (c == "#" && (i == 1 || substr(s, i - 1, 1) ~ /[ \t\n;&|(]/)) {   # コメントは改行まで捨てる
+          j = index(substr(s, i), "\n"); if (j == 0) j = n - i + 2
+          i += j - 1; continue
+        }
+        if (c == "<" && substr(s, i + 1, 1) == "<" && substr(s, i + 2, 1) != "<" && substr(s, i - 1, 1) != "<") {
+          j = i + 2; dash = 0; if (substr(s, j, 1) == "-") { dash = 1; j++ }
+          while (substr(s, j, 1) ~ /[ \t]/) j++
+          qc = ""; quoted = 0; e = substr(s, j, 1)
+          if (e == "\\") { quoted = 1; j++ } else if (e == q || e == "\"") { quoted = 1; qc = e; j++ }
+          if (match(substr(s, j), /^[A-Za-z_][A-Za-z0-9_]*/)) {
+            delim = substr(s, j, RLENGTH); j += RLENGTH
+            if (qc != "" && substr(s, j, 1) == qc) j++
+            hdelim[npend] = delim; hquoted[npend] = quoted; hdash[npend] = dash; npend++
+            out = out substr(s, i, j - i); i = j; continue
+          }
+        }
+        out = out c; i++
       }
-    }
-    END { if (inh == 1) for (i = 0; i < nbuf; i++) print buf[i] }'
+      if (hd) for (k = 0; k < nbuf; k++) out = out buf[k] "\n"   # 終端が来なかった本文は全部戻す
+      printf "%s", out
+    }'
 }
-rm_guard_output_only() { # $1: コマンド → 0 なら全セグメントの先頭語が出力系のみ
+rm_guard_output_only() { # $1: 生コマンド → 0 なら全セグメントの先頭語が出力系のみ
   # allowlist の条件は「引数文字列をコマンドとして再実行しない語」であること（tee は引数ファイルを切り詰めるが再実行はしない）。
-  # 分類は「クォート span を空白に潰した写し」で行う（クォート内の改行・; ・& で段落が割れて誤爆しないように — Opus 再レビュー I-A）。
-  # 照合本体はクォート込みの CMD_TEXT で行う
+  # 追加時は -exec / -c / sh -c 相当のオプションを持たない語に限る（find / env / watch / xargs は不可）。
+  # 分類は mask 写し（クォート span を空白に潰したもの）で行う。走査失敗（未閉クォート）は出力系でない扱い
   local seg first probe
   printf '%s' "$1" | grep -qE '\$\(|`|[<>]\(' && return 1
-  probe="$(printf '%s' "$1" | tr '\n' '\001' | sed -e "s/'[^']*'/ /g" -e 's/"[^"]*"/ /g' | tr '\001;|&(){}' '\n\n\n\n\n\n\n\n\n')"
+  probe="$(printf '%s\n' "$1" | rm_guard_scan mask)" || return 1
+  probe="$(printf '%s' "$probe" | tr ';|&(){}' '\n\n\n\n\n\n\n')"
   while IFS= read -r seg; do
     seg="${seg#"${seg%%[![:space:]]*}"}"
     [ -n "$seg" ] || continue
@@ -83,20 +118,17 @@ rm_guard_output_only() { # $1: コマンド → 0 なら全セグメントの先
   done <<< "$probe"
   return 0
 }
-RAW_CMD="$(rm_guard_extract_command)" || RAW_CMD="$STDIN_TEXT"
+EXTRACTED=1
+RAW_CMD="$(rm_guard_extract_command)" || { RAW_CMD="$STDIN_TEXT"; EXTRACTED=0; }   # 取れなければ全文を未加工で照合
 CMD_TEXT="$RAW_CMD"
-if command -v awk >/dev/null 2>&1; then
-  t="$(printf '%s\n' "$CMD_TEXT" | rm_guard_strip_heredoc)"
-  [ -n "$t" ] && CMD_TEXT="$t"       # awk 異常終了（空）なら未加工のまま（fail-closed）
-fi
-# 空白を含まないクォート（'rm' "-rf" 等の分割）と英数字前のバックスラッシュ（\rm）は常に外して中身を照合に出す
-# （内容を隠す方向には働かないので無条件。旧実装から抜けていた経路 — Opus レビュー C-2）
-t="$(printf '%s' "$CMD_TEXT" | sed -e "s/'\([^'[:space:]]*\)'/\1/g" -e 's/"\([^"[:space:]]*\)"/\1/g' -e 's/\\\([[:alnum:]]\)/\1/g')"
-[ -n "$t" ] && CMD_TEXT="$t"
-if rm_guard_output_only "$CMD_TEXT"; then
-  # 出力系のみのコマンドに限り、空白を含むシングルクォート文字列（文章）を落とす（複数行クォートも1本として扱う）
-  t="$(printf '%s' "$CMD_TEXT" | tr '\n' '\001' | sed -e "s/'[^']*'//g" | tr '\001' '\n')"
-  [ -n "$t" ] && CMD_TEXT="$t"
+if [ "$EXTRACTED" = 1 ] && command -v awk >/dev/null 2>&1; then
+  # 3写しはすべて生コマンド RAW_CMD から作る（加工済みテキストを再走査するとクォートのペアリングがずれる）
+  if t="$(printf '%s\n' "$RAW_CMD" | rm_guard_scan text)" && [ -n "$t" ]; then
+    CMD_TEXT="$t"
+    if ! printf '%s' "$CMD_TEXT" | grep -qE '\$\(|`|[<>]\(' && rm_guard_output_only "$RAW_CMD"; then
+      t="$(printf '%s\n' "$RAW_CMD" | rm_guard_scan strip)" && [ -n "$t" ] && CMD_TEXT="$t"   # 出力系のみ: 文章を落とす
+    fi
+  fi                                   # 走査失敗・awk 異常終了（空）なら未加工のまま（fail-closed）
 fi
 
 # 対象コマンド判定（該当しなければ即通過）
