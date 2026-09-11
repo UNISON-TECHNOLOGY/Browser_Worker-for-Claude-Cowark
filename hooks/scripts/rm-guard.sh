@@ -63,13 +63,13 @@ rm_guard_scan() { # $1: text|mask|strip、stdin → stdout。閉じていない�
         c = substr(s, i, 1)
         if (c == "\n") { out = out c; i++; wb = 1; if (npend) { hd = 1; hi = 0; nbuf = 0 }; continue }
         if (c == "\\") {                                     # \x は次の1文字をリテラル化（\+改行は行継続 = 何も出さない）
-          d = substr(s, i + 1, 1); i += 2; wb = 0
+          d = substr(s, i + 1, 1); i += 2; wb = 0; escp = 1   # escp: 直前の文字はエスケープ済み（\$'…' は ANSI-C でない）
           if (d == "\n") continue
           if (mode == "mask") out = out "  "; else if (d ~ /[A-Za-z0-9]/) out = out d; else out = out c d
           continue
         }
         if (c == q || c == "\"") {                           # クォート span（複数行可。" と $'…' の中では \ がエスケープ）
-          esc = (c == "\"" || substr(s, i - 1, 1) == "$")
+          esc = (c == "\"" || (substr(s, i - 1, 1) == "$" && !escp)); escp = 0
           j = i + 1
           while (j <= n) { e = substr(s, j, 1); if (e == c) break; if (esc && e == "\\") j++; j++ }
           if (j > n) exit 1                                  # 閉じていない = 解析失敗（fail-closed）
@@ -99,7 +99,7 @@ rm_guard_scan() { # $1: text|mask|strip、stdin → stdout。閉じていない�
             }
           }
         }
-        wb = (c ~ /[ \t;&|(]/)
+        wb = (c ~ /[ \t;&|(]/); escp = 0
         out = out c; i++
       }
       if (hd) for (k = 0; k < nbuf; k++) out = out buf[k] "\n"   # 終端が来なかった本文は全部戻す
@@ -110,14 +110,20 @@ rm_guard_output_only() { # $1: 生コマンド → 0 なら全セグメントの
   # allowlist の条件は「引数文字列をコマンドとして再実行しない語」であること（tee は引数ファイルを切り詰めるが再実行はしない）。
   # 追加時は -exec / -c / sh -c 相当のオプションを持たない語に限る（find / env / watch / xargs は不可）。
   # 分類は mask 写し（クォート span を空白に潰したもの）で行う。走査失敗（未閉クォート）は出力系でない扱い
-  local seg first probe                                       # $( ) / ` / プロセス置換の有無は呼び出し側が text 写しで判定済み
+  local seg first probe redir='^[0-9]*(>>?|<<?)(&[^[:space:]]*|[[:space:]]*[^[:space:]]*)[[:space:]]*'   # >f / >> f / 2>&1 / 9>&2（& 分割で残る裸の 2> も含む）   # $( ) / ` / プロセス置換の有無は呼び出し側が text 写しで判定済み
   probe="$(printf '%s\n' "$1" | rm_guard_scan mask)" || return 1
   probe="$(printf '%s' "$probe" | tr ';|&(){}' '\n\n\n\n\n\n\n')"
   while IFS= read -r seg; do
     seg="${seg#"${seg%%[![:space:]]*}"}"
+    [ -n "$seg" ] || continue                                # 空セグメントは && / || / ;; 分割の副産物
+    [[ $seg =~ ^[0-9]+$ ]] && continue                      # 2>&1 の「1」（& 分割の残り）
+    [[ $seg =~ ^[0-9]+[[:space:]]+ ]] && seg="${seg:${#BASH_REMATCH[0]}}"
+    while :; do                                              # 先頭のリダイレクト指定と変数代入だけを剥がし、残った先頭語は必ず検査する
+      if [[ $seg =~ $redir ]]; then seg="${seg:${#BASH_REMATCH[0]}}"; continue; fi   # （セグメントごと飛ばすと 2>/dev/null bash -c '…' が無検査になる — Opus 5回目 C-D）
+      if [[ $seg =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+ ]]; then seg="${seg:${#BASH_REMATCH[0]}}"; continue; fi
+      break
+    done
     [ -n "$seg" ] || continue
-    case "$seg" in [0-9]*|'>'*|'<'*) continue ;; esac      # 2>&1 の「1」、リダイレクト先はコマンドではない
-    while [[ $seg =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+ ]]; do seg="${seg:${#BASH_REMATCH[0]}}"; done
     first="${seg%%[[:space:]]*}"
     case "$first" in echo|printf|cat|tee|true|:|ls|wc|head|tail|date|pwd) ;; *) return 1 ;; esac
   done <<< "$probe"

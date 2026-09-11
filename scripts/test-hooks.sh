@@ -522,7 +522,18 @@ rg_diff() { # $1: 生の bash コマンド文字列。シム実行で危険 argv
     [ -z "$out" ] || echo "  info rm-guard(差分): 削除なしだが deny（誤爆候補）: $(printf '%s' "$1" | head -c 60 | tr '\n' ' ')"
   fi
 }
+# 制約: rg_diff はコマンドを実際に実行する。コーパスには絶対パス・$SHIM/wd 外への書き込み・シム未設置の破壊語（mv / truncate 等）を入れない。
+# 守備範囲: PATH シムを経由しない起動（/bin/rm 直接、busybox rm）は「削除なし」に見えるので、このハーネスでは検出できない
+shim_probe="$(cd "$SHIM/wd" && PATH="$SHIM/bin:$PATH" bash -c 'rm -rf __probe__' >/dev/null 2>&1; cat "$SHIM/log" 2>/dev/null)"
+check "rm-guard(差分): シムが PATH 先頭で有効（無効なら全件スキップになるため FAIL）" 'rm -rf __probe__' "$shim_probe"
 rg_diff 'rm -rf outputs/'
+# Opus 5回目レビュー C-D: 先頭リダイレクトでセグメントごと読み飛ばされ、bash -c / eval が無検査になっていた
+rg_diff '2>/dev/null bash -c '"'"'rm -rf outputs/'"'"''
+rg_diff '>log bash -c '"'"'rm -rf outputs/'"'"''
+rg_diff 'echo a; 2>&1 bash -c '"'"'rm -rf outputs/'"'"''
+rg_diff '>f eval '"'"'rm -rf outputs/'"'"''
+rg_diff '9>&2 bash -c '"'"'rm -rf outputs/'"'"''
+rg_diff '{ >f bash -c '"'"'rm -rf outputs/'"'"'; }'
 rg_diff 'echo "it'"'"'s fine" ; rm -rf outputs/ ; echo "don'"'"'t"'
 rg_diff 'echo it\'"'"'s ; rm -rf outputs/ ; echo don\'"'"'t'
 rg_diff 'echo $'"'"'a\'"'"'b'"'"' ; rm -rf outputs/ ; echo a\'"'"'b'
@@ -545,6 +556,12 @@ rg_diff 'rm outputs/*.png'
 rg_diff "echo 'rm -rf outputs/ は deny' >> notes.md"
 rg_diff $'cat > v.md <<\'EOF\'\nrm -rf outputs/ が deny された\nEOF'
 rg_diff 'echo "don'"'"'t run rm -rf outputs/" >> notes.md'
+rg_diff '2>&1 echo '"'"'rm -rf outputs/ は deny'"'"' >> notes.md'
+rm -rf "$SHIM"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":">f eval '"'"'rm -rf outputs/'"'"'"}}')
+check "rm-guard: 先頭リダイレクト付きの eval クォート内 rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo \\$'"'"'a\\'"'"'b'"'"' ; echo a\\'"'"'b"}}')
+check "rm-guard: エスケープした \\\$'…' は ANSI-C クォートでなく通過" EMPTY "$out"
 export DELVEWORK_GATE_MODE=warn
 out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
 check "rm-guard: warnモードは注入のみ" 'additionalContext.*RM Guard' "$out"
