@@ -447,6 +447,27 @@ out=$(rg '{"tool_name":"Bash","tool_input":{"command":"ls","description":"rm -rf
 check "rm-guard: command 以外のフィールド（description）の rm -rf は通過" EMPTY "$out"
 out=$(rg '{"tool_name":"Bash","tool_input":{"cmd":"rm -rf outputs/"}}')
 check "rm-guard: command フィールドが取れない入力は全文照合（fail-closed）" 'RM Guard' "$out"
+# Opus 再レビュー C-A: クォート内・コメント内の << を開始と誤検出し、終端行があると間の実コマンドが捨てられていた
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo \"see <<EOF\"\nls && rm -rf outputs/\nEOF"}}')
+check "rm-guard: ダブルクォート内の <<EOF は開始扱いせず後続の rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'doc <<EOF here'"'"'\nls && rm -rf outputs/\nEOF"}}')
+check "rm-guard: シングルクォート内の <<EOF は開始扱いせず後続の rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"# write <<EOF\nls && rm -rf outputs/\nEOF"}}')
+check "rm-guard: コメント内の <<EOF は開始扱いせず後続の rm -rf は deny" 'RM Guard' "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"grep '"'"'<<EOF'"'"' doc.md\nls && rm -rf outputs/\nEOF"}}')
+check "rm-guard: grep 引数の <<EOF は開始扱いせず後続の rm -rf は deny" 'RM Guard' "$out"
+# Opus 再レビュー I-A: allowlist 分類がクォート内の改行・; ・& で割れて文書化コマンドが誤爆していた
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'line1\nrm -rf outputs/ は deny'"'"' >> notes.md"}}')
+check "rm-guard: 複数行シングルクォートの文章は通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'cd x; rm -rf y を実行した'"'"' >> notes.md"}}')
+check "rm-guard: クォート内の ; を含む文章は通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"echo '"'"'rm -rf outputs/ は deny'"'"' >> notes.md 2>&1"}}')
+check "rm-guard: 2>&1 付きの文書化コマンドは通過" EMPTY "$out"
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"printf '"'"'%s'"'"' '"'"'rm -rf outputs/ は deny'"'"' > f && ls"}}')
+check "rm-guard: && ls を続けた文書化コマンドは通過" EMPTY "$out"
+# Opus 再レビュー Minor: 空白入りクォートでの分割
+out=$(rg '{"tool_name":"Bash","tool_input":{"command":"rm'"'"' '"'"'-rf outputs/"}}')
+check "rm-guard: 空白入りクォートで rm と -rf を分割しても deny（クォート全削除の写しで照合）" 'RM Guard' "$out"
 export DELVEWORK_GATE_MODE=warn
 out=$(printf '{"tool_name":"Bash","tool_input":{"command":"rm -rf outputs/"}}' | bash "$SC/rm-guard.sh")
 check "rm-guard: warnモードは注入のみ" 'additionalContext.*RM Guard' "$out"

@@ -54,6 +54,8 @@ rm_guard_strip_heredoc() { # stdin → stdout
     {
       print
       if (match($0, /<<-?[ \t]*["'"'"']?[A-Za-z_][A-Za-z0-9_]*["'"'"']?/)) {
+        pre = substr($0, 1, RSTART - 1)
+        if (index(pre, "\"") || index(pre, q) || index(pre, "#")) next   # クォート内・コメント内の << は開始扱いしない（本文を落とさない＝安全側。Opus 再レビュー C-A）
         tok = substr($0, RSTART, RLENGTH)
         dash = (tok ~ /^<<-/)
         sub(/^<<-?[ \t]*/, "", tok)
@@ -65,15 +67,20 @@ rm_guard_strip_heredoc() { # stdin → stdout
     END { if (inh == 1) for (i = 0; i < nbuf; i++) print buf[i] }'
 }
 rm_guard_output_only() { # $1: コマンド → 0 なら全セグメントの先頭語が出力系のみ
-  local seg first
+  # allowlist の条件は「引数文字列をコマンドとして再実行しない語」であること（tee は引数ファイルを切り詰めるが再実行はしない）。
+  # 分類は「クォート span を空白に潰した写し」で行う（クォート内の改行・; ・& で段落が割れて誤爆しないように — Opus 再レビュー I-A）。
+  # 照合本体はクォート込みの CMD_TEXT で行う
+  local seg first probe
   printf '%s' "$1" | grep -qE '\$\(|`|[<>]\(' && return 1
+  probe="$(printf '%s' "$1" | tr '\n' '\001' | sed -e "s/'[^']*'/ /g" -e 's/"[^"]*"/ /g' | tr '\001;|&(){}' '\n\n\n\n\n\n\n\n\n')"
   while IFS= read -r seg; do
     seg="${seg#"${seg%%[![:space:]]*}"}"
     [ -n "$seg" ] || continue
+    case "$seg" in [0-9]*|'>'*|'<'*) continue ;; esac      # 2>&1 の「1」、リダイレクト先はコマンドではない
     while [[ $seg =~ ^[A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+ ]]; do seg="${seg:${#BASH_REMATCH[0]}}"; done
     first="${seg%%[[:space:]]*}"
-    case "$first" in echo|printf|cat|tee|true|:) ;; *) return 1 ;; esac
-  done < <(printf '%s\n' "$1" | tr ';|&(){}' '\n\n\n\n\n\n\n\n')
+    case "$first" in echo|printf|cat|tee|true|:|ls|wc|head|tail|date|pwd) ;; *) return 1 ;; esac
+  done <<< "$probe"
   return 0
 }
 RAW_CMD="$(rm_guard_extract_command)" || RAW_CMD="$STDIN_TEXT"
@@ -87,25 +94,28 @@ fi
 t="$(printf '%s' "$CMD_TEXT" | sed -e "s/'\([^'[:space:]]*\)'/\1/g" -e 's/"\([^"[:space:]]*\)"/\1/g' -e 's/\\\([[:alnum:]]\)/\1/g')"
 [ -n "$t" ] && CMD_TEXT="$t"
 if rm_guard_output_only "$CMD_TEXT"; then
-  # 出力系のみのコマンドに限り、空白を含むシングルクォート文字列（文章）を落とす
-  t="$(printf '%s' "$CMD_TEXT" | sed -e "s/'[^']*'//g")"
+  # 出力系のみのコマンドに限り、空白を含むシングルクォート文字列（文章）を落とす（複数行クォートも1本として扱う）
+  t="$(printf '%s' "$CMD_TEXT" | tr '\n' '\001' | sed -e "s/'[^']*'//g" | tr '\001' '\n')"
   [ -n "$t" ] && CMD_TEXT="$t"
 fi
 
 # 対象コマンド判定（該当しなければ即通過）
+# 照合は CMD_TEXT と「クォート記号を全削除した写し」の両方に対して行い、どちらかで当たれば対象
+# （rm' '-rf のような空白入りクォートでの分割を塞ぐ。写しは内容を隠す方向に働かない。.workflow 免除は CMD_TEXT で判定）
+MATCH_TEXT="$CMD_TEXT"$'\n'"$(printf '%s' "$CMD_TEXT" | tr -d "'\"")"
 DANGEROUS=0
 # rm の再帰フラグ（-r/-R/--recursive、-rf 等の複合も拾う）
-if printf '%s' "$CMD_TEXT" | grep -qE '(^|[^[:alnum:]_-])rm[[:space:]]+(-[[:alnum:]]*[rR]|--recursive)'; then
+if printf '%s' "$MATCH_TEXT" | grep -qE '(^|[^[:alnum:]_-])rm[[:space:]]+(-[[:alnum:]]*[rR]|--recursive)'; then
   DANGEROUS=1
 # rm のグロブ一括（rm ... * / rm dir/*.png 等）
-elif printf '%s' "$CMD_TEXT" | grep -qE '(^|[^[:alnum:]_-])rm[[:space:]][^;|&]*\*'; then
+elif printf '%s' "$MATCH_TEXT" | grep -qE '(^|[^[:alnum:]_-])rm[[:space:]][^;|&]*\*'; then
   DANGEROUS=1
 # find -delete / git clean / PowerShell Remove-Item -Recurse
-elif printf '%s' "$CMD_TEXT" | grep -qE '(^|[^[:alnum:]_-])find[[:space:]][^;|&]*-delete'; then
+elif printf '%s' "$MATCH_TEXT" | grep -qE '(^|[^[:alnum:]_-])find[[:space:]][^;|&]*-delete'; then
   DANGEROUS=1
-elif printf '%s' "$CMD_TEXT" | grep -qE '(^|[^[:alnum:]_-])git[[:space:]]+clean'; then
+elif printf '%s' "$MATCH_TEXT" | grep -qE '(^|[^[:alnum:]_-])git[[:space:]]+clean'; then
   DANGEROUS=1
-elif printf '%s' "$CMD_TEXT" | grep -qiE 'remove-item[^;|&]*-recurse'; then
+elif printf '%s' "$MATCH_TEXT" | grep -qiE 'remove-item[^;|&]*-recurse'; then
   DANGEROUS=1
 fi
 [ "$DANGEROUS" = "1" ] || exit 0
